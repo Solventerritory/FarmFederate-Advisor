@@ -4,14 +4,14 @@ import json
 import shutil
 import requests
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 import uvicorn
 import torch
 import torch.nn as nn
 import numpy as np
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from transformers import CLIPProcessor, CLIPModel
@@ -22,18 +22,29 @@ ADAPTER_DIR = ROOT / "backend_data" / "federated_llm_adapter"
 CLASSIFIER_DIR = ROOT / "backend_data" / "multimodal_classifier"
 MANIFEST = MODEL_STORE / "manifest.json"
 
-# Blynk config (set via environment variables or edit here)
-BLYNK_TOKEN = os.environ.get("BLYNK_TOKEN", "YOUR_BLYNK_PROJECT_TOKEN")
-BLYNK_HOST = os.environ.get("BLYNK_HOST", "blynk.cloud")
-BLYNK_API_BASE = f"https://{BLYNK_HOST}/external/api"
-
 TELEMETRY_DIR = ROOT / "outputs" / "telemetry"
 TELEMETRY_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="FarmFederate Backend")
+# persistent actions file
+ACTIONS_FILE = ROOT / "outputs" / "device_actions.json"
+# load existing or init empty dict { device_id: { "pin": "V1", "value": 1, "ts": "..." } }
+if ACTIONS_FILE.exists():
+    try:
+        ACTIONS: Dict[str, Dict[str, Any]] = json.loads(ACTIONS_FILE.read_text())
+    except Exception:
+        ACTIONS = {}
+else:
+    ACTIONS = {}
+
+def save_actions():
+    ACTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    ACTIONS_FILE.write_text(json.dumps(ACTIONS, indent=2))
+
+app = FastAPI(title="FarmFederate Backend (no-Blynk)")
 
 CLASSES = ["water_stress","nutrient_def","pest_risk","disease_risk","heat_stress"]
 
+# --- model related code (unchanged from prior) ---
 class FusionHead(nn.Module):
     def __init__(self, projection_dim, num_labels=len(CLASSES)):
         super().__init__()
@@ -130,22 +141,66 @@ def predict_from_sensors(sensor_dict):
     p_heat = 0.2 if temp > 33 else 0.05
     return [p_water, p_nutrient, p_pest, p_disease, p_heat]
 
-def blynk_write_virtual(pin: str, value):
-    if not BLYNK_TOKEN or "YOUR_BLYNK" in BLYNK_TOKEN:
-        raise RuntimeError("BLYNK_TOKEN not set")
-    url = f"{BLYNK_API_BASE}/update/{pin}?value={value}&token={BLYNK_TOKEN}"
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    return {"ok": True}
+# --- Device action endpoints (new) ---
 
-@app.on_event("startup")
-def startup():
-    try:
-        mp, fp, ap, cp = prepare_models()
-        load_models(mp, fp, ap)
-        print("[INFO] Server ready")
-    except Exception as e:
-        print("[WARN] Model load / manifest missing:", e)
+class ActionRequest(BaseModel):
+    device_id: str
+    pin: str   # e.g. "V1" or "relay"
+    value: int # 0/1
+    reason: Optional[str] = None
+
+@app.post("/set_action")
+def set_action(req: ActionRequest):
+    """
+    Called by frontend (or operator) to request a device action.
+    Stored persistently in actions.json until the device polls and acknowledges.
+    """
+    device = req.device_id
+    ACTIONS[device] = {
+        "pin": req.pin,
+        "value": int(req.value),
+        "reason": req.reason or "",
+        "ts": datetime.utcnow().isoformat(),
+        "ack": False
+    }
+    save_actions()
+    return {"ok": True, "queued": ACTIONS[device]}
+
+@app.get("/poll/{device_id}")
+def poll_device(device_id: str):
+    """
+    Called by the ESP32: returns pending action for the device (if any),
+    and does NOT remove it until device calls /ack_action.
+    """
+    action = ACTIONS.get(device_id)
+    if action:
+        return {"action": action}
+    return {"action": None}
+
+class AckRequest(BaseModel):
+    device_id: str
+    success: bool
+    note: Optional[str] = None
+
+@app.post("/ack_action")
+def ack_action(req: AckRequest):
+    """
+    Device acknowledges that it executed (or failed) the action.
+    This clears the queued action.
+    """
+    device = req.device_id
+    if device in ACTIONS:
+        record = ACTIONS.pop(device)
+        save_actions()
+        # store ack record for audit
+        audit_dir = ROOT / "outputs" / "action_acks"
+        audit_dir.mkdir(parents=True, exist_ok=True)
+        fname = audit_dir / f"{device}_{datetime.utcnow().isoformat().replace(':','-')}.json"
+        fname.write_text(json.dumps({"device_id": device, "ack": req.success, "note": req.note, "record": record}, indent=2))
+        return {"ok": True}
+    return {"ok": False, "error": "no action queued for device"}
+
+# --- telemetry & other endpoints ---
 
 @app.post("/telemetry")
 async def receive_telemetry(payload: dict):
@@ -158,9 +213,23 @@ async def receive_telemetry(payload: dict):
     sensor_probs = predict_from_sensors(payload)
     action = {"open_valve": False, "reason": None}
     if sensor_probs[0] > 0.6 and float(payload.get("flow_rate",0)) == 0.0:
+        # auto-queue an action for device to open valve
+        ACTIONS[device] = {"pin": "relay", "value": 1, "reason": "Auto-open due to water_stress", "ts": datetime.utcnow().isoformat(), "ack": False}
+        save_actions()
         action["open_valve"] = True
-        action["reason"] = "High water_stress probability and no flow detected"
+        action["reason"] = "Auto action queued"
     return {"ok": True, "sensor_probs": sensor_probs, "action": action}
+
+@app.get("/telemetry_latest")
+def telemetry_latest(device_id: str):
+    """
+    Return the latest telemetry JSON for a given device_id (or 404).
+    """
+    files = sorted(TELEMETRY_DIR.glob(f"{device_id}_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if not files:
+        return {"device_id": device_id, "latest": None}
+    data = json.loads(files[0].read_text())
+    return {"device_id": device_id, "latest": data}
 
 @app.post("/predict")
 async def predict_endpoint(text: str = Form(""), file: UploadFile = File(None)):
@@ -175,19 +244,6 @@ async def predict_sensors(payload: dict):
     probs = predict_from_sensors(payload)
     return {"classes": CLASSES, "probs": probs}
 
-class ControlRequest(BaseModel):
-    device_id: str
-    pin: str
-    value: int
-
-@app.post("/control")
-def control(req: ControlRequest):
-    try:
-        res = blynk_write_virtual(req.pin, req.value)
-        return {"ok": True, "blynk_res": res}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/manifest")
 def get_manifest():
     if not MANIFEST.exists():
@@ -198,6 +254,15 @@ def get_manifest():
         if isinstance(v,str):
             m[k+"_exists"] = (MODEL_STORE / Path(v).name).exists()
     return m
+
+@app.on_event("startup")
+def startup():
+    try:
+        mp, fp, ap, cp = prepare_models()
+        load_models(mp, fp, ap)
+        print("[INFO] Server ready")
+    except Exception as e:
+        print("[WARN] Model load / manifest missing:", e)
 
 if __name__ == "__main__":
     uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=False)
