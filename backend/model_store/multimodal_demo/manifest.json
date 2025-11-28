@@ -1,0 +1,7 @@
+{
+  "multimodal_model": "REPLACE_WITH_RELEASE_URL/global_multimodal_full.pt",
+  "fusion_checkpoint": "REPLACE_WITH_RELEASE_URL/fusion_epoch0.pt",
+  "adapter": "REPLACE_WITH_RELEASE_URL/global_multimodal_adapter.bin",
+  "classifier": "REPLACE_WITH_RELEASE_URL/multimodal_classifier_model.pt",
+  "notes": "Replace values after uploading artifacts to GitHub Releases or S3/Drive."
+}

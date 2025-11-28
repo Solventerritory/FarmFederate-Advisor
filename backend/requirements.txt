@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+transformers
+torch
+torchvision
+peft
+datasets
+requests
+pydantic
+python-multipart
+Pillow
