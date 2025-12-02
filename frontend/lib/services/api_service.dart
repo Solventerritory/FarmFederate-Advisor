@@ -1,67 +1,82 @@
 // lib/services/api_service.dart
+
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as p;
-import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+
 import '../models/predict_result.dart';
 
 class ApiService {
-  // EDIT this to your backend address reachable from your device/browser
-  // Examples:
-  // - Flutter web (same host): "http://127.0.0.1:8000"
-  // - Android emulator: "http://10.0.2.2:8000"
-  // - Real device: "http://192.168.0.195:8000" (from your logs)
+  /// IMPORTANT: match your FastAPI server address.
+  /// For local desktop/web:
+  ///   "http://127.0.0.1:8000"
+  /// If running on a different machine, use that machine's LAN IP.
   static String baseUrl = "http://127.0.0.1:8000";
 
-  /// Send text + optional sensors + optional image as multipart.
+  /// Send text + optional sensor string + optional image bytes
   static Future<PredictResult> predict({
     required String text,
     String sensors = "",
-    File? imageFile,
-    String clientId = "flutter_client_1",
+    Uint8List? imageBytes,
+    String? imageName,
+    String clientId = "flutter_client",
   }) async {
     final uri = Uri.parse("$baseUrl/predict");
 
-    // If image present -> multipart/form-data
-    if (imageFile != null && await imageFile.exists()) {
-      final request = http.MultipartRequest('POST', uri);
-      request.fields['text'] = text;
-      if (sensors.isNotEmpty) request.fields['sensors'] = sensors;
-      request.fields['client_id'] = clientId;
+    // ---------- CASE 1: multipart (image present) ----------
+    if (imageBytes != null && imageBytes.isNotEmpty) {
+      final req = http.MultipartRequest("POST", uri);
 
-      final mimeType = lookupMimeType(imageFile.path) ?? 'image/jpeg';
-      final parts = mimeType.split('/');
-      final multipartFile = await http.MultipartFile.fromPath(
-        'image',
-        imageFile.path,
-        filename: p.basename(imageFile.path),
-        contentType: MediaType(parts[0], parts.length > 1 ? parts[1] : ''),
+      req.fields["text"] = text;
+      req.fields["client_id"] = clientId;
+      if (sensors.isNotEmpty) {
+        req.fields["sensors"] = sensors;
+      }
+
+      final fname = imageName ?? "upload.jpg";
+      final mime = lookupMimeType(fname) ?? "image/jpeg";
+      final split = mime.split("/");
+
+      req.files.add(
+        http.MultipartFile.fromBytes(
+          "image",
+          imageBytes,
+          filename: fname,
+          contentType: MediaType(
+            split.first,
+            split.length > 1 ? split.last : "jpeg",
+          ),
+        ),
       );
-      request.files.add(multipartFile);
 
-      final streamedResp = await request.send();
-      final resp = await http.Response.fromStream(streamedResp);
+      final streamRes = await req.send();
+      final res = await http.Response.fromStream(streamRes);
 
-      if (resp.statusCode >= 200 && resp.statusCode < 300) {
-        return PredictResult.fromJson(json.decode(resp.body));
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return PredictResult.fromJson(json.decode(res.body));
       } else {
-        throw Exception('Server error: ${resp.statusCode} ${resp.body}');
+        throw Exception("Server error: ${res.statusCode} ${res.body}");
       }
     }
 
-    // No image: use JSON
-    final resp = await http.post(
+    // ---------- CASE 2: JSON-only (no image) ----------
+    final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'text': text, 'sensors': sensors, 'client_id': clientId}),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "text": text,
+        "client_id": clientId,
+        "sensors": sensors,
+      }),
     );
 
-    if (resp.statusCode >= 200 && resp.statusCode < 300) {
-      return PredictResult.fromJson(json.decode(resp.body));
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return PredictResult.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Server error: ${resp.statusCode} ${resp.body}');
+      throw Exception("Server error: ${response.statusCode} ${response.body}");
     }
   }
 }

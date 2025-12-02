@@ -1,20 +1,19 @@
-﻿name: farm_federate_flutter
-description: Multimodal Crop Stress Detection — Chat + Image frontend
+﻿name: farmfederate_frontend
+description: FarmFederate Advisor Chat
+
 publish_to: "none"
-version: 0.0.1
 
 environment:
-  sdk: ">=2.18.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  http: ^0.13.6
-  image_picker: ^0.8.7+4
-  path: ^1.8.2
-  http_parser: ^4.0.0
-  provider: ^6.0.5
+
+  http: ^1.1.0
+  mime: ^1.0.5
+  http_parser: ^4.0.2
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:

@@ -1,28 +1,25 @@
-﻿import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'widgets/chat_screen.dart';
-import 'services/chat_state.dart';
+﻿// lib/main.dart
+
+import 'package:flutter/material.dart';
+import 'screens/chat_screen.dart';
 
 void main() {
   runApp(const FarmFederateApp());
 }
 
 class FarmFederateApp extends StatelessWidget {
-  const FarmFederateApp({Key? key}) : super(key: key);
+  const FarmFederateApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ChatState(),
-      child: MaterialApp(
-        title: 'FarmFederate Chat',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          scaffoldBackgroundColor: Colors.grey[50],
-        ),
-        home: const ChatScreen(),
+    return MaterialApp(
+      title: 'FarmFederate Advisor',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        useMaterial3: true,
       ),
+      home: const ChatScreen(),
     );
   }
 }
