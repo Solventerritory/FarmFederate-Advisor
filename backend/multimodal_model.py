@@ -1,116 +1,101 @@
-# multimodal_model.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Multimodal model: RoBERTa (text) + ViT (image) + late-fusion head.
-Text model uses PEFT/LoRA adapters for federated updates.
-Image model: small classifier head; we keep base frozen (optionally fine-tunable).
+multimodal_model.py — Roberta + ViT multimodal classifier for crop stress.
+
+- Text encoder: roberta-base
+- Image encoder: google/vit-base-patch16-224-in21k
+- Projection of both to 256-d, concat → 512-d → MLP → 5 labels
+
+This matches the architecture used in train_fed_multimodal.py (text+image
+dataset). Checkpoints from that script can be loaded into this class.
 """
+
+from typing import Optional
 
 import torch
-import torch.nn as nn
-from transformers import AutoModel, AutoTokenizer, AutoModelForSequenceClassification, ViTModel, ViTConfig, ViTFeatureExtractor
-from peft import LoraConfig, get_peft_model, get_peft_model_state_dict, set_peft_model_state_dict
+from torch import nn
 
-TEXT_MODEL_NAME = "roberta-base"
-IMAGE_MODEL_NAME = "google/vit-base-patch16-224-in21k"
+from transformers import AutoModel, AutoTokenizer
+from transformers import ViTModel, AutoImageProcessor
 
-NUM_LABELS = 5
+
 ISSUE_LABELS = ["water_stress", "nutrient_def", "pest_risk", "disease_risk", "heat_stress"]
+NUM_LABELS = len(ISSUE_LABELS)
+
 
 class MultimodalClassifier(nn.Module):
-    def __init__(self,
-                 text_model_name=TEXT_MODEL_NAME,
-                 image_model_name=IMAGE_MODEL_NAME,
-                 text_embed_dim=768,
-                 image_embed_dim=768,
-                 fusion_hidden=512,
-                 use_lora=True,
-                 lora_r=8, lora_alpha=32, lora_dropout=0.05,
-                 freeze_backbones=True):
+    def __init__(
+        self,
+        text_model_name: str = "roberta-base",
+        image_model_name: str = "google/vit-base-patch16-224-in21k",
+        num_labels: int = NUM_LABELS,
+        freeze_backbones: bool = False,
+    ):
         super().__init__()
-        # Text backbone (Roberta)
-        self.tokenizer = AutoTokenizer.from_pretrained(text_model_name)
+
+        # ----- backbones -----
         self.text_backbone = AutoModel.from_pretrained(text_model_name)
-        # create a simple pooling to get fixed vector
-        self.text_pool = lambda outputs: outputs.last_hidden_state[:,0,:]  # rob_roberta[CLS] token pool
-
-        # apply LoRA onto text backbone (target query/key/value / dense)
-        self.use_lora = use_lora
-        if use_lora:
-            lcfg = LoraConfig(
-                r=lora_r, lora_alpha=lora_alpha, lora_dropout=lora_dropout,
-                bias="none", task_type="SEQ_CLS"
-            )
-            # Wrap the AutoModel with PEFT (this will add adapter weights we can extract for FedAvg)
-            self.text_backbone = get_peft_model(self.text_backbone, lcfg)
-
-        # Image backbone (ViT)
-        self.image_processor = ViTFeatureExtractor.from_pretrained(image_model_name)
         self.image_backbone = ViTModel.from_pretrained(image_model_name)
 
-        # optionally freeze backbones
         if freeze_backbones:
             for p in self.text_backbone.parameters():
                 p.requires_grad = False
             for p in self.image_backbone.parameters():
                 p.requires_grad = False
 
-        # projection heads (if necessary)
-        self.text_proj = nn.Linear(text_embed_dim, fusion_hidden)
-        self.image_proj = nn.Linear(image_embed_dim, fusion_hidden)
+        hidden_t = self.text_backbone.config.hidden_size
+        hidden_i = self.image_backbone.config.hidden_size
 
-        # fusion + final classifier
+        # ----- projections -----
+        self.text_proj = nn.Linear(hidden_t, 256)
+        self.image_proj = nn.Linear(hidden_i, 256)
+
+        # ----- fusion head -----
         self.fusion = nn.Sequential(
-            nn.Linear(fusion_hidden * 2, fusion_hidden),
+            nn.Linear(256 * 2, 512),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(fusion_hidden, NUM_LABELS)
+            nn.Dropout(0.1),
+            nn.Linear(512, num_labels),
         )
 
-    def forward(self, input_ids=None, attention_mask=None, pixel_values=None):
-        # text path
-        t_vec = None
-        if input_ids is not None:
-            t_out = self.text_backbone(input_ids=input_ids, attention_mask=attention_mask)
-            t_pool = self.text_pool(t_out)
-            t_vec = self.text_proj(t_pool)
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        pixel_values: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Args
+        ----
+        input_ids:     [B, L]
+        attention_mask:[B, L]
+        pixel_values:  [B, 3, H, W]
 
-        # image path
-        i_vec = None
-        if pixel_values is not None:
-            i_out = self.image_backbone(pixel_values=pixel_values)
-            # pool: take [CLS]
-            i_pool = i_out.last_hidden_state[:, 0, :]
-            i_vec = self.image_proj(i_pool)
+        Returns
+        -------
+        logits: [B, num_labels]
+        """
+        # Roberta CLS
+        t_out = self.text_backbone(input_ids=input_ids, attention_mask=attention_mask)
+        t_cls = t_out.last_hidden_state[:, 0]  # [B, Ht]
 
-        # if one modality missing, still allow predictions
-        if t_vec is None:
-            fused = torch.cat([torch.zeros_like(i_vec), i_vec], dim=1)
-        elif i_vec is None:
-            fused = torch.cat([t_vec, torch.zeros_like(t_vec)], dim=1)
-        else:
-            fused = torch.cat([t_vec, i_vec], dim=1)
+        # ViT CLS
+        i_out = self.image_backbone(pixel_values=pixel_values)
+        i_cls = i_out.last_hidden_state[:, 0]  # [B, Hi]
 
+        t_feat = self.text_proj(t_cls)
+        i_feat = self.image_proj(i_cls)
+
+        fused = torch.cat([t_feat, i_feat], dim=-1)
         logits = self.fusion(fused)
         return logits
 
-# helpers for adapter saving/loading
-def get_text_adapter_state_dict(model: MultimodalClassifier):
-    # returns peft state for text backbone if present
-    try:
-        sd = get_peft_model_state_dict(model.text_backbone)
-        return sd
-    except Exception:
-        return {}
 
-def set_text_adapter_state_dict(model: MultimodalClassifier, state_dict):
-    try:
-        set_peft_model_state_dict(model.text_backbone, state_dict)
-    except Exception:
-        # if not peft model, ignore
-        pass
+def build_tokenizer(model_name: str = "roberta-base"):
+    return AutoTokenizer.from_pretrained(model_name)
 
-def get_image_head_state_dict(model: MultimodalClassifier):
-    return {k:v.cpu() for k,v in model.image_proj.state_dict().items()}
 
-def set_image_head_state_dict(model: MultimodalClassifier, state_dict):
-    model.image_proj.load_state_dict(state_dict)
+def build_image_processor(model_name: str = "google/vit-base-patch16-224-in21k"):
+    return AutoImageProcessor.from_pretrained(model_name)
