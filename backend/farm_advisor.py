@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-farm_advisor_full.py — Combined multimodal federated LoRA crop-stress detector.
+farm_advisor_multimodal.py
 
-This copy includes a compatibility layer so missing/incompatible `peft` won't
-cause an ImportError at import time. If `peft` is present and compatible it will
-be used; otherwise the script runs with no-op LoRA stubs (model training will
-use the base model without adapter parameters).
+Multimodal federated LoRA crop-stress detector (text + images).
+Integrates HF image datasets: PlantVillage (community variants), PlantDoc, Cassava (HF mirrors).
+Best-effort image download + multimodal training with LoRA on text encoder and linear probe on vision.
 """
-import os, re, math, time, gc, random, argparse, hashlib, json, shutil, sys
+
+import os
+import re
+import math
+import time
+import gc
+import random
+import argparse
+import hashlib
+import json
+import shutil
 from typing import List, Dict, Tuple, Optional
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,38 +30,39 @@ from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score
 
-# Repro
+# reproducibility
 SEED = 123
 random.seed(SEED); np.random.seed(SEED); torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Optional HF datasets
+# optional HF tools
 try:
-    from datasets import load_dataset, DownloadConfig, Dataset as HFDataset
+    from datasets import load_dataset, DownloadConfig
     HAS_DATASETS = True
 except Exception:
     HAS_DATASETS = False
 
-from transformers import (
-    AutoTokenizer,
-    AutoModelForSequenceClassification,
-    AutoModel,
-    ViTModel,
-    get_linear_schedule_with_warmup,
-)
-# quiet transformers logs
+# transformers
 try:
-    from transformers import logging as hf_logging
-    hf_logging.set_verbosity_error()
-except Exception:
-    pass
+    from transformers import (
+        AutoTokenizer,
+        AutoModelForSequenceClassification,
+        AutoModel,
+        ViTModel,
+        get_linear_schedule_with_warmup,
+    )
+    # quiet transformers logs where possible
+    try:
+        from transformers import logging as hf_logging
+        hf_logging.set_verbosity_error()
+    except Exception:
+        pass
+except Exception as e:
+    raise RuntimeError(f"transformers import failed: {e}. Install a recent 'transformers' package (>=4.30 recommended).")
 
-# --------------------- PEFT / LoRA compatibility layer ---------------------
-# Try to import peft. If import fails (common when transformers/peft mismatch),
-# provide safe fallbacks so the script remains runnable (no LoRA behavior).
-USE_PEFT = False
+# PEFT / LoRA - required for adapter training. If missing, instruct user.
 try:
     from peft import (
         LoraConfig,
@@ -59,48 +70,11 @@ try:
         get_peft_model_state_dict,
         set_peft_model_state_dict,
     )
-    USE_PEFT = True
-except Exception as e:
-    # Provide stubs / light-weight fallbacks so code using these functions still runs.
-    # These fallback implementations *do not* implement LoRA; they simply pass through.
-    class LoraConfig:
-        def __init__(self, *args, **kwargs):
-            # keep fields used by code, if necessary
-            self.r = kwargs.get("r", kwargs.get("lora_r", 0))
-            self.lora_alpha = kwargs.get("lora_alpha", None)
-            self.lora_dropout = kwargs.get("lora_dropout", None)
-            self.bias = kwargs.get("bias", "none")
-            self.task_type = kwargs.get("task_type", "SEQ_CLS")
-            self.target_modules = kwargs.get("target_modules", None)
-    def get_peft_model(model, lora_config):
-        # No-op: return model unchanged
-        return model
-    def get_peft_model_state_dict(model):
-        # If the model has a .named_parameters or state_dict, return state_dict
-        try:
-            return {k: v.detach().cpu() for k,v in model.state_dict().items()}
-        except Exception:
-            # fallback empty
-            return {}
-    def set_peft_model_state_dict(model, sd):
-        # Attempt to load state dict (non-strict)
-        try:
-            model.load_state_dict(sd, strict=False)
-        except Exception:
-            # best-effort: update matching keys
-            try:
-                cur = model.state_dict()
-                for k,v in sd.items():
-                    if k in cur and isinstance(v, torch.Tensor):
-                        cur[k].copy_(v)
-            except Exception:
-                pass
+    HAS_PEFT = True
+except Exception:
+    HAS_PEFT = False
 
-    # Informational
-    print("[Warn] 'peft' library not available or failed to import. Running without LoRA adapters.")
-    print(f"[Warn] peft import error: {e}")
-
-# vision preprocessing
+# vision preprocessing & utils
 from PIL import Image
 import torchvision.transforms as T
 import requests
@@ -124,7 +98,7 @@ def get_args():
     ap.add_argument("--extra_csv", type=str, default="")
     ap.add_argument("--use_images", action="store_true", help="enable image inputs alongside text")
     ap.add_argument("--image_dir", type=str, default="images", help="root dir for images (download + local)")
-    ap.add_argument("--image_csv", type=str, default="", help="CSV with columns filename,text,labels")
+    ap.add_argument("--image_csv", type=str, default="", help="CSV with columns filename,text,labels (user-provided)")
     ap.add_argument("--img_size", type=int, default=224)
     ap.add_argument("--vit_name", type=str, default="google/vit-base-patch16-224-in21k", help="HF ViT model name")
     ap.add_argument("--freeze_vision", action="store_true", help="freeze vision backbone")
@@ -158,7 +132,7 @@ def get_args():
     # Logging / run
     ap.add_argument("--cap_metric_print_at", type=float, default=0.999)
     ap.add_argument("--quiet_eval", action="store_true")
-    ap.add_argument("--save_dir", type=str, default="checkpoints_paper")
+    ap.add_argument("--save_dir", type=str, default="checkpoints_multimodal")
     ap.add_argument("--inference", action="store_true")
     ap.add_argument("--query", type=str, default="")
     ap.add_argument("--sensors", type=str, default="")
@@ -198,7 +172,7 @@ def _norm(txt: str) -> str: return re.sub(r"\s+", " ", txt).strip()
 # --------------------- Weak labels + ag gate ---------------------
 KW = {
     "water": ["dry","wilting","wilt","parched","drought","moisture","irrigation","canopy stress","water stress","droop","cracking soil","hard crust","soil moisture low"],
-    "nutrient": ["nitrogen","phosphorus","potassium","npk","fertilizer","fertiliser","chlorosis","chlorotic","interveinal","leaf color chart","lcc","low spad","spad","low spad","older leaves yellowing","necrotic margin","micronutrient","deficiency"],
+    "nutrient": ["nitrogen","phosphorus","potassium","npk","fertilizer","fertiliser","chlorosis","chlorotic","interveinal","leaf color chart","lcc","spad","low spad","older leaves yellowing","necrotic margin","micronutrient","deficiency"],
     "pest": ["pest","aphid","whitefly","borer","hopper","weevil","caterpillar","larvae","thrips","mites","trap","sticky residue","honeydew","chewed","webbing","frass","insect"],
     "disease": ["blight","rust","mildew","smut","rot","leaf spot","necrosis","pathogen","fungal","bacterial","viral","lesion","mosaic","wilt disease","canker","powdery mildew","downy"],
     "heat": ["heatwave","hot","scorch","sunburn","thermal stress","high temperature","blistering","desiccation","sun scorch","leaf burn","heat stress"],
@@ -283,7 +257,7 @@ def apply_priors_to_logits(logits: torch.Tensor, texts: Optional[List[str]]) -> 
     biases = [torch.tensor(sensor_priors(t), dtype=logits.dtype, device=logits.device) for t in texts]
     return logits + ARGS.prior_scale * torch.stack(biases, dim=0)
 
-# --------------------- Synthetic + dataset builders ---------------------
+# --------------------- Synthetic + dataset builders (text only) ---------------------
 LOCAL_BASE = [
     "Maize leaves show interveinal chlorosis and older leaves are yellowing after light rains.",
     "Tomato plants have whiteflies; sticky residue under leaves; some curling.",
@@ -325,28 +299,11 @@ def _maybe_read_mqtt(mqtt_csv:str):
 
 def make_balanced_local(n_per=300, n_per_nutrient=600):
     seeds = {
-        "water_stress": [
-            "Topsoil is cracking and leaves droop at midday; irrigation uneven.",
-            "Canopy stress at noon; mulch missing; dry beds observed."
-        ],
-        "nutrient_def": [
-            "Interveinal chlorosis on older leaves suggests nitrogen deficiency.",
-            "Marginal necrosis indicates potassium shortfall.",
-            "Leaf Color Chart shows low score; possible N deficiency.",
-            "SPAD readings are low on older leaves; fertilization overdue."
-        ],
-        "pest_risk": [
-            "Aphids and honeydew on undersides; sticky traps catching many.",
-            "Chewed margins and frass; small caterpillars on leaves."
-        ],
-        "disease_risk": [
-            "Orange pustules indicate rust; humid mornings; leaf spots spreading.",
-            "Powdery mildew on lower canopy; poor airflow in dense rows."
-        ],
-        "heat_stress": [
-            "Sun scorch on exposed leaves during heatwave; leaf edges crisping.",
-            "High temperature window causing thermal stress around midday."
-        ],
+        "water_stress": ["Topsoil is cracking and leaves droop at midday; irrigation uneven.","Canopy stress at noon; mulch missing; dry beds observed."],
+        "nutrient_def": ["Interveinal chlorosis on older leaves suggests nitrogen deficiency.","Marginal necrosis indicates potassium shortfall.","Leaf Color Chart shows low score; possible N deficiency.","SPAD readings are low on older leaves; fertilization overdue."],
+        "pest_risk": ["Aphids and honeydew on undersides; sticky traps catching many.","Chewed margins and frass; small caterpillars on leaves."],
+        "disease_risk": ["Orange pustules indicate rust; humid mornings; leaf spots spreading.","Powdery mildew on lower canopy; poor airflow in dense rows."],
+        "heat_stress": ["Sun scorch on exposed leaves during heatwave; leaf edges crisping.","High temperature window causing thermal stress around midday."],
     }
     out=[]
     for k, lst in seeds.items():
@@ -388,10 +345,19 @@ def build_localmini(max_samples:int=0, mqtt_csv:str="", extra_csv:str="") -> pd.
         df = df.sample(max_samples, random_state=SEED).reset_index(drop=True)
     return df
 
-# --------------------- HF dataset helpers (image download best-effort) ---------------------
+# --------------------- HF image dataset autoretrieval (PlantVillage, PlantDoc, Cassava) ---------------------
+# Known community dataset ids (best-effort). These may change over time; adjust --mix_sources accordingly.
+HF_IMAGE_CANDIDATES = [
+    "BrandonFors/Plant-Diseases-PlantVillage-Dataset",
+    "GVJahnavi/PlantVillage_dataset",
+    "agyaatcoder/PlantDoc",
+    "pufanyi/cassava-leaf-disease-classification",
+    # alternative PlantDoc mirrors: "susnato/plant_disease_detection_processed", "ButterChicken98/plantvillage-image-text-pairs"
+]
+
 def _load_ds(name, split=None, streaming=False):
     if not HAS_DATASETS:
-        raise RuntimeError("datasets lib not available")
+        raise RuntimeError("datasets lib not available; install via `pip install datasets`")
     token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
     dlconf = DownloadConfig(max_retries=3)
     kw = {"streaming": streaming, "download_config": dlconf}
@@ -400,12 +366,266 @@ def _load_ds(name, split=None, streaming=False):
         try:
             return load_dataset(name, split=split, **kw) if split else load_dataset(name, **kw)
         except Exception as e:
+            # common transient errors -> try streaming
             if any(x in str(e) for x in ["429","Read timed out","504","Temporary failure","Connection"]):
                 time.sleep(min(60, 1.5*(2**attempt))); kw["streaming"]=True; continue
             raise
-    kw["streaming"]=True
-    return load_dataset(name, split=split, **kw)
 
+def _download_image(url: str, dst_path: str, timeout=12) -> bool:
+    try:
+        resp = requests.get(url, timeout=timeout)
+        resp.raise_for_status()
+        im = Image.open(BytesIO(resp.content)).convert("RGB")
+        im.save(dst_path, format="JPEG", quality=90)
+        return True
+    except Exception:
+        return False
+
+def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) -> pd.DataFrame:
+    """
+    Try to load HF dataset and find image fields (image, image_url, img_url).
+    Returns DataFrame columns: text, labels, image_path
+    Best-effort: looks for fields named 'image', 'image_url', 'img_url', 'photo', or nested dicts with 'path'/'url'.
+    """
+    rows=[]
+    if not HAS_DATASETS:
+        print("[Images] datasets lib not available; skipping HF image download.")
+        return pd.DataFrame(rows, columns=["text","labels","image_path"])
+    try:
+        ds = _load_ds(dataset_name, streaming=True)
+    except Exception as e:
+        print(f"[Images] failed to load {dataset_name}: {e}")
+        return pd.DataFrame(rows, columns=["text","labels","image_path"])
+
+    print(f"[Images] Scanning {dataset_name} for image fields (<= {max_items}) ...")
+    cnt=0
+    # iterate records; handles streaming or normal dataset objects
+    iterator = None
+    if isinstance(ds, dict):
+        # datasets like dict of splits
+        def _iter_all():
+            for sp in ds:
+                for r in ds[sp]:
+                    yield r
+        iterator = _iter_all()
+    else:
+        iterator = iter(ds)
+
+    for rec in iterator:
+        if cnt >= max_items: break
+        # find textual field(s)
+        text_candidates = []
+        for k in ("text","caption","sentence","report","content","label","labels","description"):
+            if k in rec:
+                text_candidates.append(rec.get(k,""))
+        raw_text = ""
+        if text_candidates:
+            for t in text_candidates:
+                if isinstance(t, list) and len(t)>0:
+                    raw_text = str(t[0]); break
+                elif isinstance(t, str) and t.strip():
+                    raw_text = str(t); break
+
+        # find image field
+        img_field = None
+        for k in rec.keys():
+            if "image" in k.lower() or "img" in k.lower() or "photo" in k.lower():
+                img_field = k; break
+
+        if img_field is None:
+            # try to find nested 'image' in features
+            # skip if can't find
+            continue
+
+        img_val = rec.get(img_field)
+        local_fname = None
+        try:
+            if isinstance(img_val, dict) and "path" in img_val:
+                p = img_val.get("path")
+                if p and os.path.exists(p):
+                    local_fname = os.path.join(image_dir, os.path.basename(p))
+                    shutil.copyfile(p, local_fname)
+                else:
+                    url = img_val.get("url") or img_val.get("img_url") or img_val.get("image_url")
+                    if url:
+                        local_fname = os.path.join(image_dir, f"{dataset_name.replace('/','_')}_{cnt}.jpg")
+                        ok = _download_image(url, local_fname)
+                        if not ok:
+                            local_fname = None
+            elif isinstance(img_val, str):
+                if img_val.startswith("http"):
+                    local_fname = os.path.join(image_dir, f"{dataset_name.replace('/','_')}_{cnt}.jpg")
+                    ok = _download_image(img_val, local_fname)
+                    if not ok:
+                        local_fname = None
+                else:
+                    if os.path.exists(img_val):
+                        local_fname = os.path.join(image_dir, os.path.basename(img_val))
+                        shutil.copyfile(img_val, local_fname)
+            elif hasattr(img_val, "to_pil") or isinstance(img_val, Image.Image):
+                local_fname = os.path.join(image_dir, f"{dataset_name.replace('/','_')}_{cnt}.jpg")
+                if isinstance(img_val, Image.Image):
+                    img_val.convert("RGB").save(local_fname, format="JPEG", quality=90)
+                else:
+                    try:
+                        pil = img_val.to_pil()
+                        pil.convert("RGB").save(local_fname, format="JPEG", quality=90)
+                    except Exception:
+                        local_fname = None
+            elif isinstance(img_val, list) and len(img_val)>0 and isinstance(img_val[0], str) and img_val[0].startswith("http"):
+                # list of urls
+                url = img_val[0]
+                local_fname = os.path.join(image_dir, f"{dataset_name.replace('/','_')}_{cnt}.jpg")
+                ok = _download_image(url, local_fname)
+                if not ok: local_fname = None
+        except Exception:
+            local_fname = None
+
+        if not local_fname:
+            continue
+
+        # form text and weak labels
+        txt = fuse_text(simulate_sensor_summary(), str(raw_text or ""))
+        labs = weak_labels(txt)
+        if not labs:
+            # try a fallback: use rec.get("label") if present to map disease->weak label heuristically
+            # This is optional; skip if no weak labels
+            continue
+        rows.append((txt, labs, os.path.basename(local_fname)))
+        cnt += 1
+
+    df = pd.DataFrame(rows, columns=["text","labels","image_path"])
+    print(f"[Images] prepared {len(df)} items from {dataset_name}")
+    return df
+
+# --------------------- MIX builder (supports HF image auto-prep) ---------------------
+def build_mix(max_per_source:int, mqtt_csv:str, extra_csv:str) -> pd.DataFrame:
+    sources = [s.strip().lower() for s in ARGS.mix_sources.split(",") if s.strip()]
+    pool=[]
+    def try_source(name, fn):
+        print(f"[Mix] Loading {name} (<= {max_per_source}) ...")
+        try:
+            raw = fn(max_per_source)
+            pool.extend([(name, t) for t in raw])
+            print(f"[Mix] {name} added {len(raw)}")
+        except Exception as e:
+            print(f"[Mix] {name} skipped: {e}")
+    if "gardian" in sources and HAS_DATASETS:
+        try_source("gardian", lambda n: build_gardian_stream(n))
+    if "argilla" in sources and HAS_DATASETS:
+        try_source("argilla", lambda n: build_argilla_stream(n))
+    if "agnews" in sources and HAS_DATASETS:
+        try_source("agnews", lambda n: build_agnews_agri(n))
+    if "localmini" in sources:
+        lm_df = build_localmini(max_per_source, mqtt_csv, extra_csv)
+        for t, _ in lm_df[["text","labels"]].itertuples(index=False):
+            pool.append(("localmini", t))
+
+    # dedup & fuse
+    seen=set(); dedup=[]
+    for src, txt in pool:
+        h = hashlib.sha1(_norm(txt).encode("utf-8","ignore")).hexdigest()
+        if h not in seen:
+            seen.add(h); dedup.append((src, _norm(txt)))
+
+    rows=[]
+    for src, raw in dedup:
+        sensor = simulate_sensor_summary()
+        text = fuse_text(sensor, raw)
+        labs = weak_labels(text)
+        if labs: rows.append((text, labs, src))
+    df = pd.DataFrame(rows, columns=["text","labels","source"])
+    print("[Mix] Source breakdown:\n", df["source"].value_counts())
+    return df[["text","labels"]]
+
+# --------------------- Image CSV builder (preferred for user-provided multimodal) ---------------------
+def build_corpus_with_images(image_csv:str, image_root:str="", max_samples:int=0) -> pd.DataFrame:
+    if not os.path.exists(image_csv):
+        raise RuntimeError(f"image_csv not found: {image_csv}")
+    df_raw = pd.read_csv(image_csv)
+    rows=[]
+    for _, r in df_raw.iterrows():
+        text = str(r.get("text","")).strip()
+        fname = str(r.get("filename","") or r.get("image_path","")).strip()
+        labs_raw = r.get("labels","")
+        if pd.isna(labs_raw) or str(labs_raw).strip()=="":
+            labs=[]
+        elif isinstance(labs_raw, str):
+            parts=[x.strip() for x in labs_raw.split(",") if x.strip()]
+            labs=[]
+            for p in parts:
+                if p.isdigit(): labs.append(int(p))
+                elif p in LABEL_TO_ID: labs.append(LABEL_TO_ID[p])
+            labs = sorted(set(labs))
+        elif isinstance(labs_raw, (list,tuple)):
+            labs=list(labs_raw)
+        else:
+            labs=[]
+        if not labs: continue
+        txt = fuse_text(simulate_sensor_summary(), text)
+        rows.append((txt, labs, fname))
+    out = pd.DataFrame(rows, columns=["text","labels","image_path"])
+    if max_samples and len(out) > max_samples:
+        out = out.sample(max_samples, random_state=SEED).reset_index(drop=True)
+    return out
+
+# --------------------- Build corpus (supports auto image harvesting) ---------------------
+def build_corpus() -> pd.DataFrame:
+    # If explicit image csv and use_images -> prefer that (user-specified)
+    if ARGS.use_images and ARGS.image_csv and os.path.exists(ARGS.image_csv):
+        print("[Build] Using provided image_csv for multimodal corpus.")
+        return build_corpus_with_images(ARGS.image_csv, ARGS.image_dir, max_samples=ARGS.max_samples)
+
+    # If user requested use_images and dataset is 'hf_images', attempt HF image harvest
+    if ARGS.use_images and ARGS.dataset == "hf_images":
+        out_parts=[]
+        for src in HF_IMAGE_CANDIDATES:
+            try:
+                dfp = prepare_images_from_hf(src, ARGS.max_per_source, ARGS.image_dir)
+                if len(dfp)>0:
+                    out_parts.append(dfp)
+            except Exception as e:
+                print(f"[Images] error preparing {src}: {e}")
+        if out_parts:
+            df_full = pd.concat(out_parts, ignore_index=True)
+            if ARGS.max_samples and len(df_full) > ARGS.max_samples:
+                df_full = df_full.sample(ARGS.max_samples, random_state=SEED).reset_index(drop=True)
+            print(f"[Build] final multimodal size: {len(df_full)}")
+            return df_full
+
+    # Fall back to text-only mix pipeline (same as before)
+    if ARGS.dataset=="mix":
+        print("[Dataset] MIX:", ARGS.mix_sources)
+        df = build_mix(ARGS.max_per_source, ARGS.mqtt_csv, ARGS.extra_csv)
+    elif ARGS.dataset=="localmini":
+        df = build_localmini(ARGS.max_samples or 0, ARGS.mqtt_csv, ARGS.extra_csv)
+    else:
+        # gardian/argilla/agnews branches if datasets available
+        if ARGS.dataset=="gardian" and HAS_DATASETS:
+            raws = build_gardian_stream(ARGS.max_per_source); rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
+            df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
+        elif ARGS.dataset=="argilla" and HAS_DATASETS:
+            raws = build_argilla_stream(ARGS.max_per_source); rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
+            df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
+        else:
+            raws = build_agnews_agri(ARGS.max_per_source) if HAS_DATASETS else []
+            rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
+            df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
+
+    summarize_labels(df, "pre-oversample")
+    df = apply_label_noise(df, ARGS.label_noise)
+    # Add a few OOD negatives
+    ood = ["City council discussed budget allocations for public transport.","The software team published patch notes for the new release.","The arts festival announced its opening night lineup."]
+    for t in ood:
+        df.loc[len(df)] = [fuse_text(simulate_sensor_summary(), t), []]
+    if ARGS.max_samples and len(df)>ARGS.max_samples:
+        df = df.sample(ARGS.max_samples, random_state=SEED)
+    df = df.sample(frac=1.0, random_state=SEED).reset_index(drop=True)
+    print(f"[Build] final size (text-only): {len(df)}")
+    if len(df)==0: raise RuntimeError("Empty dataset after filtering. Include localmini or lower caps.")
+    return df
+
+# --------------------- HF helpers for text datasets (gardian/argilla/agnews), reused ---------------------
 AGRI_RE = re.compile(r"\b(agri|agriculture|farm|farmer|farming|crop|soil|harvest|irrigat|pest|blight|drought|yield|wheat|rice|paddy|maize|soy|cotton|fertiliz|orchard|greenhouse|horticul)\b", re.I)
 NON_AG_NOISE = re.compile(r"\b(NFL|NBA|MLB|NHL|tennis|golf|soccer|cricket|stocks?|Nasdaq|Dow Jones|earnings|IPO|merger|Hollywood|movie|music|concert)\b", re.I)
 
@@ -446,228 +666,9 @@ def build_agnews_agri(max_per:int=2000) -> List[str]:
             if seen >= max_per: break
     return texts
 
-# --------------------- Auto-download image datasets (best-effort) ---------------------
-def _download_image(url: str, dst_path: str, timeout=10) -> bool:
-    try:
-        resp = requests.get(url, timeout=timeout)
-        resp.raise_for_status()
-        im = Image.open(BytesIO(resp.content)).convert("RGB")
-        im.save(dst_path, format="JPEG", quality=90)
-        return True
-    except Exception:
-        return False
+# --------------------- Image-CSV builder (user-provided multimodal) included earlier as build_corpus_with_images ---------------------
 
-def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) -> pd.DataFrame:
-    rows=[]
-    if not HAS_DATASETS:
-        print("[Images] datasets lib not available; skipping HF image download.")
-        return pd.DataFrame(rows, columns=["text","labels","image_path"])
-    try:
-        ds = _load_ds(dataset_name, streaming=True)
-    except Exception as e:
-        print(f"[Images] failed to load {dataset_name}: {e}")
-        return pd.DataFrame(rows, columns=["text","labels","image_path"])
-
-    print(f"[Images] Scanning {dataset_name} for image fields (<= {max_items}) ...")
-    cnt=0
-    for rec in (ds if not isinstance(ds, dict) else (r for sp in ds for r in ds[sp])):
-        if cnt>=max_items: break
-        # find text-like field
-        text_candidates = [rec.get(k,"") for k in ("text","caption","sentence","report","content") if k in rec]
-        raw_text = ""
-        if isinstance(text_candidates, list) and len(text_candidates)>0:
-            raw_text = str(next((t for t in text_candidates if t), ""))
-
-        # find image field
-        img_field = None
-        for k in rec.keys():
-            if "image" in k.lower() or "img" in k.lower() or "photo" in k.lower():
-                img_field = k; break
-        if img_field is None:
-            continue
-
-        img_val = rec.get(img_field)
-        local_fname = None
-        if isinstance(img_val, dict) and "path" in img_val:
-            try:
-                p = img_val.get("path")
-                if p and os.path.exists(p):
-                    local_fname = os.path.join(image_dir, os.path.basename(p))
-                    shutil.copyfile(p, local_fname)
-                else:
-                    url = img_val.get("url") or img_val.get("img_url") or img_val.get("image_url")
-                    if url:
-                        local_fname = os.path.join(image_dir, f"{dataset_name}_{cnt}.jpg")
-                        ok = _download_image(url, local_fname)
-                        if not ok:
-                            local_fname = None
-            except Exception:
-                local_fname=None
-        elif isinstance(img_val, str):
-            if img_val.startswith("http"):
-                local_fname = os.path.join(image_dir, f"{dataset_name}_{cnt}.jpg")
-                ok = _download_image(img_val, local_fname)
-                if not ok:
-                    local_fname = None
-            else:
-                if os.path.exists(img_val):
-                    local_fname = os.path.join(image_dir, os.path.basename(img_val))
-                    shutil.copyfile(img_val, local_fname)
-        elif hasattr(img_val, "to_pil") or isinstance(img_val, Image.Image):
-            try:
-                local_fname = os.path.join(image_dir, f"{dataset_name}_{cnt}.jpg")
-                if isinstance(img_val, Image.Image):
-                    img_val.convert("RGB").save(local_fname, format="JPEG", quality=90)
-                else:
-                    pil = img_val.to_pil()
-                    pil.convert("RGB").save(local_fname, format="JPEG", quality=90)
-            except Exception:
-                local_fname = None
-
-        if not local_fname:
-            continue
-
-        txt = fuse_text(simulate_sensor_summary(), str(raw_text or ""))
-        labs = weak_labels(txt)
-        if not labs:
-            continue
-        rows.append((txt, labs, os.path.basename(local_fname)))
-        cnt += 1
-
-    df = pd.DataFrame(rows, columns=["text","labels","image_path"])
-    print(f"[Images] prepared {len(df)} items from {dataset_name}")
-    return df
-
-# --------------------- MIX builder (now supports HF image auto-prep) ---------------------
-def build_mix(max_per_source:int, mqtt_csv:str, extra_csv:str) -> pd.DataFrame:
-    sources = [s.strip().lower() for s in ARGS.mix_sources.split(",") if s.strip()]
-    pool=[]
-    def try_source(name, fn):
-        print(f"[Mix] Loading {name} (<= {max_per_source}) ...")
-        try:
-            raw = fn(max_per_source)
-            pool.extend([(name, t) for t in raw])
-            print(f"[Mix] {name} added {len(raw)}")
-        except Exception as e:
-            print(f"[Mix] {name} skipped: {e}")
-    if "gardian" in sources: try_source("gardian", build_gardian_stream)
-    if "argilla" in sources: try_source("argilla", build_argilla_stream)
-    if "agnews"  in sources: try_source("agnews", build_agnews_agri)
-    if "localmini" in sources:
-        lm_df = build_localmini(max_per_source, mqtt_csv, extra_csv)
-        for t, _ in lm_df[["text","labels"]].itertuples(index=False):
-            pool.append(("localmini", t))
-
-    # dedup & fuse
-    seen=set(); dedup=[]
-    for src, txt in pool:
-        h = hashlib.sha1(_norm(txt).encode("utf-8","ignore")).hexdigest()
-        if h not in seen:
-            seen.add(h); dedup.append((src, _norm(txt)))
-
-    rows=[]
-    for src, raw in dedup:
-        sensor = simulate_sensor_summary()
-        text = fuse_text(sensor, raw)
-        labs = weak_labels(text)
-        if labs: rows.append((text, labs, src))
-    df = pd.DataFrame(rows, columns=["text","labels","source"])
-    print("[Mix] Source breakdown:\n", df["source"].value_counts())
-    return df[["text","labels"]]
-
-# --------------------- Image-CSV builder (preferred for user-provided multimodal) ---------------------
-def build_corpus_with_images(image_csv:str, image_root:str="", max_samples:int=0) -> pd.DataFrame:
-    if not os.path.exists(image_csv):
-        raise RuntimeError(f"image_csv not found: {image_csv}")
-    df_raw = pd.read_csv(image_csv)
-    rows=[]
-    for _, r in df_raw.iterrows():
-        text = str(r.get("text","")).strip()
-        fname = str(r.get("filename","") or r.get("image_path","")).strip()
-        labs_raw = r.get("labels","")
-        if pd.isna(labs_raw) or str(labs_raw).strip()=="":
-            labs=[]
-        elif isinstance(labs_raw, str):
-            parts=[x.strip() for x in labs_raw.split(",") if x.strip()]
-            labs=[]
-            for p in parts:
-                if p.isdigit(): labs.append(int(p))
-                elif p in LABEL_TO_ID: labs.append(LABEL_TO_ID[p])
-            labs = sorted(set(labs))
-        elif isinstance(labs_raw, (list,tuple)):
-            labs=list(labs_raw)
-        else:
-            labs=[]
-        if not labs: continue
-        txt = fuse_text(simulate_sensor_summary(), text)
-        rows.append((txt, labs, fname))
-    out = pd.DataFrame(rows, columns=["text","labels","image_path"])
-    if max_samples and len(out) > max_samples:
-        out = out.sample(max_samples, random_state=SEED).reset_index(drop=True)
-    return out
-
-# --------------------- Build corpus (now supports auto image harvesting) ---------------------
-def build_corpus() -> pd.DataFrame:
-    # If explicit image csv and use_images -> prefer that (user-specified)
-    if ARGS.use_images and ARGS.image_csv and os.path.exists(ARGS.image_csv):
-        print("[Build] Using provided image_csv for multimodal corpus.")
-        return build_corpus_with_images(ARGS.image_csv, ARGS.image_dir, max_samples=ARGS.max_samples)
-
-    # If user requested use_images and dataset is 'hf_images', attempt HF image harvest
-    if ARGS.use_images and ARGS.dataset == "hf_images":
-        sources = [s.strip() for s in ARGS.mix_sources.split(",") if s.strip()]
-        out_parts=[]
-        for src in sources:
-            try:
-                dfp = prepare_images_from_hf(src, ARGS.max_per_source, ARGS.image_dir)
-                if len(dfp)>0:
-                    out_parts.append(dfp)
-            except Exception as e:
-                print(f"[Images] error preparing {src}: {e}")
-        if out_parts:
-            df_full = pd.concat(out_parts, ignore_index=True)
-            if ARGS.max_samples and len(df_full) > ARGS.max_samples:
-                df_full = df_full.sample(ARGS.max_samples, random_state=SEED).reset_index(drop=True)
-            print(f"[Build] final multimodal size: {len(df_full)}")
-            return df_full
-
-    # Fall back to text-only mix pipeline (same as before)
-    if ARGS.dataset=="mix":
-        print("[Dataset] MIX:", ARGS.mix_sources)
-        df = build_mix(ARGS.max_per_source, ARGS.mqtt_csv, ARGS.extra_csv)
-    elif ARGS.dataset=="localmini":
-        df = build_localmini(ARGS.max_samples or 0, ARGS.mqtt_csv, ARGS.extra_csv)
-    elif ARGS.dataset=="gardian":
-        raws = build_gardian_stream(ARGS.max_per_source)
-        rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
-        df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
-    elif ARGS.dataset=="argilla":
-        raws = build_argilla_stream(ARGS.max_per_source)
-        rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
-        df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
-    else:
-        raws = build_agnews_agri(ARGS.max_per_source)
-        rows = [(fuse_text(simulate_sensor_summary(), r), weak_labels(r)) for r in raws]
-        df = pd.DataFrame([(t,l) for (t,l) in rows if l], columns=["text","labels"])
-
-    summarize_labels(df, "pre-oversample")
-    df = apply_label_noise(df, ARGS.label_noise)
-    # Add a few OOD negatives
-    ood = [
-        "City council discussed budget allocations for public transport.",
-        "The software team published patch notes for the new release.",
-        "The arts festival announced its opening night lineup."
-    ]
-    for t in ood:
-        df.loc[len(df)] = [fuse_text(simulate_sensor_summary(), t), []]
-    if ARGS.max_samples and len(df)>ARGS.max_samples:
-        df = df.sample(ARGS.max_samples, random_state=SEED)
-    df = df.sample(frac=1.0, random_state=SEED).reset_index(drop=True)
-    print(f"[Build] final size (text-only): {len(df)}")
-    if len(df)==0: raise RuntimeError("Empty dataset after filtering. Include localmini or lower caps.")
-    return df
-
-# --------------------- Oversampling & helpers (same) ---------------------
+# --------------------- Oversampling & helpers ---------------------
 def oversample_by_class(df: pd.DataFrame, target_each_map: Dict[int,int] = None) -> pd.DataFrame:
     if target_each_map is None:
         target_each_map = {0:1500, 1:2400, 2:1700, 3:1700, 4:1500}
@@ -743,7 +744,7 @@ class MultiModalDS(Dataset):
         ])
     def __len__(self): return len(self.df)
     def _load_image(self, path: str):
-        if not path or (isinstance(path, float) and pd.isna(path)): 
+        if not path or (isinstance(path, float) and pd.isna(path)):
             return torch.zeros(3, self.img_size, self.img_size, dtype=torch.float32)
         p = path if os.path.isabs(path) else os.path.join(self.image_root, path)
         try:
@@ -827,17 +828,13 @@ def build_text_model(num_labels:int, freeze_base:bool=True):
     elif freeze_base:
         for n,p in model.named_parameters():
             if "classifier" not in n: p.requires_grad=False
+    if not HAS_PEFT:
+        raise RuntimeError("peft not available: install `pip install peft` to use LoRA")
     targets = infer_lora_targets_from_model(model)
     lcfg = LoraConfig(r=ARGS.lora_r, lora_alpha=ARGS.lora_alpha, lora_dropout=ARGS.lora_dropout,
                       bias="none", task_type="SEQ_CLS", target_modules=targets)
-    try:
-        model = get_peft_model(model, lcfg)
-        if USE_PEFT:
-            print(f"[LoRA] target_modules: {targets}")
-        else:
-            print("[LoRA] peft not active: created no-op PEFT wrapper.")
-    except Exception as e:
-        print(f"[Warn] get_peft_model failed, continuing without PEFT: {e}")
+    model = get_peft_model(model, lcfg)
+    print(f"[LoRA] target_modules: {targets}")
     return model
 
 class MultiModalModel(nn.Module):
@@ -850,17 +847,16 @@ class MultiModalModel(nn.Module):
                  freeze_text=True, freeze_vision=False,
                  lora_r=8, lora_alpha=32, lora_dropout=0.05):
         super().__init__()
-        # text encoder (AutoModel base) -> then apply peft (or no-op)
+        # text encoder (AutoModel base) -> then apply peft
         text_base = AutoModel.from_pretrained(text_model_name, local_files_only=ARGS.offline)
         if freeze_text:
             for p in text_base.parameters(): p.requires_grad = False
+        if not HAS_PEFT:
+            raise RuntimeError("peft not available: install `pip install peft` to use LoRA")
         targets = infer_lora_targets_from_model(text_base)
         lcfg = LoraConfig(r=lora_r, lora_alpha=lora_alpha, lora_dropout=lora_dropout,
                           bias="none", task_type="SEQ_CLS", target_modules=targets)
-        try:
-            text_peft = get_peft_model(text_base, lcfg)
-        except Exception:
-            text_peft = text_base
+        text_peft = get_peft_model(text_base, lcfg)
         self.text_encoder = text_peft
         text_dim = getattr(self.text_encoder.config, "hidden_size", 768)
 
@@ -1020,7 +1016,7 @@ def _split_local_train_val(cdf: pd.DataFrame, frac: float) -> Tuple[pd.DataFrame
     return va_df, tr_df
 
 def train_local(model, tok, tr_df, va_df, class_alpha:torch.Tensor) -> Tuple[float,float,Dict,np.ndarray,int]:
-    # choose dataset type based on model: multimodal models have attribute 'vision'
+    # choose dataset type based on model: multimodal models expected to have attribute 'vision'
     if ARGS.use_images and "image_path" in tr_df.columns:
         tr_ds = MultiModalDS(tr_df, tok, ARGS.max_len, img_size=ARGS.img_size, image_root=ARGS.image_dir)
         va_ds = MultiModalDS(va_df, tok, ARGS.max_len, img_size=ARGS.img_size, image_root=ARGS.image_dir)
@@ -1081,9 +1077,8 @@ def train_local(model, tok, tr_df, va_df, class_alpha:torch.Tensor) -> Tuple[flo
 
     # extract LoRA state dict (model may be peft-wrapped)
     try:
-        lora_sd = get_peft_model_state_dict(model)
+        lora_sd = get_peft_model_state_dict(model if not hasattr(model, "text_encoder") else model.text_encoder)
     except Exception:
-        # fallback: whole model state dict
         lora_sd = {k:v.detach().cpu() for k,v in model.state_dict().items()}
     lora_sd = {k:v.detach().cpu() for k,v in lora_sd.items()}
     del tr_loader, va_loader; gc.collect()
@@ -1216,15 +1211,12 @@ def predict(model, tok, text:str, thr:np.ndarray, image_tensor:Optional[torch.Te
     return (probs >= thr).astype(int).tolist()
 
 def run_training():
+    if not HAS_PEFT and ARGS.use_images:
+        print("[Warn] peft not available. Install `pip install peft` before attempting LoRA training.")
     print(f"Device: {DEVICE} (AMP={'on' if amp_enabled() else 'off'})  model={ARGS.model_name}  use_images={ARGS.use_images}")
-    if USE_PEFT:
-        print("[env] Using installed peft for LoRA adapters.")
-    else:
-        print("[env] PEFT unavailable: training will proceed without LoRA adapters (full model or frozen base).")
     tok = build_tokenizer()
     df  = build_corpus()
 
-    # If multimodal dataset (image_path present) then we'll use multimodal model
     multimodal = ARGS.use_images and ("image_path" in df.columns or (ARGS.image_csv and os.path.exists(ARGS.image_csv)))
 
     # Client-held-out validation
@@ -1235,14 +1227,12 @@ def run_training():
     train_df = pd.concat(train_clients, ignore_index=True)
     train_df, test_df = train_test_split(train_df, test_size=0.15, random_state=SEED, shuffle=True)
 
-    # class alphas
     _, counts = make_weights_for_balanced_classes(train_df)
     inv = 1.0 / np.maximum(counts,1)
     alpha = (inv / inv.mean()).astype(np.float32)
     alpha[1] *= 1.2
     alpha = torch.tensor(alpha)
 
-    # federated clients
     clients = split_clients(train_df, max(1, ARGS.clients), ARGS.dirichlet_alpha)
 
     # build global model
@@ -1287,7 +1277,6 @@ def run_training():
                 local = MultiModalModel(ARGS.model_name, ARGS.vit_name, NUM_LABELS,
                                         freeze_text=ARGS.freeze_base, freeze_vision=ARGS.freeze_vision,
                                         lora_r=ARGS.lora_r, lora_alpha=ARGS.lora_alpha, lora_dropout=ARGS.lora_dropout).to(DEVICE)
-                # set local adapters from global (global_model may be peft-wrapped)
                 try:
                     set_peft_model_state_dict(local.text_encoder, get_peft_model_state_dict(global_model.text_encoder))
                 except Exception:
@@ -1315,7 +1304,6 @@ def run_training():
 
         if states:
             avg_sd = fedavg_weighted(states, sizes)
-            # set averaged adapters into global model
             try:
                 if multimodal:
                     set_peft_model_state_dict(global_model.text_encoder, avg_sd)
@@ -1412,5 +1400,7 @@ def run_inference():
 
 # --------------------- Main ---------------------
 if __name__=="__main__":
-    if ARGS.inference: run_inference()
-    else: run_training()
+    if ARGS.inference:
+        run_inference()
+    else:
+        run_training()
