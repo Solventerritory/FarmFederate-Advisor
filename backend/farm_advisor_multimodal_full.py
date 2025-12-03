@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-farm_advisor_multimodal.py
+farm_advisor_multimodal_full.py
 
 Multimodal federated LoRA crop-stress detector (text + images).
 Integrates HF image datasets: PlantVillage (community variants), PlantDoc, Cassava (HF mirrors).
