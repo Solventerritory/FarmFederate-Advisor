@@ -80,7 +80,7 @@ def main():
     alpha = (inv / inv.mean()).astype(np.float32)
     alpha = torch.tensor(alpha)
 
-    loss_fn = FocalLoss(alpha_per_class=alpha.to(DEVICE))
+    loss_fn = FocalLoss(alpha=alpha.to(DEVICE))
     opt = torch.optim.AdamW(model.parameters(), lr=3e-5, weight_decay=0.01)
 
     print(f"Training on {len(ds)} samples, device={DEVICE}")
