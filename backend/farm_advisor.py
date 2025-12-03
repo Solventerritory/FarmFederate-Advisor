@@ -3,15 +3,12 @@
 """
 farm_advisor_full.py — Combined multimodal federated LoRA crop-stress detector.
 
-Features:
- - Text-only or multimodal (text + image) training
- - Auto-download / prepare image datasets from HF (best-effort)
- - Federated LoRA: clients train LoRA adapters (text encoder), we aggregate adapter weights
- - ViT vision encoder fused with text encoder (fusion MLP)
- - Sensor priors applied only at inference
- - EMA, FocalLoss, calibration, MC-Dropout, rationales
+This copy includes a compatibility layer so missing/incompatible `peft` won't
+cause an ImportError at import time. If `peft` is present and compatible it will
+be used; otherwise the script runs with no-op LoRA stubs (model training will
+use the base model without adapter parameters).
 """
-import os, re, math, time, gc, random, argparse, hashlib, json, shutil
+import os, re, math, time, gc, random, argparse, hashlib, json, shutil, sys
 from typing import List, Dict, Tuple, Optional
 import numpy as np
 import pandas as pd
@@ -51,13 +48,57 @@ try:
 except Exception:
     pass
 
-# PEFT / LoRA
-from peft import (
-    LoraConfig,
-    get_peft_model,
-    get_peft_model_state_dict,
-    set_peft_model_state_dict,
-)
+# --------------------- PEFT / LoRA compatibility layer ---------------------
+# Try to import peft. If import fails (common when transformers/peft mismatch),
+# provide safe fallbacks so the script remains runnable (no LoRA behavior).
+USE_PEFT = False
+try:
+    from peft import (
+        LoraConfig,
+        get_peft_model,
+        get_peft_model_state_dict,
+        set_peft_model_state_dict,
+    )
+    USE_PEFT = True
+except Exception as e:
+    # Provide stubs / light-weight fallbacks so code using these functions still runs.
+    # These fallback implementations *do not* implement LoRA; they simply pass through.
+    class LoraConfig:
+        def __init__(self, *args, **kwargs):
+            # keep fields used by code, if necessary
+            self.r = kwargs.get("r", kwargs.get("lora_r", 0))
+            self.lora_alpha = kwargs.get("lora_alpha", None)
+            self.lora_dropout = kwargs.get("lora_dropout", None)
+            self.bias = kwargs.get("bias", "none")
+            self.task_type = kwargs.get("task_type", "SEQ_CLS")
+            self.target_modules = kwargs.get("target_modules", None)
+    def get_peft_model(model, lora_config):
+        # No-op: return model unchanged
+        return model
+    def get_peft_model_state_dict(model):
+        # If the model has a .named_parameters or state_dict, return state_dict
+        try:
+            return {k: v.detach().cpu() for k,v in model.state_dict().items()}
+        except Exception:
+            # fallback empty
+            return {}
+    def set_peft_model_state_dict(model, sd):
+        # Attempt to load state dict (non-strict)
+        try:
+            model.load_state_dict(sd, strict=False)
+        except Exception:
+            # best-effort: update matching keys
+            try:
+                cur = model.state_dict()
+                for k,v in sd.items():
+                    if k in cur and isinstance(v, torch.Tensor):
+                        cur[k].copy_(v)
+            except Exception:
+                pass
+
+    # Informational
+    print("[Warn] 'peft' library not available or failed to import. Running without LoRA adapters.")
+    print(f"[Warn] peft import error: {e}")
 
 # vision preprocessing
 from PIL import Image
@@ -157,7 +198,7 @@ def _norm(txt: str) -> str: return re.sub(r"\s+", " ", txt).strip()
 # --------------------- Weak labels + ag gate ---------------------
 KW = {
     "water": ["dry","wilting","wilt","parched","drought","moisture","irrigation","canopy stress","water stress","droop","cracking soil","hard crust","soil moisture low"],
-    "nutrient": ["nitrogen","phosphorus","potassium","npk","fertilizer","fertiliser","chlorosis","chlorotic","interveinal","leaf color chart","lcc","spad","low spad","older leaves yellowing","necrotic margin","micronutrient","deficiency"],
+    "nutrient": ["nitrogen","phosphorus","potassium","npk","fertilizer","fertiliser","chlorosis","chlorotic","interveinal","leaf color chart","lcc","low spad","spad","low spad","older leaves yellowing","necrotic margin","micronutrient","deficiency"],
     "pest": ["pest","aphid","whitefly","borer","hopper","weevil","caterpillar","larvae","thrips","mites","trap","sticky residue","honeydew","chewed","webbing","frass","insect"],
     "disease": ["blight","rust","mildew","smut","rot","leaf spot","necrosis","pathogen","fungal","bacterial","viral","lesion","mosaic","wilt disease","canker","powdery mildew","downy"],
     "heat": ["heatwave","hot","scorch","sunburn","thermal stress","high temperature","blistering","desiccation","sun scorch","leaf burn","heat stress"],
@@ -417,13 +458,6 @@ def _download_image(url: str, dst_path: str, timeout=10) -> bool:
         return False
 
 def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) -> pd.DataFrame:
-    """
-    Try to load HF dataset and find image fields (image, image_url, img_url). Returns DataFrame columns:
-      - text: fused text (sensor + text)
-      - labels: weak labels (list of ints)
-      - image_path: local filename saved under image_dir
-    This is best-effort — some HF datasets store actual Image objects, some store URLs.
-    """
     rows=[]
     if not HAS_DATASETS:
         print("[Images] datasets lib not available; skipping HF image download.")
@@ -450,21 +484,17 @@ def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) ->
             if "image" in k.lower() or "img" in k.lower() or "photo" in k.lower():
                 img_field = k; break
         if img_field is None:
-            # check for nested features (e.g., rec["features"])
-            # skip if can't find
             continue
 
         img_val = rec.get(img_field)
         local_fname = None
         if isinstance(img_val, dict) and "path" in img_val:
-            # sometimes datasets store 'path' to local cache (but streaming may not)
             try:
                 p = img_val.get("path")
                 if p and os.path.exists(p):
                     local_fname = os.path.join(image_dir, os.path.basename(p))
                     shutil.copyfile(p, local_fname)
                 else:
-                    # fallback to try 'url'
                     url = img_val.get("url") or img_val.get("img_url") or img_val.get("image_url")
                     if url:
                         local_fname = os.path.join(image_dir, f"{dataset_name}_{cnt}.jpg")
@@ -474,14 +504,12 @@ def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) ->
             except Exception:
                 local_fname=None
         elif isinstance(img_val, str):
-            # string may be url or path
             if img_val.startswith("http"):
                 local_fname = os.path.join(image_dir, f"{dataset_name}_{cnt}.jpg")
                 ok = _download_image(img_val, local_fname)
                 if not ok:
                     local_fname = None
             else:
-                # maybe cached path
                 if os.path.exists(img_val):
                     local_fname = os.path.join(image_dir, os.path.basename(img_val))
                     shutil.copyfile(img_val, local_fname)
@@ -491,7 +519,6 @@ def prepare_images_from_hf(dataset_name: str, max_items: int, image_dir: str) ->
                 if isinstance(img_val, Image.Image):
                     img_val.convert("RGB").save(local_fname, format="JPEG", quality=90)
                 else:
-                    # try to call to_pil
                     pil = img_val.to_pil()
                     pil.convert("RGB").save(local_fname, format="JPEG", quality=90)
             except Exception:
@@ -588,7 +615,6 @@ def build_corpus() -> pd.DataFrame:
 
     # If user requested use_images and dataset is 'hf_images', attempt HF image harvest
     if ARGS.use_images and ARGS.dataset == "hf_images":
-        # attempt to fetch common agriculture/image datasets by name provided in mix_sources
         sources = [s.strip() for s in ARGS.mix_sources.split(",") if s.strip()]
         out_parts=[]
         for src in sources:
@@ -804,8 +830,14 @@ def build_text_model(num_labels:int, freeze_base:bool=True):
     targets = infer_lora_targets_from_model(model)
     lcfg = LoraConfig(r=ARGS.lora_r, lora_alpha=ARGS.lora_alpha, lora_dropout=ARGS.lora_dropout,
                       bias="none", task_type="SEQ_CLS", target_modules=targets)
-    model = get_peft_model(model, lcfg)
-    print(f"[LoRA] target_modules: {targets}")
+    try:
+        model = get_peft_model(model, lcfg)
+        if USE_PEFT:
+            print(f"[LoRA] target_modules: {targets}")
+        else:
+            print("[LoRA] peft not active: created no-op PEFT wrapper.")
+    except Exception as e:
+        print(f"[Warn] get_peft_model failed, continuing without PEFT: {e}")
     return model
 
 class MultiModalModel(nn.Module):
@@ -818,14 +850,17 @@ class MultiModalModel(nn.Module):
                  freeze_text=True, freeze_vision=False,
                  lora_r=8, lora_alpha=32, lora_dropout=0.05):
         super().__init__()
-        # text encoder (AutoModel base) -> then apply peft
+        # text encoder (AutoModel base) -> then apply peft (or no-op)
         text_base = AutoModel.from_pretrained(text_model_name, local_files_only=ARGS.offline)
         if freeze_text:
             for p in text_base.parameters(): p.requires_grad = False
         targets = infer_lora_targets_from_model(text_base)
         lcfg = LoraConfig(r=lora_r, lora_alpha=lora_alpha, lora_dropout=lora_dropout,
                           bias="none", task_type="SEQ_CLS", target_modules=targets)
-        text_peft = get_peft_model(text_base, lcfg)
+        try:
+            text_peft = get_peft_model(text_base, lcfg)
+        except Exception:
+            text_peft = text_base
         self.text_encoder = text_peft
         text_dim = getattr(self.text_encoder.config, "hidden_size", 768)
 
@@ -1182,6 +1217,10 @@ def predict(model, tok, text:str, thr:np.ndarray, image_tensor:Optional[torch.Te
 
 def run_training():
     print(f"Device: {DEVICE} (AMP={'on' if amp_enabled() else 'off'})  model={ARGS.model_name}  use_images={ARGS.use_images}")
+    if USE_PEFT:
+        print("[env] Using installed peft for LoRA adapters.")
+    else:
+        print("[env] PEFT unavailable: training will proceed without LoRA adapters (full model or frozen base).")
     tok = build_tokenizer()
     df  = build_corpus()
 
@@ -1248,11 +1287,10 @@ def run_training():
                 local = MultiModalModel(ARGS.model_name, ARGS.vit_name, NUM_LABELS,
                                         freeze_text=ARGS.freeze_base, freeze_vision=ARGS.freeze_vision,
                                         lora_r=ARGS.lora_r, lora_alpha=ARGS.lora_alpha, lora_dropout=ARGS.lora_dropout).to(DEVICE)
-                # set local adapters from global (global_model is peft-wrapped)
+                # set local adapters from global (global_model may be peft-wrapped)
                 try:
                     set_peft_model_state_dict(local.text_encoder, get_peft_model_state_dict(global_model.text_encoder))
                 except Exception:
-                    # fallback: set whole model state if possible
                     try: set_peft_model_state_dict(local, get_peft_model_state_dict(global_model))
                     except Exception: pass
             else:
@@ -1279,13 +1317,11 @@ def run_training():
             avg_sd = fedavg_weighted(states, sizes)
             # set averaged adapters into global model
             try:
-                # if peft-wrapped text encoder exists
                 if multimodal:
                     set_peft_model_state_dict(global_model.text_encoder, avg_sd)
                 else:
                     set_peft_model_state_dict(global_model, avg_sd)
             except Exception:
-                # fallback: load into whole model state dict
                 try:
                     global_model.load_state_dict(avg_sd, strict=False)
                 except Exception:
@@ -1312,7 +1348,6 @@ def run_training():
         else:
             torch.save(get_peft_model_state_dict(global_model), ap)
     except Exception:
-        # fallback save whole state dict
         torch.save(global_model.state_dict(), ap)
     np.save(thp, thr_history[-1] if thr_history else np.array([0.5]*NUM_LABELS))
     print(f"[Save] adapters → {ap}")
@@ -1336,7 +1371,6 @@ def run_training():
 
 def run_inference():
     tok   = build_tokenizer()
-    # Build model: choose multimodal or text-only based on saved artifacts / args
     multimodal = ARGS.use_images
     if multimodal:
         model = MultiModalModel(ARGS.model_name, ARGS.vit_name, NUM_LABELS,
