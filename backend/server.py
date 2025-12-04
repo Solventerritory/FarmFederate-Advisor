@@ -1,101 +1,66 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-server.py — FastAPI backend for FarmFederate-Advisor (multimodal RoBERTa + ViT + LoRA).
-
-Extended features added:
- - /predict (original): JSON or multipart (text + optional image) → performs inference
- - /sensor_upload (POST JSON)                     : accepts sensor telemetry from ESP32 nodes
- - /image_upload  (POST multipart/form-data)      : accepts image uploads (esp32cam/pi) + optional log
- - /publish_command (POST JSON)                   : allow server/frontend to publish an MQTT command to device
- - /upload_adapter (POST multipart/form-data)     : accepts LoRA adapter file from a client (simulate client update)
- - /list_pending_for_training (GET)               : lists saved images/sensors queued for offline training
- - saves uploads under <SAVE_DIR>/ingest/{sensors,images,adapters}
- - publishes MQTT commands to topic farm/<device_id>/commands
- - stores minimal device status info in memory (for quick UI)
-"""
+# server.py — FastAPI backend to serve the full multimodal model checkpoint
+# Place this file in backend/ and run with your venv active.
 
 import os
 import io
 import json
-import shutil
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+import traceback
+from typing import Optional, Any, Dict, List
 
-import numpy as np
 from PIL import Image
-
+import numpy as np
 import torch
 from torch import nn
 import torchvision.transforms as T
 
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
 
-# MQTT publish
-import paho.mqtt.publish as mqtt_publish
-
-# ---------------------------------------------------------------------
-# Import the model + tokenizer + priors + labels from your training file
-# ---------------------------------------------------------------------
-# NOTE: adapt these imports if your module names differ. I expect
-# farm_advisor.py (or farm_advisor_multimodal_full.py) to expose:
-#   ISSUE_LABELS, MultiModalModel, build_tokenizer, apply_priors_to_logits
+# --- try to import training helpers (priors, labels) if available ---
 try:
-    from farm_advisor import (
-        ISSUE_LABELS,
-        MultiModalModel,
-        build_tokenizer,
-        apply_priors_to_logits,
-    )
-except Exception:
-    # fallback: keep names for typing, but server will still run without model.
-    ISSUE_LABELS = ["water_stress","nutrient_def","pest_risk","disease_risk","heat_stress"]
-    MultiModalModel = None
-    build_tokenizer = None
-    def apply_priors_to_logits(logits, texts): return logits
+    # your training helpers (farm_advisor.py) — used for priors & labels if present
+    from farm_advisor import ISSUE_LABELS as TRAIN_ISSUE_LABELS, apply_priors_to_logits
+    HAVE_TRAIN_HELPERS = True
+    ISSUE_LABELS = list(TRAIN_ISSUE_LABELS)
+    print("[server] Found farm_advisor helpers: using its ISSUE_LABELS and apply_priors_to_logits()")
+except Exception as e:
+    HAVE_TRAIN_HELPERS = False
+    ISSUE_LABELS = ["water_stress", "nutrient_def", "pest_risk", "disease_risk", "heat_stress"]
+    def apply_priors_to_logits(logits: torch.Tensor, texts: Optional[List[str]]):
+        # fallback: no-op (no priors)
+        return logits
+    print("[server] farm_advisor helpers NOT found — using fallback labels and no priors.")
 
-# ----------------- Config -----------------
+NUM_LABELS = len(ISSUE_LABELS)
+
+# --- import your multimodal model & tokenizer builders ---
+# This file expects multimodal_model.py to define MultimodalClassifier,
+# build_tokenizer() and (optionally) build_image_processor().
+try:
+    from multimodal_model import MultimodalClassifier, build_tokenizer, build_image_processor
+    print("[server] Imported MultimodalClassifier and tokenizer builders from multimodal_model.py")
+except Exception as e:
+    # try alternate names used earlier
+    try:
+        from multimodal_model import MultimodalModel as MultimodalClassifier
+        from multimodal_model import build_tokenizer, build_image_processor
+        print("[server] Imported MultimodalModel (alias) from multimodal_model.py")
+    except Exception as ex:
+        print("[server][ERROR] Could not import multimodal_model definitions.")
+        traceback.print_exc()
+        raise
+
+# ---------------- Configuration ----------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-SAVE_DIR = os.environ.get("SAVE_DIR", "checkpoints_paper")
-INGEST_DIR = os.path.join(SAVE_DIR, "ingest")
-IMAGES_DIR = os.path.join(INGEST_DIR, "images")
-SENSORS_DIR = os.path.join(INGEST_DIR, "sensors")
-ADAPTERS_DIR = os.path.join(INGEST_DIR, "adapters")
-os.makedirs(IMAGES_DIR, exist_ok=True)
-os.makedirs(SENSORS_DIR, exist_ok=True)
-os.makedirs(ADAPTERS_DIR, exist_ok=True)
-
-ADAPTER_PATH = os.path.join(SAVE_DIR, "global_lora_text.pt")
-THR_PATH = os.path.join(SAVE_DIR, "thresholds.npy")
-
+CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH", os.path.join("checkpoints", "global_central.pt"))
 TEXT_MODEL_NAME = os.environ.get("TEXT_MODEL_NAME", "roberta-base")
-VIT_MODEL_NAME = os.environ.get("VIT_MODEL_NAME", "google/vit-base-patch16-224-in21k")
-FREEZE_TEXT = True
-FREEZE_VISION = False
-LORA_R = 8
-LORA_ALPHA = 32
-LORA_DROPOUT = 0.05
-MAX_LEN = 160
-IMG_SIZE = 224
+IMAGE_MODEL_NAME = os.environ.get("IMAGE_MODEL_NAME", "google/vit-base-patch16-224-in21k")
+MAX_LEN = int(os.environ.get("MAX_LEN", 160))
+IMG_SIZE = int(os.environ.get("IMG_SIZE", 224))
 
-# MQTT broker
-MQTT_BROKER = os.environ.get("MQTT_BROKER", "127.0.0.1")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", "1883"))
-
-# ----------------- Globals -----------------
-app = FastAPI(title="FarmFederate-Advisor Backend", version="1.2.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# transforms
+# simple image transforms compatible with ViT / most training pipelines
 IMAGE_TRANSFORM = T.Compose([
     T.Resize((IMG_SIZE, IMG_SIZE)),
     T.CenterCrop(IMG_SIZE),
@@ -104,314 +69,318 @@ IMAGE_TRANSFORM = T.Compose([
                 [0.229, 0.224, 0.225]),
 ])
 
-# runtime holders
+# ---------------- Advice mapping (same as training) ----------------
+ADVICE = {
+    "water_stress": "Irrigate earlier; mulch; monitor soil moisture AM/PM.",
+    "nutrient_def": "Balance NPK (N focus if older leaves yellow); verify with LCC.",
+    "pest_risk": "Inspect undersides; sticky traps; early biocontrol or mild soap.",
+    "disease_risk": "Improve airflow; avoid late overhead irrigation; prune infected leaves.",
+    "heat_stress": "Provide shade at peak heat; keep moisture stable; ensure K sufficiency.",
+}
+
+def advisor_from_mask(mask: List[int]) -> str:
+    active = [ISSUE_LABELS[i] for i,v in enumerate(mask) if v==1]
+    if not active: 
+        return "Conditions look normal. Continue routine monitoring."
+    return "Recommended actions:\n" + "\n".join([f"- {lab}: {ADVICE.get(lab, '')}" for lab in active])
+
+# ---------------- Globals ----------------
+app = FastAPI(title="FarmFederate-Advisor (full model server)")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 TOKENIZER = None
+IMAGE_PROCESSOR = None
 MODEL: Optional[nn.Module] = None
-THRESHOLDS: Optional[np.ndarray] = None
+THRESHOLDS = np.array([0.5]*NUM_LABELS, dtype=np.float32)
 
-# simple in-memory device status (can be persisted later)
-DEVICE_STATUS: Dict[str, Dict[str, Any]] = {}
+# ---------------- Model loader ----------------
+def safe_load_checkpoint(path: str) -> Dict[str, Any]:
+    """
+    Load a checkpoint in various common formats and return a dict-like object.
+    Accepts:
+      - raw state_dict (saved via torch.save(model.state_dict()))
+      - dict with key 'model_state_dict'
+      - dict with 'state_dict' or similar
+      - whole model (rare) -> will return its state_dict
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    print(f"[server] Loading checkpoint: {path}")
+    ck = torch.load(path, map_location="cpu")
+    if isinstance(ck, dict):
+        # common keys
+        for k in ("model_state_dict", "state_dict", "model"):
+            if k in ck:
+                val = ck[k]
+                print(f"[server] Found checkpoint key '{k}' -> using it as state_dict")
+                return val
+        # maybe it's already the raw state_dict
+        # check if values are tensors
+        if all(isinstance(v, torch.Tensor) for v in ck.values()):
+            print("[server] Checkpoint appears to be a raw state_dict")
+            return ck
+        # If it's a wrapper with nested 'model', try heuristics
+        # pick largest tensor-like entry
+        for v in ck.values():
+            if isinstance(v, dict) and all(isinstance(x, torch.Tensor) for x in v.values()):
+                print("[server] Found nested state_dict inside checkpoint; using it")
+                return v
+    # if it's a nn.Module (rare)
+    if hasattr(ck, "state_dict"):
+        print("[server] Checkpoint is a model object; extracting state_dict()")
+        return ck.state_dict()
+    raise RuntimeError("Unknown checkpoint format")
 
-# ----------------- Model loading -----------------
-def load_model() -> None:
-    global TOKENIZER, MODEL, THRESHOLDS
-    print("[server] Loading model & tokenizer...")
+def load_model_and_tokenizer(checkpoint_path: str = CHECKPOINT_PATH):
+    global TOKENIZER, IMAGE_PROCESSOR, MODEL, THRESHOLDS
+
+    # tokenizer from multimodal_model builder (keeps same tokenization as training)
+    TOKENIZER = build_tokenizer(TEXT_MODEL_NAME)
+    print("[server] Tokenizer loaded.")
+
+    # create architecture identical to training
+    MODEL = MultimodalClassifier(
+        text_model_name=TEXT_MODEL_NAME,
+        image_model_name=IMAGE_MODEL_NAME,
+        num_labels=NUM_LABELS,
+        freeze_backbones=False,  # inference only — no training
+    )
+    print("[server] Multimodal model instance created.")
+
+    # try to load checkpoint
     try:
-        TOKENIZER = build_tokenizer(TEXT_MODEL_NAME)
+        state_dict = safe_load_checkpoint(checkpoint_path)
+        # Ensure key name shapes compatible — allow strict=False
+        missing, unexpected = MODEL.load_state_dict(state_dict, strict=False)
+        print(f"[server] Loaded weights (strict=False). missing_keys={len(missing)} unexpected_keys={len(unexpected)}")
     except Exception as e:
-        print("[server][WARN] build_tokenizer failed:", e)
-        TOKENIZER = None
+        print("[server][WARN] Failed to load checkpoint with strict heuristics:", e)
+        traceback.print_exc()
+        # continue with random init (not ideal)
+    
+    MODEL.to(DEVICE)
+    MODEL.eval()
+    print(f"[server] Model moved to {DEVICE} and set to eval().")
 
-    if MultiModalModel is not None:
+    # optional: if you saved thresholds.npy near checkpoint, attempt to load
+    thr_path = os.path.join(os.path.dirname(checkpoint_path), "thresholds.npy")
+    if os.path.exists(thr_path):
         try:
-            MODEL = MultiModalModel(
-                text_model_name=TEXT_MODEL_NAME,
-                vit_name=VIT_MODEL_NAME,
-                num_labels=len(ISSUE_LABELS),
-                freeze_text=FREEZE_TEXT,
-                freeze_vision=FREEZE_VISION,
-                lora_r=LORA_R,
-                lora_alpha=LORA_ALPHA,
-                lora_dropout=LORA_DROPOUT,
-            ).to(DEVICE)
-            MODEL.eval()
-            # try load adapters (text LoRA)
-            if os.path.exists(ADAPTER_PATH):
-                sd = torch.load(ADAPTER_PATH, map_location="cpu")
-                try:
-                    from peft import set_peft_model_state_dict
-                    # assume MODEL.text_encoder exists and is a peft-wrapped module
-                    set_peft_model_state_dict(MODEL.text_encoder, sd)
-                    print(f"[server] Loaded text LoRA adapters from {ADAPTER_PATH}")
-                except Exception as e:
-                    print("[server][WARN] set_peft_model_state_dict failed:", e)
-            else:
-                print(f"[server][WARN] adapter file not found: {ADAPTER_PATH}")
+            THRESHOLDS = np.load(thr_path)
+            print(f"[server] Loaded thresholds from {thr_path}: {THRESHOLDS}")
+        except Exception:
+            print("[server][WARN] Failed to load thresholds.npy — using defaults 0.5.")
 
-        except Exception as e:
-            print("[server][WARN] Building model failed:", e)
-            MODEL = None
-
-    # thresholds
-    if os.path.exists(THR_PATH):
-        THRESHOLDS = np.load(THR_PATH)
-        print("[server] thresholds loaded:", THRESHOLDS)
-    else:
-        THRESHOLDS = np.array([0.5]*len(ISSUE_LABELS), dtype=np.float32)
-        print("[server][WARN] thresholds not found, defaulting to 0.5")
-
-# try load at import time
-load_model()
-
-# ----------------- Helpers -----------------
-def _ts() -> str:
-    return datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-
-def save_sensor(payload: dict) -> str:
-    fn = f"sensor_{payload.get('device_id','unknown')}_{_ts()}.json"
-    path = os.path.join(SENSORS_DIR, fn)
-    with open(path, "w") as f:
-        json.dump({"ingested_at": datetime.utcnow().isoformat(), "payload": payload}, f, indent=2)
-    return path
-
-def save_image_file(upload: UploadFile, device_id: str, log: str = "") -> str:
-    ext = os.path.splitext(upload.filename)[1] or ".jpg"
-    fname = f"{device_id}_{_ts()}{ext}"
-    outp = os.path.join(IMAGES_DIR, fname)
-    with open(outp, "wb") as f:
-        shutil.copyfileobj(upload.file, f)
-    # also write a small json with log/metadata
-    meta = {"filename": fname, "device_id": device_id, "log": log, "ingested_at": datetime.utcnow().isoformat()}
-    with open(os.path.join(IMAGES_DIR, fname + ".json"), "w") as m:
-        json.dump(meta, m, indent=2)
-    return outp
-
-def publish_mqtt_command(device_id: str, command: dict) -> bool:
-    topic = f"farm/{device_id}/commands"
+    # image processor: try to use builder if present, else fallback to torchvision transforms
     try:
-        mqtt_publish.single(topic, payload=json.dumps(command), hostname=MQTT_BROKER, port=MQTT_PORT)
-        return True
-    except Exception as e:
-        print("[server][ERROR] mqtt publish failed:", e)
-        return False
+        IMAGE_PROCESSOR = build_image_processor(IMAGE_MODEL_NAME)
+        print("[server] Image processor loaded from multimodal_model (if defined).")
+    except Exception:
+        IMAGE_PROCESSOR = None
+        print("[server] No image processor builder available — using torchvision transform fallback.")
 
-def preprocess_image_bytes(path: str):
+
+# load at startup
+@app.on_event("startup")
+async def startup_event():
     try:
-        img = Image.open(path).convert("RGB")
-        t = IMAGE_TRANSFORM(img)  # [3,H,W]
-        return t
+        load_model_and_tokenizer(CHECKPOINT_PATH)
     except Exception as e:
-        print("[server][WARN] preprocess_image_bytes failed:", e)
-        return None
+        print("[server][ERROR] Failed startup model load:", e)
+        traceback.print_exc()
 
+# ---------------- utility helpers ----------------
 def build_text_with_sensors(text: str, sensors: str) -> str:
     text = (text or "").strip()
     sensors = (sensors or "").strip()
     if sensors:
-        sensors_line = sensors if sensors.upper().startswith("SENSORS:") else ("SENSORS: " + sensors)
+        sensors_line = sensors if sensors.upper().startswith("SENSORS:") else f"SENSORS: {sensors}"
     else:
         sensors_line = "SENSORS: (not provided)."
-    if not text:
-        text = "(no free-text log)."
+    if not text: text = "(no free-text log)."
     return f"{sensors_line}\nLOG: {text}"
 
-def logits_to_output(text: str, logits: torch.Tensor, thresholds: np.ndarray) -> Dict[str, Any]:
-    logits = apply_priors_to_logits(logits, [text])
-    probs = torch.sigmoid(logits).detach().cpu().numpy()[0]
-    thr = thresholds.astype(np.float32)
-    mask = (probs >= thr).astype(int)
-    active = [{"label": ISSUE_LABELS[i], "prob": float(probs[i]), "threshold": float(thr[i])}
-              for i in range(len(ISSUE_LABELS)) if mask[i]]
-    all_scores = [{"label": ISSUE_LABELS[i], "prob": float(probs[i]), "threshold": float(thr[i])}
-                  for i in range(len(ISSUE_LABELS))]
-    return {"active_labels": active, "all_scores": all_scores}
+def preprocess_image_upload(upload: UploadFile) -> Optional[torch.Tensor]:
+    if upload is None:
+        return None
+    try:
+        content = upload.file.read()
+        upload.file.seek(0)
+        img = Image.open(io.BytesIO(content)).convert("RGB")
+        if IMAGE_PROCESSOR is not None:
+            # if user provided AutoImageProcessor in multimodal_model, use it
+            try:
+                # AutoImageProcessor returns numpy or torch tensor depending on config
+                proc = IMAGE_PROCESSOR(images=img, return_tensors="pt")
+                # expected key may be 'pixel_values'
+                if "pixel_values" in proc:
+                    t = proc["pixel_values"]
+                else:
+                    # fallback: assume output is a torch tensor
+                    t = torch.tensor(proc).permute(0,3,1,2) if isinstance(proc, np.ndarray) else proc
+                return t.squeeze(0) if t.ndim==4 else t
+            except Exception:
+                pass
+        # fallback torchvision transforms
+        t = IMAGE_TRANSFORM(img)  # [C,H,W]
+        return t
+    except Exception as e:
+        print("[server][WARN] Failed to preprocess image:", e)
+        traceback.print_exc()
+        return None
+
+def logits_to_response(text: str, logits: torch.Tensor, thresholds: np.ndarray):
+    # logits: [1, C] torch tensor on device
+    # apply priors (in training module style) — priors expect (logits, [texts]) according to training helper
+    try:
+        logits = apply_priors_to_logits(logits, [text])
+    except Exception:
+        # fallback no-op
+        pass
+    probs = torch.sigmoid(logits).detach().cpu().numpy().ravel().tolist()
+    thr = list(map(float, thresholds.tolist()))
+    mask = [1 if p >= t else 0 for p,t in zip(probs, thr)]
+    active_labels = []
+    all_scores = []
+    for i, lab in enumerate(ISSUE_LABELS):
+        entry = {"label": lab, "prob": float(probs[i]), "threshold": float(thr[i])}
+        all_scores.append(entry)
+        if mask[i] == 1:
+            active_labels.append(entry)
+    advice = advisor_from_mask(mask)
+    return {
+        "active_labels": active_labels,
+        "all_scores": all_scores,
+        "raw_probs": probs,
+        "advice": advice,
+        "debug": {"probs": probs, "thresholds": thr, "mask": mask}
+    }
 
 # ----------------- Routes -----------------
 @app.get("/health")
 async def health():
-    return {"status": "ok", "device": DEVICE, "labels": ISSUE_LABELS}
+    model_loaded = MODEL is not None
+    return {"status": "ok", "device": DEVICE, "model_loaded": bool(model_loaded), "labels": ISSUE_LABELS}
 
-@app.get("/device_status")
-async def device_status():
-    # return in-memory device status
-    return {"devices": DEVICE_STATUS}
-
-# ---------- Original /predict (keeps behavior) ----------
 @app.post("/predict")
 async def predict(request: Request):
+    """
+    Accepts JSON:
+      { "text": "...", "sensors": "soil_moisture=...", "client_id": "..." }
+    Or multipart/form-data:
+      text: str, sensors: str (optional), image: file (optional)
+    """
     global MODEL, TOKENIZER, THRESHOLDS
     if MODEL is None or TOKENIZER is None:
-        load_model()
+        # Attempt to reload if startup failed earlier
+        try:
+            load_model_and_tokenizer(CHECKPOINT_PATH)
+        except Exception:
+            return JSONResponse({"error": "Model not available on server"}, status_code=503)
 
     content_type = request.headers.get("content-type", "").lower()
     text = ""
     sensors = ""
-    client_id = "client"
+    client_id = "unknown"
     image_tensor = None
 
+    # JSON
     if "application/json" in content_type:
         data = await request.json()
+        if not isinstance(data, dict):
+            return JSONResponse({"error": "JSON body must be an object"}, status_code=400)
         text = str(data.get("text", "") or "")
         sensors = str(data.get("sensors", "") or "")
         client_id = str(data.get("client_id", client_id) or client_id)
-    elif "multipart/form-data" in content_type:
+
+    # multipart/form-data
+    elif "multipart/form-data" in content_type or "form-data" in content_type:
         form = await request.form()
         text = str(form.get("text", "") or "")
         sensors = str(form.get("sensors", "") or "")
         client_id = str(form.get("client_id", client_id) or client_id)
         upload = form.get("image", None)
         if upload is not None:
-            # Upload file is a SpooledTemporaryFile-like UploadFile
-            image_bytes = upload.file.read()
-            upload.file.seek(0)
-            try:
-                img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-                image_tensor = IMAGE_TRANSFORM(img).unsqueeze(0).to(DEVICE)
-            except Exception as e:
-                return JSONResponse({"error": f"bad image: {e}"}, status_code=400)
+            # upload is starlette UploadFile
+            image_tensor = preprocess_image_upload(upload)
+
     else:
         return JSONResponse({"error": f"Unsupported Content-Type: {content_type}"}, status_code=415)
 
-    if not text and not sensors:
-        return JSONResponse({"error": "At least 'text' or 'sensors' must be provided."}, status_code=400)
+    if not text and not sensors and image_tensor is None:
+        return JSONResponse({"error": "Provide at least text or an image."}, status_code=400)
 
     combined_text = build_text_with_sensors(text, sensors)
-    # tokenize
-    if TOKENIZER is None:
-        return JSONResponse({"error": "tokenizer not available on server"}, status_code=500)
-    enc = TOKENIZER(combined_text, truncation=True, max_length=MAX_LEN, padding="max_length", return_tensors="pt")
+
+    # Tokenize text
+    enc = TOKENIZER(
+        combined_text,
+        truncation=True,
+        max_length=MAX_LEN,
+        padding="max_length",
+        return_tensors="pt",
+    )
     input_ids = enc["input_ids"].to(DEVICE)
     attention_mask = enc["attention_mask"].to(DEVICE)
 
-    with torch.no_grad():
-        if image_tensor is not None and MODEL is not None:
-            out = MODEL(input_ids=input_ids, attention_mask=attention_mask, image=image_tensor)
-        elif MODEL is not None:
-            out = MODEL(input_ids=input_ids, attention_mask=attention_mask, image=None)
+    # prepare image batch if available
+    if image_tensor is not None:
+        # ensure batch dim
+        if isinstance(image_tensor, torch.Tensor):
+            img_batch = image_tensor.unsqueeze(0).to(DEVICE)
         else:
-            out = None
+            # if it's numpy etc.
+            img_batch = torch.tensor(image_tensor).unsqueeze(0).to(DEVICE)
+    else:
+        # If your multimodal model **requires** image always, send a zero tensor
+        img_batch = None
 
-    if out is None:
-        return JSONResponse({"error": "model not available"}, status_code=500)
+    # Forward pass (no grad)
+    with torch.no_grad():
+        try:
+            # Match the forward signature from multimodal_model.MultimodalClassifier:
+            # def forward(self, input_ids, attention_mask, pixel_values)
+            if img_batch is not None:
+                logits = MODEL(input_ids=input_ids, attention_mask=attention_mask, pixel_values=img_batch)
+            else:
+                # If model expects pixel_values (non-optional) — create zero image tensor with correct feature size
+                # We attempt call without pixel_values first
+                try:
+                    out_logits = MODEL(input_ids=input_ids, attention_mask=attention_mask, pixel_values=None)
+                    logits = out_logits
+                except TypeError:
+                    # fallback: zero image
+                    dummy_img = torch.zeros((1,3,IMG_SIZE,IMG_SIZE), device=DEVICE)
+                    logits = MODEL(input_ids=input_ids, attention_mask=attention_mask, pixel_values=dummy_img)
+            # If model returns a tensor directly (logits) or an object with .logits
+            if isinstance(logits, dict) and "logits" in logits:
+                logits = logits["logits"]
+            elif hasattr(logits, "logits"):
+                logits = logits.logits
+            # ensure shape [1,C]
+            if isinstance(logits, torch.Tensor) and logits.dim()==1:
+                logits = logits.unsqueeze(0)
+        except Exception as e:
+            traceback.print_exc()
+            return JSONResponse({"error": "model inference failed", "detail": str(e)}, status_code=500)
 
-    logits = out.logits
-    result = logits_to_output(combined_text, logits, THRESHOLDS)
-    # update device status (lightweight)
-    DEVICE_STATUS[client_id] = {"last_seen": datetime.utcnow().isoformat(), "last_result": result}
+    result = logits_to_response(combined_text, logits, THRESHOLDS)
+    # Add client_id & text used for debugging
+    out = {
+        "client_id": client_id,
+        "text_used": combined_text,
+        "result": result,
+        "advice": result.get("advice", "")
+    }
+    return JSONResponse(out, status_code=200)
 
-    return {"client_id": client_id, "text_used": combined_text, "result": result}
-
-# ---------- New hardware endpoints ----------
-
-@app.post("/sensor_upload")
-async def sensor_upload(payload: dict):
-    """
-    Endpoint to be called by resource-constrained devices (ESP32 sensor nodes).
-    Expected body (JSON), e.g.:
-      {
-        "device_id": "esp32-01",
-        "soil": 23.5,
-        "temp": 33.2,
-        "hum": 42.1,
-        "vpd": 2.1,
-        "raw_log": "irrigation skipped yesterday"
-      }
-    The server saves the payload for later training and optionally runs light inference.
-    """
-    try:
-        device_id = str(payload.get("device_id", "unknown"))
-        path = save_sensor(payload)
-        DEVICE_STATUS[device_id] = {"last_seen": datetime.utcnow().isoformat(), "last_sensor_path": path}
-
-        # quick inference: build short combined text & run model if available (non-blocking)
-        combined_text = build_text_with_sensors(payload.get("raw_log", ""), payload.get("sensors", ""))
-        quick_pred = None
-        if MODEL is not None and TOKENIZER is not None:
-            enc = TOKENIZER(combined_text, truncation=True, max_length=MAX_LEN, padding="max_length", return_tensors="pt")
-            with torch.no_grad():
-                out = MODEL(input_ids=enc["input_ids"].to(DEVICE), attention_mask=enc["attention_mask"].to(DEVICE), image=None)
-                quick_pred = logits_to_output(combined_text, out.logits, THRESHOLDS)
-                DEVICE_STATUS[device_id]["last_result"] = quick_pred
-
-        return {"ok": True, "saved": path, "quick_pred": quick_pred}
-    except Exception as e:
-        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-
-@app.post("/image_upload")
-async def image_upload(device_id: str = Form(...), log: str = Form(""), image: UploadFile = File(...)):
-    """
-    Accepts image uploads from esp32cam/pi camera.
-    Stores the file + metadata and optionally runs multimodal inference.
-    """
-    try:
-        saved_path = save_image_file(image, device_id, log)
-        DEVICE_STATUS[device_id] = {"last_seen": datetime.utcnow().isoformat(), "last_image_path": saved_path}
-
-        # run inference on saved image + log if model present
-        image_tensor = preprocess_image_bytes(saved_path)
-        combined_text = build_text_with_sensors(log, "")
-        inf = None
-        if MODEL is not None and TOKENIZER is not None and image_tensor is not None:
-            enc = TOKENIZER(combined_text, truncation=True, max_length=MAX_LEN, padding="max_length", return_tensors="pt")
-            with torch.no_grad():
-                out = MODEL(input_ids=enc["input_ids"].to(DEVICE), attention_mask=enc["attention_mask"].to(DEVICE), image=image_tensor.unsqueeze(0).to(DEVICE))
-                inf = logits_to_output(combined_text, out.logits, THRESHOLDS)
-                DEVICE_STATUS[device_id]["last_result"] = inf
-
-        return {"ok": True, "saved": saved_path, "inference": inf}
-    except Exception as e:
-        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-
-@app.post("/publish_command")
-async def publish_command(body: dict):
-    """
-    Publish a command to a device via MQTT.
-    body: {"device_id": "...", "command": {"cmd": "RELAY_ON", "args": {...}}}
-    """
-    try:
-        device_id = body.get("device_id")
-        command = body.get("command", {})
-        if not device_id:
-            return JSONResponse({"ok": False, "error": "device_id required"}, status_code=400)
-        ok = publish_mqtt_command(device_id, command)
-        return {"ok": ok}
-    except Exception as e:
-        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-
-@app.post("/upload_adapter")
-async def upload_adapter(device_id: str = Form(...), adapter_file: UploadFile = File(...)):
-    """
-    Accept a LoRA adapter file from a client (simulate federated client upload).
-    The server saves adapters under ingest/adapters/ for later aggregation/external FedAvg.
-    """
-    try:
-        fname = f"{device_id}_{_ts()}_{adapter_file.filename}"
-        outp = os.path.join(ADAPTERS_DIR, fname)
-        with open(outp, "wb") as f:
-            shutil.copyfileobj(adapter_file.file, f)
-        return {"ok": True, "saved": outp}
-    except Exception as e:
-        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-
-@app.get("/list_pending_for_training")
-async def list_for_training(limit: int = 200):
-    """
-    List saved images and sensor json files that are not yet used for training.
-    (A later offline job can read these into your dataset).
-    """
-    imgs = sorted([f for f in os.listdir(IMAGES_DIR) if not f.endswith(".json")], reverse=True)[:limit]
-    sensors = sorted(os.listdir(SENSORS_DIR), reverse=True)[:limit]
-    adapters = sorted(os.listdir(ADAPTERS_DIR), reverse=True)[:limit]
-    return {"images": imgs, "sensors": sensors, "adapters": adapters}
-
-@app.get("/download_image/{fname}")
-async def download_image(fname: str):
-    path = os.path.join(IMAGES_DIR, fname)
-    if not os.path.exists(path):
-        return JSONResponse({"error": "file not found"}, status_code=404)
-    return FileResponse(path, media_type="image/jpeg", filename=fname)
-
-# ----------------- Entry point -----------------
+# ---------------- Entry point for direct run ----------------
 if __name__ == "__main__":
     import uvicorn
+    print(f"[server] Starting uvicorn (device={DEVICE}). If you want to change port, set PORT env var.")
     uvicorn.run("server:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), reload=False)

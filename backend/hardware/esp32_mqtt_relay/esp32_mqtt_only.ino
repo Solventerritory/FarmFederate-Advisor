@@ -1,56 +1,45 @@
-// esp32_mqtt_only.ino
+// esp32_mqtt_relay.ino
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* WIFI_SSID   = "YOUR_SSID";
-const char* WIFI_PASS   = "YOUR_PASS";
-const char* MQTT_SERVER = "192.168.1.10";
-const uint16_t MQTT_PORT = 1883;
-const char* DEVICE_ID = "esp32-relay-01";
-const int RELAY_PIN = 16;
+const char* ssid = "YOUR_SSID";
+const char* pass = "YOUR_PASS";
+const char* mqtt_server = "192.168.1.100";
+int mqtt_port = 1883;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+const int RELAY_PIN = 26;
 
 void callback(char* topic, byte* payload, unsigned int length) {
   String msg;
-  for (unsigned int i = 0; i < length; i++) msg += (char)payload[i];
-  Serial.print("Got command: "); Serial.println(msg);
-  if (msg.indexOf("ON") >= 0 || msg.indexOf("open") >= 0 || msg.indexOf("1") >= 0) {
-    digitalWrite(RELAY_PIN, HIGH);
-  } else {
-    digitalWrite(RELAY_PIN, LOW);
+  for (unsigned int i=0;i<length;i++) msg += (char)payload[i];
+  if (String(topic).endsWith("/relay")) {
+    if (msg == "ON") digitalWrite(RELAY_PIN, HIGH);
+    else digitalWrite(RELAY_PIN, LOW);
   }
 }
 
-void connectWiFi() {
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  Serial.print("WiFi");
-  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
-  Serial.println(" connected");
-}
-
-void reconnectMQTT() {
+void reconnect() {
   while (!client.connected()) {
-    if (client.connect(DEVICE_ID)) {
-      String topic = String("farm/") + DEVICE_ID + "/commands";
-      client.subscribe(topic.c_str());
+    if (client.connect("esp32_relay")) {
+      client.subscribe("farmfederate/control/#");
     } else {
-      delay(3000);
+      delay(2000);
     }
   }
 }
 
 void setup() {
-  Serial.begin(115200);
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
-  connectWiFi();
-  client.setServer(MQTT_SERVER, MQTT_PORT);
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+  client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
 }
 
 void loop() {
-  if (!client.connected()) reconnectMQTT();
+  if (!client.connected()) reconnect();
   client.loop();
 }
