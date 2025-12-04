@@ -1,0 +1,8 @@
+import 'dart:typed_data';
+import 'package:platform/platform.dart';
+
+final _plat = LocalPlatform();
+
+bool get isWeb => identical(0, 0.0); // will be overridden by conditional import in more complex setups
+bool get isMobile => _plat.isAndroid || _plat.isIOS;
+bool get isDesktop => _plat.isMacOS || _plat.isWindows || _plat.isLinux;

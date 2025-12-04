@@ -1,82 +1,46 @@
-// lib/services/api_service.dart
-
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
 
-import '../models/predict_result.dart';
-
+/// Simple API service that posts to /predict
 class ApiService {
-  /// IMPORTANT: match your FastAPI server address.
-  /// For local desktop/web:
-  ///   "http://127.0.0.1:8000"
-  /// If running on a different machine, use that machine's LAN IP.
-  static String baseUrl = "http://127.0.0.1:8000";
+  final String baseUrl;
+  ApiService(this.baseUrl);
 
-  /// Send text + optional sensor string + optional image bytes
-  static Future<PredictResult> predict({
+  /// text: free text (optional)
+  /// sensors: optional sensors string (we will omit sensors on web if hardware is used)
+  /// imageBytes: optional JPEG/PNG bytes
+  Future<Map<String, dynamic>> predict({
     required String text,
-    String sensors = "",
+    String? sensors,
     Uint8List? imageBytes,
-    String? imageName,
-    String clientId = "flutter_client",
+    String clientId = "web_client",
   }) async {
     final uri = Uri.parse("$baseUrl/predict");
+    // Use JSON body (server supports application/json)
+    final body = {
+      "text": text,
+      "sensors": sensors ?? "",
+      "client_id": clientId,
+    };
 
-    // ---------- CASE 1: multipart (image present) ----------
-    if (imageBytes != null && imageBytes.isNotEmpty) {
-      final req = http.MultipartRequest("POST", uri);
-
-      req.fields["text"] = text;
-      req.fields["client_id"] = clientId;
-      if (sensors.isNotEmpty) {
-        req.fields["sensors"] = sensors;
-      }
-
-      final fname = imageName ?? "upload.jpg";
-      final mime = lookupMimeType(fname) ?? "image/jpeg";
-      final split = mime.split("/");
-
-      req.files.add(
-        http.MultipartFile.fromBytes(
-          "image",
-          imageBytes,
-          filename: fname,
-          contentType: MediaType(
-            split.first,
-            split.length > 1 ? split.last : "jpeg",
-          ),
-        ),
-      );
-
-      final streamRes = await req.send();
-      final res = await http.Response.fromStream(streamRes);
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        return PredictResult.fromJson(json.decode(res.body));
-      } else {
-        throw Exception("Server error: ${res.statusCode} ${res.body}");
-      }
-    }
-
-    // ---------- CASE 2: JSON-only (no image) ----------
-    final response = await http.post(
-      uri,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
+    // If image provided, send multipart; otherwise JSON
+    if (imageBytes != null) {
+      final request = http.MultipartRequest('POST', uri);
+      request.fields.addAll({
         "text": text,
+        "sensors": sensors ?? "",
         "client_id": clientId,
-        "sensors": sensors,
-      }),
-    );
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return PredictResult.fromJson(json.decode(response.body));
+      });
+      request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: 'upload.jpg'));
+      final streamed = await request.send();
+      final resp = await http.Response.fromStream(streamed);
+      return json.decode(resp.body) as Map<String, dynamic>;
     } else {
-      throw Exception("Server error: ${response.statusCode} ${response.body}");
+      final resp = await http.post(uri,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode(body));
+      return json.decode(resp.body) as Map<String, dynamic>;
     }
   }
 }
