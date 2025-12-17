@@ -5,7 +5,8 @@
 multimodal_train.py — centralized training of the multimodal model.
 
 - Builds a mixed text corpus from HF datasets + synthetic logs.
-- Optionally uses plantvillage images via Hugging Face.
+- Uses multiple plant-stress image datasets via Hugging Face
+  (merged by load_stress_image_datasets_hf).
 - Trains MultimodalClassifier end-to-end (no federated splitting).
 - Saves model weights to checkpoints/global_central.pt
 """
@@ -14,7 +15,6 @@ import os
 import json
 
 import numpy as np
-import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
@@ -23,7 +23,7 @@ from transformers import AutoTokenizer
 from multimodal_model import MultimodalClassifier, build_image_processor
 from datasets_loader import (
     build_text_corpus_mix,
-    load_plant_images_hf,
+    load_stress_image_datasets_hf,
     summarize_labels,
     ISSUE_LABELS,
     NUM_LABELS,
@@ -48,8 +48,11 @@ def main():
     )
     summarize_labels(df, "train")
 
-    # 2) images
-    image_ds = load_plant_images_hf(max_images=4000)
+    # 2) images: merged HF plant stress datasets (auto-downloadable)
+    image_ds = load_stress_image_datasets_hf(
+        max_total_images=20000,
+        max_per_dataset=6000,
+    )
 
     # 3) model + tokenizers
     text_model_name = "roberta-base"
@@ -95,11 +98,13 @@ def main():
             pixel_values = batch["pixel_values"].to(DEVICE)
             labels = batch["labels"].to(DEVICE)
 
-            logits = model(
+            outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 pixel_values=pixel_values,
             )
+            logits = outputs.logits if hasattr(outputs, "logits") else outputs
+
             loss = loss_fn(logits, labels)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)

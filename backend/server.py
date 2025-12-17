@@ -7,6 +7,7 @@ import io
 import json
 import traceback
 from typing import Optional, Any, Dict, List
+from contextlib import asynccontextmanager
 
 from PIL import Image
 import numpy as np
@@ -85,18 +86,30 @@ def advisor_from_mask(mask: List[int]) -> str:
     return "Recommended actions:\n" + "\n".join([f"- {lab}: {ADVICE.get(lab, '')}" for lab in active])
 
 # ---------------- Globals ----------------
-app = FastAPI(title="FarmFederate-Advisor (full model server)")
+TOKENIZER = None
+IMAGE_PROCESSOR = None
+MODEL: Optional[nn.Module] = None
+THRESHOLDS = np.array([0.5]*NUM_LABELS, dtype=np.float32)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: load model
+    try:
+        load_model_and_tokenizer(CHECKPOINT_PATH)
+    except Exception as e:
+        print("[server][ERROR] Failed startup model load:", e)
+        traceback.print_exc()
+    yield
+    # Shutdown: cleanup if needed
+    print("[server] Shutting down...")
+
+app = FastAPI(title="FarmFederate-Advisor (full model server)", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-TOKENIZER = None
-IMAGE_PROCESSOR = None
-MODEL: Optional[nn.Module] = None
-THRESHOLDS = np.array([0.5]*NUM_LABELS, dtype=np.float32)
 
 # ---------------- Model loader ----------------
 def safe_load_checkpoint(path: str) -> Dict[str, Any]:
@@ -184,16 +197,6 @@ def load_model_and_tokenizer(checkpoint_path: str = CHECKPOINT_PATH):
         IMAGE_PROCESSOR = None
         print("[server] No image processor builder available — using torchvision transform fallback.")
 
-
-# load at startup
-@app.on_event("startup")
-async def startup_event():
-    try:
-        load_model_and_tokenizer(CHECKPOINT_PATH)
-    except Exception as e:
-        print("[server][ERROR] Failed startup model load:", e)
-        traceback.print_exc()
-
 # ---------------- utility helpers ----------------
 def build_text_with_sensors(text: str, sensors: str) -> str:
     text = (text or "").strip()
@@ -266,6 +269,32 @@ def logits_to_response(text: str, logits: torch.Tensor, thresholds: np.ndarray):
 async def health():
     model_loaded = MODEL is not None
     return {"status": "ok", "device": DEVICE, "model_loaded": bool(model_loaded), "labels": ISSUE_LABELS}
+
+@app.get("/sensors/latest")
+async def get_latest_sensors():
+    """
+    Return the latest sensor data from MQTT listener saved files.
+    Looks in checkpoints_paper/ingest/sensors/ for *.json files and returns the most recent.
+    """
+    sensors_dir = os.path.join("checkpoints_paper", "ingest", "sensors")
+    if not os.path.exists(sensors_dir):
+        return JSONResponse({"error": "No sensor data available"}, status_code=404)
+    
+    # Find all sensor JSON files
+    try:
+        files = [f for f in os.listdir(sensors_dir) if f.endswith('.json')]
+        if not files:
+            return JSONResponse({"error": "No sensor data available"}, status_code=404)
+        
+        # Get the most recently modified file
+        latest_file = max([os.path.join(sensors_dir, f) for f in files], key=os.path.getmtime)
+        
+        with open(latest_file, 'r') as f:
+            sensor_data = json.load(f)
+        
+        return JSONResponse(sensor_data, status_code=200)
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to read sensor data: {str(e)}"}, status_code=500)
 
 @app.post("/predict")
 async def predict(request: Request):
@@ -378,6 +407,33 @@ async def predict(request: Request):
         "advice": result.get("advice", "")
     }
     return JSONResponse(out, status_code=200)
+
+# ---------------- Control endpoint for IoT devices ----------------
+@app.post("/control/{device}")
+async def control_device(device: str, request: Request):
+    """
+    Control endpoint for IoT devices (water pump, heater, pest control, etc.)
+    """
+    try:
+        body = await request.json()
+        state = body.get("state", False)
+        
+        # Log the control command
+        print(f"[control] Device: {device}, State: {state}")
+        
+        # Here you would integrate with MQTT or other IoT protocol
+        # For now, just return success
+        return JSONResponse({
+            "success": True,
+            "device": device,
+            "state": state,
+            "message": f"{device} {'activated' if state else 'deactivated'}"
+        }, status_code=200)
+    except Exception as e:
+        return JSONResponse({
+            "success": False,
+            "error": str(e)
+        }, status_code=500)
 
 # ---------------- Entry point for direct run ----------------
 if __name__ == "__main__":

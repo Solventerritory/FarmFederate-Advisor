@@ -10,17 +10,19 @@ Text sources (downloaded via Hugging Face `datasets`):
     - ag_news (agri-filtered)
     - synthetic local "LocalMini" agri log-style data
 
-Image source:
-    - plantvillage (Hugging Face)  — plant disease images
-      (if unavailable, falls back to a dummy single-color image in memory)
+Image sources (Hugging Face datasets, all auto-downloaded if available):
+    - BrandonFors/Plant-Diseases-PlantVillage-Dataset  (PlantVillage mirror)
+    - Saon110/bd-crop-vegetable-plant-disease-dataset
+    - timm/plant-pathology-2021
+    - uqtwei2/PlantWild
 
-All text datasets are mapped to the 5 issue labels using weak, rule-based
-labelling (keywords) identical in spirit to farm_advisor.py.
+If an image dataset fails to load (timeout, 404, permission), it is skipped.
+If *all* fail, training falls back to a dummy gray image in memory.
 
-The main entry points are:
+Main entry points:
 
     build_text_corpus_mix(...)
-    load_plant_images_hf(...)
+    load_stress_image_datasets_hf(...)
 """
 
 import os
@@ -36,7 +38,7 @@ import pandas as pd
 from PIL import Image
 
 try:
-    from datasets import load_dataset, DownloadConfig
+    from datasets import load_dataset, DownloadConfig, concatenate_datasets, DatasetDict
     HAS_DATASETS = True
 except Exception:
     HAS_DATASETS = False
@@ -102,6 +104,7 @@ AG_CONTEXT = re.compile(
     r"nursery|plantation|horticul)\b",
     re.I,
 )
+
 
 def is_ag_context(s: str) -> bool:
     return bool(AG_CONTEXT.search(s))
@@ -278,7 +281,7 @@ def build_localmini(max_samples: int = 0, mqtt_csv: str = "", extra_csv: str = "
     return df
 
 
-# ----------------- HF loading helpers -----------------
+# ----------------- HF loading helpers (TEXT) -----------------
 def _load_ds(name, split=None, streaming=False):
     if not HAS_DATASETS:
         raise RuntimeError("The `datasets` library is not installed.")
@@ -431,27 +434,110 @@ def build_text_corpus_mix(
     return df[["text", "labels"]]
 
 
-# ----------------- Image dataset (PlantVillage via HF) -----------------
+# ----------------- Image datasets (PlantVillage + others via HF) -----------------
 def load_plant_images_hf(max_images: int = 4000):
     """
-    Returns a Hugging Face dataset with a column `image` of PIL images.
+    Legacy helper: approximate PlantVillage via a HF mirror.
 
-    Uses `plantvillage` if available. If `datasets` is missing or
-    download fails, returns None and you should fall back to dummy images.
+    Uses: BrandonFors/Plant-Diseases-PlantVillage-Dataset
+    Returns a dataset with an `image` column, or None if it fails.
     """
     if not HAS_DATASETS:
         print("[Images] datasets not installed; no HF images.")
         return None
+
+    name = "BrandonFors/Plant-Diseases-PlantVillage-Dataset"
     try:
-        print("[Images] loading plantvillage from HF (this will download once)...")
-        ds = load_dataset("plantvillage", "color", split="train")
+        print(f"[Images] loading {name} from HF (this will download once)...")
+        ds = load_dataset(name, split="train")
+        if "image" not in ds.column_names:
+            print(f"[Images] {name} has no 'image' column; skipping.")
+            return None
         if max_images and len(ds) > max_images:
             ds = ds.shuffle(seed=SEED).select(range(max_images))
-        print(f"[Images] plantvillage loaded: {len(ds)} samples")
+        print(f"[Images] {name} loaded: {len(ds)} samples")
         return ds
     except Exception as e:
-        print(f"[Images] failed to load plantvillage: {e}")
+        print(f"[Images] failed to load {name}: {e}")
         return None
+
+
+def load_stress_image_datasets_hf(
+    max_total_images: int = 20000,
+    max_per_dataset: int = 6000,
+):
+    """
+    Try to load multiple plant stress / disease datasets from Hugging Face.
+
+    Datasets attempted (train split):
+        - BrandonFors/Plant-Diseases-PlantVillage-Dataset
+        - Saon110/bd-crop-vegetable-plant-disease-dataset
+        - timm/plant-pathology-2021
+        - uqtwei2/PlantWild
+
+    Returns:
+        - a concatenated HF dataset with an `image` column, or
+        - None (if all fail)
+
+    Any dataset failing to load or lacking an `image` column is skipped.
+    """
+    if not HAS_DATASETS:
+        print("[Images] datasets not installed; no HF images.")
+        return None
+
+    token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+    common_kwargs = {}
+    if token:
+        common_kwargs["token"] = token
+        common_kwargs["use_auth_token"] = token
+
+    specs = [
+        ("BrandonFors/Plant-Diseases-PlantVillage-Dataset", {"split": "train"}),
+        ("Saon110/bd-crop-vegetable-plant-disease-dataset", {"split": "train"}),
+        ("timm/plant-pathology-2021", {"split": "train"}),
+        ("uqtwei2/PlantWild", {"split": "train"}),
+    ]
+
+    ds_list = []
+
+    for name, kw in specs:
+        full_kw = dict(kw)
+        full_kw.update(common_kwargs)
+        try:
+            print(f"[Images] trying to load {name} ({kw}) ...")
+            ds = load_dataset(name, **full_kw)
+
+            # Handle DatasetDict vs Dataset
+            if isinstance(ds, DatasetDict):
+                if "train" in ds:
+                    ds = ds["train"]
+                else:
+                    first_split = list(ds.keys())[0]
+                    ds = ds[first_split]
+
+            if "image" not in ds.column_names:
+                print(f"[Images] {name} has no 'image' column; skipping.")
+                continue
+
+            if max_per_dataset and len(ds) > max_per_dataset:
+                ds = ds.shuffle(seed=SEED).select(range(max_per_dataset))
+
+            print(f"[Images] {name} loaded: {len(ds)} samples")
+            ds_list.append(ds)
+        except Exception as e:
+            print(f"[Images] failed to load {name}: {e}")
+
+    if not ds_list:
+        print("[Images] no HF image datasets could be loaded; using dummy images in training.")
+        return None
+
+    merged = concatenate_datasets(ds_list)
+    if max_total_images and len(merged) > max_total_images:
+        merged = merged.shuffle(seed=SEED).select(range(max_total_images))
+
+    print(f"[Images] merged image dataset size: {len(merged)} samples "
+          f"(max_total_images={max_total_images})")
+    return merged
 
 
 # ----------------- Convenience for summaries -----------------
