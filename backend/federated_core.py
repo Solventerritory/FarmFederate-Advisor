@@ -37,7 +37,8 @@ class MultiModalDataset(Dataset):
     Each item: {input_ids, attention_mask, pixel_values, labels, raw_text}
     - `df_text`: DataFrame with columns ["text", "labels"]
     - `tokenizer`: HF tokenizer for text encoder
-    - `image_ds`: optional HF dataset with column "image" (PIL)
+    - `image_processor`: HF image processor for ViT
+    - `image_ds`: optional HF dataset with column "image" (PIL-like)
     - If `image_ds` is None, uses a gray dummy image.
     """
     def __init__(self, df_text: pd.DataFrame, tokenizer, image_processor,
@@ -118,7 +119,11 @@ class FocalLoss(nn.Module):
         self.smooth = label_smoothing
         self.bce = nn.BCEWithLogitsLoss(reduction="none")
 
-    def forward(self, logits, targets):
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor):
+        """
+        logits: [B, C]
+        targets: [B, C] float in {0,1}
+        """
         if self.smooth > 0:
             targets = targets * (1 - self.smooth) + 0.5 * self.smooth
         bce = self.bce(logits, targets)
@@ -129,8 +134,7 @@ class FocalLoss(nn.Module):
             loss = loss * self.alpha.view(1, -1)
         return loss.mean()
 
-
-# ------------- Dirichlet non-IID split -------------
+# ------------- Dirichlet split + train_one_client -------------
 def split_clients_dirichlet(df: pd.DataFrame, n_clients: int, alpha: float) -> List[pd.DataFrame]:
     """
     Non-IID client split: each label class has its own Dirichlet distribution over clients.
@@ -139,7 +143,6 @@ def split_clients_dirichlet(df: pd.DataFrame, n_clients: int, alpha: float) -> L
     num_classes = NUM_LABELS
     rng = np.random.default_rng(SEED)
 
-    # pick primary label per row
     prim = []
     for labs in df["labels"]:
         if labs:
@@ -163,7 +166,6 @@ def split_clients_dirichlet(df: pd.DataFrame, n_clients: int, alpha: float) -> L
     return out
 
 
-# ------------- Single-client local training -------------
 def train_one_client(
     model,
     df_train: pd.DataFrame,
@@ -227,11 +229,12 @@ def train_one_client(
             labels = batch["labels"].to(device)
 
             with torch.amp.autocast("cuda", enabled=torch.cuda.is_available()):
-                logits = model(
+                outputs = model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
                     pixel_values=pixel_values,
                 )
+                logits = outputs.logits if hasattr(outputs, "logits") else outputs
                 loss = loss_fn(logits, labels) / max(1, grad_accum)
 
             scaler.scale(loss).backward()
@@ -254,16 +257,19 @@ def train_one_client(
             attention_mask = batch["attention_mask"].to(device)
             pixel_values = batch["pixel_values"].to(device)
             labels = batch["labels"].to(device)
-            logits = model(
+            outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 pixel_values=pixel_values,
             )
+            logits = outputs.logits if hasattr(outputs, "logits") else outputs
             loss = loss_fn(logits, labels)
             val_loss += loss.item() * labels.size(0)
     val_loss /= max(1, len(val_ds))
 
     # only return CPU state_dict to reduce memory
-    state_dict_cpu = {k: v.detach().cpu() for k, v in model.state_dict().items() if v.requires_grad}
+    state_dict_cpu = {k: v.detach().cpu()
+                      for k, v in model.state_dict().items()
+                      if v.requires_grad}
 
     return state_dict_cpu, total_loss / max(1, step_count), val_loss

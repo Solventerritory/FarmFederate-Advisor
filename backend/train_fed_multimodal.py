@@ -5,31 +5,34 @@
 train_fed_multimodal.py — federated training for the multimodal FarmFederate model.
 
 - Text data: mix of HF agri corpora + synthetic LocalMini
-- Images: plantvillage (HF) if available
+- Images: multiple plant stress / disease datasets from HF (PlantVillage mirrors + others)
 - FedAvg over non-IID clients (Dirichlet)
 - Saves checkpoints/global_round{r}.pt (and final .pt)
 
-This is a lighter, multimodal counterpart to farm_advisor.py adapted for
-your backend + Flutter demo.
+This is the federated counterpart to multimodal_train.py
+adapted for your backend + Flutter demo.
 """
 
 import os
-import math
 from typing import List
 
 import numpy as np
-import pandas as pd
 import torch
+from transformers import AutoTokenizer
 
-from multimodal_model import MultimodalClassifier, build_tokenizer, build_image_processor
+from multimodal_model import MultimodalClassifier, build_image_processor
 from datasets_loader import (
     build_text_corpus_mix,
-    load_plant_images_hf,
+    load_stress_image_datasets_hf,
     summarize_labels,
     ISSUE_LABELS,
     NUM_LABELS,
 )
-from federated_core import split_clients_dirichlet, train_one_client, make_weights_for_balanced_classes
+from federated_core import (
+    split_clients_dirichlet,
+    train_one_client,
+    make_weights_for_balanced_classes,
+)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 SEED = 123
@@ -43,10 +46,8 @@ def fedavg_weighted(states: List[dict], sizes: List[int]):
     out = {}
     keys = states[0].keys()
     for k in keys:
-        accum = 0.0
-        for st, w in zip(states, weights):
-            accum = accum + st[k].float() * w
-        out[k] = accum
+        stacked = torch.stack([st[k].float() * w for st, w in zip(states, weights)], dim=0)
+        out[k] = stacked.sum(dim=0)
     return out
 
 
@@ -80,13 +81,16 @@ def main():
     alpha = (inv / inv.mean()).astype(np.float32)
     alpha = torch.tensor(alpha)
 
-    # images
-    image_ds = load_plant_images_hf(max_images=4000)
+    # images: multiple datasets (PlantVillage mirror + others)
+    image_ds = load_stress_image_datasets_hf(
+        max_total_images=20000,
+        max_per_dataset=6000,
+    )
 
     # tokenizer / image processor
     text_model_name = "roberta-base"
     image_model_name = "google/vit-base-patch16-224-in21k"
-    tokenizer = build_tokenizer(text_model_name)
+    tokenizer = AutoTokenizer.from_pretrained(text_model_name)
     image_processor = build_image_processor(image_model_name)
 
     # global model
@@ -100,7 +104,7 @@ def main():
     # federated client splits on train set
     client_dfs = split_clients_dirichlet(df_train, n_clients=clients, alpha=dirichlet_alpha)
 
-    print(f"Non-IID clients: {[len(cdf) for cdf in client_dfs]}")
+    print(f"Non-IID clients sizes: {[len(cdf) for cdf in client_dfs]}")
 
     for r in range(1, rounds + 1):
         print(f"\n=== Federated round {r}/{rounds} ===")
@@ -117,6 +121,7 @@ def main():
             val_n = max(1, int(0.15 * n))
             df_c_val = cdf.iloc[:val_n].reset_index(drop=True)
             df_c_train = cdf.iloc[val_n:].reset_index(drop=True)
+            print(f"[client {cid}] train={len(df_c_train)}, val={len(df_c_val)}")
 
             # fresh model copy
             local_model = MultimodalClassifier(
@@ -146,8 +151,8 @@ def main():
             )
 
             print(
-                f"[client {cid}] n={len(cdf)} train_loss={train_loss:.4f} "
-                f"val_loss={val_loss:.4f}"
+                f"[client {cid}] n={len(cdf)} "
+                f"train_loss={train_loss:.4f} val_loss={val_loss:.4f}"
             )
 
             states.append(state_cpu)

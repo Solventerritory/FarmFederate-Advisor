@@ -1,16 +1,20 @@
-// lib/screens/chat_screen.dart
-import 'dart:convert';
-import 'dart:io';
+// frontend/lib/screens/chat_screen.dart
+// ChatScreen (text + optional image) + ApiService
+// - Handles mobile + web image picking (ImagePicker for camera/mobile, FilePicker for upload).
+// - Highlights top-2 scores: top1 -> red, top2 -> yellow.
+// - Sends multipart (file bytes) if image present, otherwise JSON POST.
 
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:io' show File; // only used on non-web
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 
-/// ChatScreen: send text + optional image to backend /predict and show results.
-/// Usage: ChatScreen(apiBase: "http://10.0.2.2:8000")
 class ChatScreen extends StatefulWidget {
-  final String apiBase;
+  final String apiBase; // e.g. "http://10.0.2.2:8000"
   const ChatScreen({Key? key, required this.apiBase}) : super(key: key);
 
   @override
@@ -19,68 +23,100 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _ctrl = TextEditingController();
+
+  // For mobile: store a File
   File? _imageFile;
+
+  // For web (and unified display) we store bytes + filename if chosen via file picker
+  Uint8List? _imageBytes;
+  String? _imageName;
+
   bool _loading = false;
   String _status = "idle";
-  List<Map<String, dynamic>> _scores = []; // {label, prob(double)}
+  List<Map<String, dynamic>> _scores = []; // each: {label: String, prob: double}
   String _advice = "";
   Map<String, dynamic> _debug = {};
 
-  // Use image_picker for camera
   final ImagePicker _picker = ImagePicker();
 
-  // ----- UI helpers -----
-  void _setStatusDirect(String s) {
-    // helper that sets status (uses setState)
-    setState(() => _status = s);
-  }
+  void _setStatus(String s) => setState(() => _status = s);
 
-  // Pick from camera
+  // Use camera (mobile/desktop where supported). ImagePicker on web will not capture file, so guard.
   Future<void> _pickCamera() async {
     try {
-      final XFile? photo =
-          await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+      if (kIsWeb) {
+        // camera via web is not supported by image_picker package in many setups.
+        _setStatus("camera not supported on web — use Upload");
+        return;
+      }
+      final XFile? photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
       if (photo == null) return;
       setState(() {
         _imageFile = File(photo.path);
+        _imageBytes = null;
+        _imageName = photo.name;
       });
     } catch (e) {
-      _setStatusDirect("camera error");
+      _setStatus("camera error");
       debugPrint("camera error: $e");
     }
   }
 
-  // Pick from file system
+  // File picker (works on web and mobile)
   Future<void> _pickFile() async {
     try {
-      final res =
-          await FilePicker.platform.pickFiles(type: FileType.image, withData: false);
+      final res = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
       if (res == null || res.files.isEmpty) return;
-      final p = res.files.first.path;
-      if (p == null) return;
-      setState(() {
-        _imageFile = File(p);
-      });
+      final picked = res.files.first;
+      if (kIsWeb) {
+        // On web we have bytes directly
+        setState(() {
+          _imageBytes = picked.bytes;
+          _imageName = picked.name;
+          _imageFile = null;
+        });
+      } else {
+        // On mobile we may get a path as well
+        final p = picked.path;
+        if (p != null) {
+          setState(() {
+            _imageFile = File(p);
+            _imageBytes = null;
+            _imageName = picked.name;
+          });
+        } else if (picked.bytes != null) {
+          // fallback: write bytes to temp file...
+          setState(() {
+            _imageBytes = picked.bytes;
+            _imageFile = null;
+            _imageName = picked.name;
+          });
+        }
+      }
     } catch (e) {
-      _setStatusDirect("file pick error");
+      _setStatus("file pick error");
       debugPrint("file pick error: $e");
     }
   }
 
-  void _clearImage() => setState(() => _imageFile = null);
+  void _clearImage() {
+    setState(() {
+      _imageFile = null;
+      _imageBytes = null;
+      _imageName = null;
+    });
+  }
 
-  // ----- Call backend -----
   Future<void> _send() async {
     final text = _ctrl.text.trim();
-    if (text.isEmpty && _imageFile == null) {
-      _setStatusDirect("provide text or image");
+    if (text.isEmpty && _imageFile == null && _imageBytes == null) {
+      _setStatus("provide text or image");
       return;
     }
 
-    // Avoid nested setState by setting values directly inside setState
     setState(() {
       _loading = true;
-      _status = "sending...";
+      _setStatus("sending...");
       _scores = [];
       _advice = "";
       _debug = {};
@@ -88,38 +124,46 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final api = ApiService(baseUrl: widget.apiBase);
-      final resp =
-          await api.predict(text: text, imageFile: _imageFile, clientId: "flutter_client");
+      final resp = await api.predict(
+        text: text,
+        imageFile: _imageFile,
+        imageBytes: _imageBytes,
+        imageName: _imageName,
+        clientId: "flutter_client",
+      );
 
       if (resp == null) {
-        _setStatusDirect("no response");
+        _setStatus("no response");
+        setState(() {
+          _advice = "No response from server.";
+        });
       } else {
-        // parse response: expecting structure similar to server.py
-        // result: { active_labels: [...], all_scores: [{label,prob,threshold}, ...], raw_probs: [...] }
-        final result = resp['result'] ?? resp['data'] ?? {};
-        final allScores = result['all_scores'] as List<dynamic>?;
+        final result = resp['result'] ?? resp['data'] ?? resp;
+        final allScores = result['all_scores'] as List<dynamic>? ?? result['scores'] as List<dynamic>?;
 
-        // build scores
-        final parsed = (allScores ?? []).map<Map<String, dynamic>>((e) {
-          final label = e['label'] ?? e['name'] ?? "unknown";
+        final parsedScores = (allScores ?? []).map<Map<String, dynamic>>((e) {
+          final label = (e['label'] ?? e['name'] ?? "unknown").toString();
           double prob = 0.0;
           if (e['prob'] is num) {
             prob = (e['prob'] as num).toDouble();
           } else {
             prob = double.tryParse("${e['prob']}") ?? 0.0;
           }
-          return {"label": label, "prob": prob};
+          // convert 0..100 -> 0..1 if needed
+          if (prob > 1.0) prob = prob / 100.0;
+          return {"label": label, "prob": prob.clamp(0.0, 1.0)};
         }).toList();
 
         setState(() {
-          _scores = parsed;
-          _advice = (resp['advice'] ?? result['advice'] ?? resp['advice_text'] ?? "") as String;
+          _scores = parsedScores;
+          // Defensive advice parsing
+          _advice = (resp['advice'] ?? result['advice'] ?? resp['advice_text'] ?? "")?.toString() ?? "";
           _debug = resp['debug'] ?? {};
-          _status = "ok";
+          _setStatus("ok");
         });
       }
     } catch (e, st) {
-      _setStatusDirect("error");
+      _setStatus("error");
       debugPrint("predict error: $e\n$st");
       setState(() {
         _advice = "Error: $e";
@@ -131,59 +175,60 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // ----- Render chips: highlight top-2 -----
+  // Build chips; top1 red, top2 yellow.
   Widget _buildScoreChips() {
     if (_scores.isEmpty) return SizedBox.shrink();
 
-    // Defensive copy and sort descending by prob
     final sorted = List<Map<String, dynamic>>.from(_scores)
-      ..sort((a, b) => ((b['prob'] as num).compareTo(a['prob'] as num)));
+      ..sort((a, b) => (b['prob'] as num).compareTo(a['prob'] as num));
 
-    final top1Label = sorted.isNotEmpty ? (sorted[0]['label'] as String) : null;
-    final top2Label = sorted.length > 1 ? (sorted[1]['label'] as String) : null;
+    debugPrint('SCORES (sorted): $sorted');
+
+    final String? top1 = sorted.isNotEmpty ? sorted[0]['label'] as String : null;
+    final String? top2 = sorted.length > 1 ? sorted[1]['label'] as String : null;
 
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: sorted.map((s) {
-        final String label = s['label'] as String;
-        final double prob = (s['prob'] as num).toDouble(); // 0..1
+        final label = s['label'] as String;
+        final prob = (s['prob'] as num).toDouble();
         final scoreText = "$label: ${(prob * 100).toStringAsFixed(1)}%";
 
-        final bool isTop1 = (label == top1Label);
-        final bool isTop2 = (label == top2Label);
+        final isTop1 = label == top1;
+        final isTop2 = label == top2;
 
         Color bgColor;
-        Color textColor = Colors.black;
-        List<BoxShadow>? shadows;
+        Color textColor;
+        double elevation = 0;
 
         if (isTop1) {
-          bgColor = Colors.red.shade600;
+          bgColor = Colors.red.shade700;
           textColor = Colors.white;
-          shadows = [BoxShadow(color: Colors.black26, blurRadius: 8)];
+          elevation = 6;
         } else if (isTop2) {
-          bgColor = Colors.amber.shade400;
+          bgColor = Colors.amber.shade700;
           textColor = Colors.black;
-          shadows = [BoxShadow(color: Colors.black12, blurRadius: 4)];
+          elevation = 4;
         } else {
           bgColor = Colors.grey.shade100;
           textColor = Colors.black87;
-          shadows = null;
+          elevation = 0;
         }
 
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: shadows,
-          ),
-          child: Text(
-            scoreText,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: (isTop1 || isTop2) ? FontWeight.bold : FontWeight.normal,
+        // Material ensures color & elevation appear correctly on web/desktop
+        return Material(
+          color: bgColor,
+          elevation: elevation,
+          borderRadius: BorderRadius.circular(22),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Text(
+              scoreText,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: (isTop1 || isTop2) ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
         );
@@ -199,22 +244,26 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final imagePreview = _imageFile != null
-        ? Image.file(_imageFile!, width: 120, height: 120, fit: BoxFit.cover)
-        : Container(
-            width: 120,
-            height: 120,
-            color: Colors.grey.shade100,
-            child: Center(child: Text("No image")),
-          );
+    Widget imagePreview;
+    if (_imageBytes != null) {
+      imagePreview = Image.memory(_imageBytes!, width: 120, height: 120, fit: BoxFit.cover);
+    } else if (_imageFile != null) {
+      imagePreview = Image.file(_imageFile!, width: 120, height: 120, fit: BoxFit.cover);
+    } else {
+      imagePreview = Container(
+        width: 120,
+        height: 120,
+        color: Colors.grey.shade100,
+        child: Center(child: Text("No image")),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Row(children: [
-          // small placeholder logo
           Icon(Icons.agriculture, size: 28),
           SizedBox(width: 8),
-          Text("FarmFederate — Chat"),
+          Text("FarmFederate"),
         ]),
       ),
       body: SingleChildScrollView(
@@ -223,7 +272,7 @@ class _ChatScreenState extends State<ChatScreen> {
           TextField(
             controller: _ctrl,
             minLines: 1,
-            maxLines: 3,
+            maxLines: 4,
             decoration: InputDecoration(
               hintText: "Describe the issue (or leave blank for image-only)",
               border: UnderlineInputBorder(),
@@ -231,7 +280,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           SizedBox(height: 18),
 
-          // image preview and buttons
+          // image preview + buttons
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ClipRRect(borderRadius: BorderRadius.circular(6), child: imagePreview),
             SizedBox(width: 14),
@@ -254,31 +303,50 @@ class _ChatScreenState extends State<ChatScreen> {
           ]),
           SizedBox(height: 18),
 
-          // send + status
           Row(children: [
             ElevatedButton.icon(
               onPressed: _loading ? null : _send,
               icon: Icon(Icons.send),
-              label: Text(_loading ? "Sending..." : "Send"),
+              label: Text(_loading ? "Sending..." : "Send to backend"),
             ),
             SizedBox(width: 12),
             Text("Status: $_status"),
           ]),
-          SizedBox(height: 20),
 
-          // scores chips (wrapped in a heading area)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 8),
-              Text('All scores:', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              _buildScoreChips(),
-              SizedBox(height: 18),
-            ],
-          ),
+          SizedBox(height: 18),
 
-          // Advice
+          // TEMP debug button to verify coloring quickly (uncomment while developing)
+          // ElevatedButton(
+          //   onPressed: () {
+          //     setState(() {
+          //       _scores = [
+          //         {"label": "water_stress", "prob": 0.78},
+          //         {"label": "pest_risk", "prob": 0.64},
+          //         {"label": "nutrient_def", "prob": 0.33},
+          //       ];
+          //       _advice = "Sample advice (debug)";
+          //     });
+          //   },
+          //   child: Text("Load sample scores (debug)"),
+          // ),
+
+          SizedBox(height: 12),
+
+          if (_scores.isNotEmpty) ...[
+            Wrap(
+              spacing: 12,
+              children: [
+                for (var s in _scores.take(2)) Chip(label: Text("${s['label']}")),
+              ],
+            ),
+            SizedBox(height: 12),
+          ],
+
+          Text('All scores:', style: TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          _buildScoreChips(),
+          SizedBox(height: 18),
+
           if (_advice.isNotEmpty) ...[
             Text("Advice:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 8),
@@ -286,11 +354,11 @@ class _ChatScreenState extends State<ChatScreen> {
             SizedBox(height: 12),
           ],
 
-          // debug
           if (_debug.isNotEmpty) ...[
             Text("Debug:", style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 6),
             Text(jsonEncode(_debug)),
+            SizedBox(height: 12),
           ],
         ]),
       ),
@@ -298,28 +366,36 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-/// Simple API service to call backend /predict
+/// ApiService: supports multipart upload from mobile (File) or web (bytes).
 class ApiService {
   final String baseUrl;
   ApiService({required this.baseUrl});
 
-  /// Predict endpoint: sends text + optional image (multipart).
-  /// Expects JSON response (parsed & returned). Returns null on failure.
   Future<Map<String, dynamic>?> predict({
     required String text,
     File? imageFile,
+    Uint8List? imageBytes,
+    String? imageName,
     String clientId = "flutter_client",
   }) async {
     final uri = Uri.parse("$baseUrl/predict");
     try {
-      if (imageFile != null && await imageFile.exists()) {
+      final hasImage = (imageFile != null) || (imageBytes != null);
+      if (hasImage) {
         final request = http.MultipartRequest('POST', uri);
         request.fields['text'] = text;
         request.fields['client_id'] = clientId;
-        // sensors intentionally omitted — comes from hardware via MQTT in your architecture.
-        final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
-        request.files.add(multipartFile);
-        final streamed = await request.send().timeout(Duration(seconds: 30));
+
+        if (imageFile != null) {
+          final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
+          request.files.add(multipartFile);
+        } else if (imageBytes != null) {
+          final name = imageName ?? "upload.png";
+          final multipart = http.MultipartFile.fromBytes('image', imageBytes, filename: name);
+          request.files.add(multipart);
+        }
+
+        final streamed = await request.send().timeout(Duration(seconds: 40));
         final resp = await http.Response.fromStream(streamed);
         if (resp.statusCode >= 200 && resp.statusCode < 300) {
           return jsonDecode(resp.body) as Map<String, dynamic>;
@@ -328,12 +404,11 @@ class ApiService {
           return null;
         }
       } else {
-        // JSON POST
         final resp = await http
             .post(uri,
                 headers: {'Content-Type': 'application/json'},
                 body: jsonEncode({'text': text, 'client_id': clientId}))
-            .timeout(Duration(seconds: 20));
+            .timeout(Duration(seconds: 25));
         if (resp.statusCode >= 200 && resp.statusCode < 300) {
           return jsonDecode(resp.body) as Map<String, dynamic>;
         } else {
@@ -343,8 +418,7 @@ class ApiService {
       }
     } catch (e) {
       debugPrint("ApiService.predict error: $e");
-      // return null on error to avoid bubbling exceptions to UI
-      return null;
+      rethrow;
     }
   }
 }

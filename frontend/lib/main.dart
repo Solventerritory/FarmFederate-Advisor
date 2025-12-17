@@ -5,13 +5,27 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/auth_service.dart';
+import 'routes.dart';
 
-// Web-only import for file/camera input
-// ignore: avoid_web_libraries_in_flutter
+// Web-only import for file/camera input - conditional import
 import 'dart:html' as html;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    // Initialize Firebase using platform-specific options
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
+  
   runApp(const FarmFederateApp());
 }
 
@@ -22,8 +36,16 @@ class FarmFederateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FarmFederate Advisor',
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: const HomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.grey.shade50,
+        ),
+      ),
+      routes: routes,
+      initialRoute: '/',
       debugShowCheckedModeBanner: true,
     );
   }
@@ -42,13 +64,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   //   http://localhost:8000
   // If using Android emulator hit host PC: http://10.0.2.2:8000
   final String apiBase = 'http://localhost:8000';
+  final _authService = AuthService();
 
   late TabController _tabs;
 
   // Chat state
   final TextEditingController _textController = TextEditingController();
   String _adviceText = '';
-  List<Map<String, dynamic>> _scores = [];
+  List<Map<String, dynamic>> _scores = []; // each { "label": String, "prob": double (0..1) }
   List<String> _activeLabels = [];
   String _status = 'ready';
   Uint8List? _selectedImageBytes;
@@ -79,8 +102,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   // Web file/camera picker
   // -------------------------
   Future<void> _pickImageWeb({bool camera = false}) async {
+    if (!kIsWeb) return; // Guard against non-web platforms
+    
     // create input element
-    final html.InputElement input = html.document.createElement('input') as html.InputElement;
+    final input = html.document.createElement('input') as html.InputElement;
     input.type = 'file';
     input.accept = 'image/*';
     if (camera) {
@@ -105,9 +130,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _selectedImageName = file.name;
     });
   }
-
-  // For mobile/native: you can add image_picker or file_picker plugin with conditional imports
-  // and then implement a _pickImageNative() method. For now this app is web-focused.
 
   // -------------------------
   // Call backend predict
@@ -144,7 +166,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         // image part
         final imgName = _selectedImageName ?? 'upload.jpg';
         req.files.add(http.MultipartFile.fromBytes('image', _selectedImageBytes!,
-            filename: imgName, contentType: null)); // contentType optional
+            filename: imgName)); // contentType optional
 
         streamedResp = await req.send().timeout(const Duration(seconds: 20));
       } else {
@@ -180,24 +202,69 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _handlePredictResponse(Map<String, dynamic> decoded) {
+    // parse result safely
     final result = decoded['result'] as Map<String, dynamic>?;
     final advice = decoded['advice'] as String?;
+    List<Map<String, dynamic>> parsedScores = [];
+    List<String> parsedActive = [];
+
+    if (result != null) {
+      // parse all_scores
+      final allScoresRaw = result['all_scores'];
+      if (allScoresRaw is List) {
+        for (final e in allScoresRaw) {
+          if (e is Map) {
+            final label = (e['label'] ?? e['name'] ?? e['label_name'])?.toString() ?? '';
+            double prob = 0.0;
+            final rawProb = e['prob'];
+            if (rawProb is num) {
+              prob = rawProb.toDouble();
+            } else if (rawProb is String) {
+              prob = double.tryParse(rawProb) ?? 0.0;
+            }
+            // If server returned probs in 0..100 convert to 0..1
+            if (prob > 1.0) prob = prob / 100.0;
+            if (label.isNotEmpty) parsedScores.add({"label": label, "prob": prob});
+          }
+        }
+      }
+
+      // parse active_labels: can be list of strings or list of maps
+      final activeRaw = result['active_labels'];
+      if (activeRaw is List) {
+        for (final e in activeRaw) {
+          if (e is String) {
+            parsedActive.add(e);
+          } else if (e is Map && e.containsKey('label')) {
+            parsedActive.add(e['label'].toString());
+          } else if (e is Map && e.containsKey('name')) {
+            parsedActive.add(e['name'].toString());
+          }
+        }
+      }
+    }
+
+    // If parsedScores empty, attempt to parse top-level shapes (backward compat)
+    if (parsedScores.isEmpty) {
+      final fallback = decoded['all_scores'] as List<dynamic>?;
+      if (fallback != null) {
+        for (final e in fallback) {
+          if (e is Map) {
+            final label = (e['label'] ?? e['name'])?.toString() ?? '';
+            double prob = 0.0;
+            if (e['prob'] is num) prob = (e['prob'] as num).toDouble();
+            if (prob > 1.0) prob = prob / 100.0;
+            if (label.isNotEmpty) parsedScores.add({"label": label, "prob": prob});
+          }
+        }
+      }
+    }
+
     setState(() {
       _status = 'ok';
-      _adviceText = advice ?? '';
-      _scores = [];
-      _activeLabels = [];
-      if (result != null) {
-        final allScores = (result['all_scores'] as List<dynamic>?)
-            ?.map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
-        final active = (result['active_labels'] as List<dynamic>?)
-            ?.map((e) => (e as Map)['label']?.toString() ?? '')
-            .where((s) => s.isNotEmpty)
-            .toList();
-        if (allScores != null) _scores = allScores;
-        if (active != null) _activeLabels = active;
-      }
+      _adviceText = advice ?? (decoded['advice_text'] as String? ?? '');
+      _scores = parsedScores;
+      _activeLabels = parsedActive;
     });
   }
 
@@ -221,21 +288,58 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   // -------------------------
-  // UI
+  // UI & chips rendering
   // -------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [
-          const FlutterLogo(size: 32),
-          const SizedBox(width: 12),
-          const Text('FarmFederate'),
+        title: const Row(children: [
+          FlutterLogo(size: 32),
+          SizedBox(width: 12),
+          Text('FarmFederate'),
         ]),
         bottom: TabBar(controller: _tabs, tabs: const [
           Tab(text: 'Chat'),
           Tab(text: 'Hardware'),
         ]),
+        actions: [
+          // User profile and logout
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.account_circle),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await _authService.signOut();
+                if (mounted) {
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    const Icon(Icons.person, size: 20),
+                    const SizedBox(width: 8),
+                    Text(_authService.currentUser?.email ?? 'User'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 20),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: TabBarView(controller: _tabs, children: [
         _buildChatTab(),
@@ -310,28 +414,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           const SizedBox(width: 12),
           Text('Status: $_status'),
         ]),
-
         const SizedBox(height: 16),
         Expanded(
             child: SingleChildScrollView(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (_activeLabels.isNotEmpty) Wrap(
               spacing: 8,
-              runSpacing: 8,
+              runSpacing: 6,
               children: _activeLabels.map((l) => Chip(label: Text(l))).toList(),
             ),
             const SizedBox(height: 12),
             if (_scores.isNotEmpty) ...[
               const Text('All scores:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              Wrap(
-                spacing: 8,
-                children: _scores.map((s) {
-                  final label = s['label']?.toString() ?? '';
-                  final prob = (s['prob'] is num) ? (s['prob'] as num).toDouble() : 0.0;
-                  return Chip(label: Text('$label: ${(prob * 100).toStringAsFixed(1)}%'));
-                }).toList(),
-              ),
+              _buildScoreChips(),
               const SizedBox(height: 12),
             ],
             const Text('Advice:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -341,6 +437,70 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ]),
         )),
       ]),
+    );
+  }
+
+  /// Renders the list of score chips. Highlights the top-1 in red and top-2 in yellow.
+  Widget _buildScoreChips() {
+    if (_scores.isEmpty) return const SizedBox.shrink();
+
+    // Defensive copy and ensure proper types
+    final sorted = List<Map<String, dynamic>>.from(_scores)
+      ..sort((a, b) {
+        final pa = (a['prob'] is num) ? (a['prob'] as num).toDouble() : 0.0;
+        final pb = (b['prob'] is num) ? (b['prob'] as num).toDouble() : 0.0;
+        return pb.compareTo(pa);
+      });
+
+    // top labels
+    final String? top1 = sorted.isNotEmpty ? sorted[0]['label']?.toString() : null;
+    final String? top2 = (sorted.length > 1) ? sorted[1]['label']?.toString() : null;
+
+    return Wrap(
+      spacing: 12,
+      runSpacing: 10,
+      children: sorted.map((s) {
+        final label = s['label']?.toString() ?? 'unknown';
+        double prob = 0.0;
+        if (s['prob'] is num) prob = (s['prob'] as num).toDouble();
+        // Normalize if server used 0..100
+        if (prob > 1.0) prob = prob / 100.0;
+        final text = '$label: ${(prob * 100).toStringAsFixed(1)}%';
+
+        final bool isTop1 = (label == top1);
+        final bool isTop2 = (!isTop1 && label == top2);
+
+        Color bg;
+        Color fg;
+        List<BoxShadow>? boxShadow;
+
+        if (isTop1) {
+          bg = Colors.red.shade600;
+          fg = Colors.white;
+          boxShadow = [const BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3))];
+        } else if (isTop2) {
+          bg = Colors.amber.shade400;
+          fg = Colors.black;
+          boxShadow = [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))];
+        } else {
+          bg = Colors.grey.shade100;
+          fg = Colors.black87;
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: boxShadow,
+          ),
+          child: Text(
+            text,
+            style: TextStyle(color: fg, fontWeight: (isTop1 || isTop2) ? FontWeight.bold : FontWeight.normal),
+          ),
+        );
+      }).toList(),
     );
   }
 

@@ -1,34 +1,30 @@
 name: farmfederate_advisor
-description: FarmFederate Advisor - frontend (web)
-publish_to: "none" # local project
+description: FarmFederate Advisor frontend
+publish_to: "none"
+version: 0.0.1
 
-# IMPORTANT: single environment block (no duplicates)
 environment:
-  sdk: ">=3.10.0 <4.0.0"
-
-# flutter configuration
-flutter:
-  uses-material-design: true
-
-  # list assets that actually exist. If you don't have these files yet,
-  # remove or comment these lines to avoid asset errors.
-  assets:
-    - assets/logo.png
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # minimal deps for web fetch and UI
-  http: ^0.13.6
+  http: ^1.1.0
+  image_picker: ^1.0.4
+  file_picker: ^5.5.0
+  mqtt_client: ^10.0.0
+  flutter_dotenv: ^5.1.0
+  firebase_core: ^3.0.0
+  firebase_auth: ^5.0.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
 
-# (optional) specify platforms you support; for web-only builds this is fine.
-# Uncomment / modify if you also target mobile/desktop.
-#flutter:
-#  platform:
-#    web: true
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logo.png
