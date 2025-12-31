@@ -25,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   Timer? _refreshTimer;
   late AnimationController _pulseController;
   late TabController _tabController;
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -619,14 +619,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.green.withOpacity(0.3)),
         ),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 32),
-            const SizedBox(width: 16),
+            Icon(Icons.check_circle, color: Colors.green, size: 32),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'All Systems Optimal',
                     style: TextStyle(
@@ -810,7 +810,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Switch(
             value: isActive,
             onChanged: (value) {},
-            activeColor: color,
+            activeThumbColor: color,
           ),
         ],
       ),
@@ -904,7 +904,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Row(
             children: [
               Expanded(
-                child: _buildIoTDeviceCard('Raspberry Pi', '1 gateway', Icons.computer, Colors.green, true),
+                child: _buildIoTDeviceCard('Gateway', '1 gateway', Icons.router, Colors.green, true),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1057,11 +1057,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            const Color(0xFF2C5364),
-            const Color(0xFF203A43),
-            const Color(0xFF0F2027),
+            Color(0xFF2C5364),
+            Color(0xFF203A43),
+            Color(0xFF0F2027),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -1531,7 +1531,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             child: Switch(
               value: isActive,
               onChanged: onChanged,
-              activeColor: color,
+              activeThumbColor: color,
               activeTrackColor: color.withOpacity(0.5),
             ),
           ),
@@ -1733,7 +1733,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               const SizedBox(height: 8),
               _buildDeviceItem('ESP32-Node-02', 'Weather Station', true, '100%'),
               const SizedBox(height: 8),
-              _buildDeviceItem('RPi-Gateway', 'Main Gateway', true, '99%'),
+              _buildDeviceItem('Gateway', 'Main Gateway', true, '99%'),
             ],
           ),
         ),

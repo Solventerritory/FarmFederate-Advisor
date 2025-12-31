@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SnackBar(content: Text('Theme will be applied on restart')),
                 );
               },
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 12),
@@ -78,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }
                 });
               },
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 12),
@@ -95,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       });
                     }
                   : null,
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 12),
@@ -112,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       });
                     }
                   : null,
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 30),
@@ -131,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _autoRefresh = value;
                 });
               },
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 12),
@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _soundEffects = value;
                 });
               },
-              activeColor: const Color(0xFF1D976C),
+              activeThumbColor: const Color(0xFF1D976C),
             ),
           ),
           const SizedBox(height: 12),

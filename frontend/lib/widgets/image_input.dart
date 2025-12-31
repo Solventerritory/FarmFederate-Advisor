@@ -40,11 +40,11 @@ class _ImageInputState extends State<ImageInput> {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      ElevatedButton.icon(onPressed: _pickCamera, icon: Icon(Icons.camera_alt), label: Text("Camera")),
-      SizedBox(width: 8),
-      ElevatedButton.icon(onPressed: _pickFile, icon: Icon(Icons.upload_file), label: Text("Upload")),
+      ElevatedButton.icon(onPressed: _pickCamera, icon: const Icon(Icons.camera_alt), label: const Text("Camera")),
+      const SizedBox(width: 8),
+      ElevatedButton.icon(onPressed: _pickFile, icon: const Icon(Icons.upload_file), label: const Text("Upload")),
       if (_file != null) ...[
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(child: Text("Selected: ${_file!.path.split('/').last}", overflow: TextOverflow.ellipsis)),
       ]
     ]);
