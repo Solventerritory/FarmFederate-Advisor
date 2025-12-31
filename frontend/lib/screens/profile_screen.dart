@@ -87,10 +87,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 60,
-                      backgroundColor: const Color(0xFF1D976C),
-                      child: const Icon(Icons.person, size: 70, color: Colors.white),
+                      backgroundColor: Color(0xFF1D976C),
+                      child: Icon(Icons.person, size: 70, color: Colors.white),
                     ),
                     if (_isEditing)
                       Positioned(

@@ -17,13 +17,13 @@ class SensorStatus extends StatelessWidget {
     return Row(
       children: [
         Icon(ok ? Icons.cloud_done : Icons.cloud_off, color: ok ? Colors.green : Colors.red),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(ok ? 'Sensors connected' : 'Sensors disconnected', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(subtitle, style: TextStyle(fontSize: 12)),
+            Text(ok ? 'Sensors connected' : 'Sensors disconnected', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(subtitle, style: const TextStyle(fontSize: 12)),
           ],
         )),
       ],

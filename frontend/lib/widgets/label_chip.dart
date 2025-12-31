@@ -4,7 +4,7 @@ class LabelChip extends StatelessWidget {
   final String label;
   final double prob;
   final bool active;
-  LabelChip({required this.label, required this.prob, this.active=false});
+  const LabelChip({super.key, required this.label, required this.prob, this.active=false});
   @override
   Widget build(BuildContext context) {
     return Chip(

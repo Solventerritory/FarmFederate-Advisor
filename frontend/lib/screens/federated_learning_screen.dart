@@ -1,7 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class FederatedLearningScreen extends StatefulWidget {
   final String apiBase;
@@ -14,10 +11,10 @@ class FederatedLearningScreen extends StatefulWidget {
 
 class _FederatedLearningScreenState extends State<FederatedLearningScreen> {
   bool _isTraining = false;
-  int _currentRound = 3;
-  int _totalRounds = 10;
-  double _modelAccuracy = 94.3;
-  int _participatingFarms = 8;
+  final int _currentRound = 3;
+  final int _totalRounds = 10;
+  final double _modelAccuracy = 94.3;
+  final int _participatingFarms = 8;
   
   @override
   Widget build(BuildContext context) {
@@ -70,10 +67,10 @@ class _FederatedLearningScreenState extends State<FederatedLearningScreen> {
             child: const Icon(Icons.security, color: Colors.white, size: 32),
           ),
           const SizedBox(width: 16),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Community AI Network',
                   style: TextStyle(
@@ -365,11 +362,11 @@ class _FederatedLearningScreenState extends State<FederatedLearningScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.shield, color: Colors.green, size: 24),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Privacy Guarantees',
                 style: TextStyle(
                   color: Colors.white,
@@ -484,7 +481,7 @@ class _FederatedLearningScreenState extends State<FederatedLearningScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
