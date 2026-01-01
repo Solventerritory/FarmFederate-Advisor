@@ -276,24 +276,42 @@ async def get_latest_sensors():
     Return the latest sensor data from MQTT listener saved files.
     Looks in checkpoints_paper/ingest/sensors/ for *.json files and returns the most recent.
     """
+    import os
+    print("[DEBUG] Current working directory:", os.getcwd())
     sensors_dir = os.path.join("checkpoints_paper", "ingest", "sensors")
-    if not os.path.exists(sensors_dir):
+    abs_sensors_dir = os.path.abspath(sensors_dir)
+    print("[DEBUG] Looking for sensor files in:", abs_sensors_dir)
+    if not os.path.exists(abs_sensors_dir):
+        print("[DEBUG] Directory does not exist.")
         return JSONResponse({"error": "No sensor data available"}, status_code=404)
-    
+
     # Find all sensor JSON files
     try:
-        files = [f for f in os.listdir(sensors_dir) if f.endswith('.json')]
+        files = [f for f in os.listdir(abs_sensors_dir) if f.endswith('.json')]
+        print("[DEBUG] Found files:", files)
         if not files:
+            print("[DEBUG] No .json files found.")
             return JSONResponse({"error": "No sensor data available"}, status_code=404)
-        
+
         # Get the most recently modified file
-        latest_file = max([os.path.join(sensors_dir, f) for f in files], key=os.path.getmtime)
-        
+        latest_file = max([os.path.join(abs_sensors_dir, f) for f in files], key=os.path.getmtime)
+        print("[DEBUG] Latest file:", latest_file)
+
         with open(latest_file, 'r') as f:
             sensor_data = json.load(f)
-        
-        return JSONResponse(sensor_data, status_code=200)
+
+        # Convert camelCase keys to snake_case for frontend compatibility
+        def to_snake_case(s):
+            import re
+            return re.sub(r'(?<!^)(?=[A-Z])', '_', s).lower()
+
+        snake_case_data = {}
+        for k, v in sensor_data.items():
+            snake_case_data[to_snake_case(k)] = v
+
+        return JSONResponse(snake_case_data, status_code=200)
     except Exception as e:
+        print(f"[DEBUG] Exception: {e}")
         return JSONResponse({"error": f"Failed to read sensor data: {str(e)}"}, status_code=500)
 
 @app.post("/predict")

@@ -15,7 +15,7 @@ class AuthCheckScreen extends StatelessWidget {
       builder: (context, snapshot) {
         // Show loading spinner while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
+          return const Scaffold(
             backgroundColor: Color(0xFF0A0E21),
             body: Center(
               child: Column(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class Message {
   final String text;
@@ -307,8 +306,8 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
                 ),
                 shape: BoxShape.circle,
@@ -759,8 +758,8 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
               ),
               const SizedBox(width: 8),
               Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
                   ),
                   shape: BoxShape.circle,

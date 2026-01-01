@@ -177,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Build chips; top1 red, top2 yellow.
   Widget _buildScoreChips() {
-    if (_scores.isEmpty) return SizedBox.shrink();
+    if (_scores.isEmpty) return const SizedBox.shrink();
 
     final sorted = List<Map<String, dynamic>>.from(_scores)
       ..sort((a, b) => (b['prob'] as num).compareTo(a['prob'] as num));
@@ -222,7 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
           elevation: elevation,
           borderRadius: BorderRadius.circular(22),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Text(
               scoreText,
               style: TextStyle(
@@ -254,66 +254,66 @@ class _ChatScreenState extends State<ChatScreen> {
         width: 120,
         height: 120,
         color: Colors.grey.shade100,
-        child: Center(child: Text("No image")),
+        child: const Center(child: Text("No image")),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [
+        title: const Row(children: [
           Icon(Icons.agriculture, size: 28),
           SizedBox(width: 8),
           Text("FarmFederate"),
         ]),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(18),
+        padding: const EdgeInsets.all(18),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(
             controller: _ctrl,
             minLines: 1,
             maxLines: 4,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: "Describe the issue (or leave blank for image-only)",
               border: UnderlineInputBorder(),
             ),
           ),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
 
           // image preview + buttons
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ClipRRect(borderRadius: BorderRadius.circular(6), child: imagePreview),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 ElevatedButton.icon(
                   onPressed: _pickCamera,
-                  icon: Icon(Icons.camera_alt),
-                  label: Text("Camera"),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Camera"),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: _pickFile,
-                  icon: Icon(Icons.upload_file),
-                  label: Text("Upload"),
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text("Upload"),
                 ),
-                TextButton(onPressed: _clearImage, child: Text("Clear image")),
+                TextButton(onPressed: _clearImage, child: const Text("Clear image")),
               ]),
             ),
           ]),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
 
           Row(children: [
             ElevatedButton.icon(
               onPressed: _loading ? null : _send,
-              icon: Icon(Icons.send),
+              icon: const Icon(Icons.send),
               label: Text(_loading ? "Sending..." : "Send to backend"),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Text("Status: $_status"),
           ]),
 
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
 
           // TEMP debug button to verify coloring quickly (uncomment while developing)
           // ElevatedButton(
@@ -330,7 +330,7 @@ class _ChatScreenState extends State<ChatScreen> {
           //   child: Text("Load sample scores (debug)"),
           // ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           if (_scores.isNotEmpty) ...[
             Wrap(
@@ -339,26 +339,26 @@ class _ChatScreenState extends State<ChatScreen> {
                 for (var s in _scores.take(2)) Chip(label: Text("${s['label']}")),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
           ],
 
-          Text('All scores:', style: TextStyle(fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
+          const Text('All scores:', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
           _buildScoreChips(),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
 
           if (_advice.isNotEmpty) ...[
-            Text("Advice:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            SizedBox(height: 8),
+            const Text("Advice:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
             Text(_advice),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
           ],
 
           if (_debug.isNotEmpty) ...[
-            Text("Debug:", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 6),
+            const Text("Debug:", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
             Text(jsonEncode(_debug)),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
           ],
         ]),
       ),
@@ -395,7 +395,7 @@ class ApiService {
           request.files.add(multipart);
         }
 
-        final streamed = await request.send().timeout(Duration(seconds: 40));
+        final streamed = await request.send().timeout(const Duration(seconds: 40));
         final resp = await http.Response.fromStream(streamed);
         if (resp.statusCode >= 200 && resp.statusCode < 300) {
           return jsonDecode(resp.body) as Map<String, dynamic>;
@@ -408,7 +408,7 @@ class ApiService {
             .post(uri,
                 headers: {'Content-Type': 'application/json'},
                 body: jsonEncode({'text': text, 'client_id': clientId}))
-            .timeout(Duration(seconds: 25));
+            .timeout(const Duration(seconds: 25));
         if (resp.statusCode >= 200 && resp.statusCode < 300) {
           return jsonDecode(resp.body) as Map<String, dynamic>;
         } else {

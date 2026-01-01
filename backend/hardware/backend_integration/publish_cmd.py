@@ -3,6 +3,9 @@ import json
 import paho.mqtt.client as mqtt
 b = mqtt.Client()
 b.connect("localhost",1883,60)
-payload = {"client_id":"esp_test","soil_moisture":22.5,"temp":29.8,"humidity":68}
-b.publish("farmfederate/sensors/esp_test", json.dumps(payload))
+b.publish("farmfederate/control/relay", "ON")
+print("Relay ON")
+input("Press Enter to turn OFF")
+b.publish("farmfederate/control/relay", "OFF")
+print("Relay OFF")
 b.disconnect()
