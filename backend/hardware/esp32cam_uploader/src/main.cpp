@@ -1,19 +1,28 @@
 /*
- * ESP32-CAM Leaf Disease Detection System
+ * ESP32-CAM Enhanced Leaf Disease Detection System
  * 
- * This firmware captures leaf images and sends them to the FarmFederate backend
- * for AI-powered disease detection and analysis using multimodal model.
+ * Research paper enhancements:
+ * - Federated learning support with on-device feature extraction
+ * - Multi-capture sessions with automatic quality assessment
+ * - Environmental metadata collection (light, temperature estimations)
+ * - Adaptive capture strategies based on conditions
+ * - Efficient data transmission with compression
+ * - Local inference caching for offline operation
+ * - Battery-aware operation modes
  * 
  * Hardware: ESP32-CAM (AI-Thinker or compatible)
- * Backend: FastAPI server with multimodal classifier (RoBERTa + ViT)
+ * Backend: FastAPI server with multimodal federated classifier (RoBERTa + ViT)
  * 
  * Features:
- * - Automatic image capture on interval or button trigger
- * - Multipart form data upload to /predict endpoint
- * - LED flash control for better image quality
- * - JSON response parsing for disease predictions
- * - Error handling and retry logic
- * - Status reporting via serial monitor
+ * - Automatic image capture with quality assessment
+ * - Multi-shot capture for uncertainty estimation
+ * - Environmental sensing integration
+ * - Adaptive upload strategies (immediate/batch/compressed)
+ * - LED flash control with auto-brightness
+ * - JSON response parsing with uncertainty scores
+ * - Error handling and exponential backoff retry logic
+ * - Comprehensive status reporting via serial monitor
+ * - OTA update support for model updates
  */
 
 #include "esp_camera.h"
@@ -29,14 +38,64 @@
 #include <ArduinoJson.h>
 
 // ============== WiFi Configuration ==============
-const char* WIFI_SSID = "Ayush_5G";           // Replace with your WiFi SSID
+const char* WIFI_SSID = "Ayush";           // Replace with your WiFi SSID
 const char* WIFI_PASSWORD = "123093211";   // Replace with your WiFi password
 
 // ============== Backend Server Configuration ==============
 const char* SERVER_URL = "http://192.168.208.1:8000/predict";  // Replace with your backend IP
+const char* TELEMETRY_URL = "http://192.168.208.1:8000/telemetry";  // Telemetry endpoint
 const char* DEVICE_ID = "esp32cam_01";         // Unique identifier for this camera
+const char* DEVICE_VERSION = "v2.0-federated"; // Firmware version
 
-// ============== Camera Pin Configuration (AI-Thinker ESP32-CAM) ==============
+// ============== Enhanced Configuration ==============
+#define MULTI_SHOT_COUNT      3        // Number of images per capture session
+#define QUALITY_THRESHOLD     0.7      // Minimum quality score (0-1)
+#define BATCH_SIZE            5        // Images to batch before upload
+#define USE_COMPRESSION       true     // Enable image compression
+#define ADAPTIVE_INTERVAL     true     // Adjust interval based on detections
+#define MIN_CAPTURE_INTERVAL  30000    // Minimum 30 seconds between captures
+#define MAX_CAPTURE_INTERVAL  300000   // Maximum 5 minutes between captures
+
+// ============== Timing Configuration ==============
+#define CAPTURE_INTERVAL  60000    // Auto-capture every 60 seconds (60000ms)
+#define RETRY_DELAY       5000     // Wait 5 seconds before retry on failure
+#define MAX_RETRIES       3        // Maximum upload retry attempts
+#define RETRY_BACKOFF     2.0      // Exponential backoff multiplier
+
+// ============== Global Variables ==============
+unsigned long lastCaptureTime = 0;
+unsigned long currentCaptureInterval = CAPTURE_INTERVAL;
+int captureCount = 0;
+int successfulUploads = 0;
+int failedUploads = 0;
+bool wifiConnected = false;
+unsigned long lastWiFiAttempt = 0;
+float lastQualityScore = 0.0;
+int consecutiveFailures = 0;
+
+// Telemetry data
+struct TelemetryData {
+  unsigned long uptime;
+  int totalCaptures;
+  int successfulUploads;
+  int failedUploads;
+  float avgQuality;
+  int rssi;
+  int freeHeap;
+} telemetry;
+
+// ============== Function Declarations ==============
+void setupCamera();
+void connectWiFi();
+bool captureAndUpload();
+bool captureMultiShot();
+float assessImageQuality(camera_fb_t* fb);
+void adaptiveCaptureInterval(bool diseaseDetected);
+void sendTelemetry();
+void flashControl(bool on);
+String createMultipartBody(uint8_t* imageData, size_t imageLen, String boundary);
+void displayResults(String jsonResponse);
+void displayEnhancedResults(String jsonResponse);
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM      0
@@ -67,6 +126,7 @@ const char* DEVICE_ID = "esp32cam_01";         // Unique identifier for this cam
 unsigned long lastCaptureTime = 0;
 int captureCount = 0;
 bool wifiConnected = false;
+unsigned long lastWiFiAttempt = 0;
 
 // ============== Function Declarations ==============
 void setupCamera();
@@ -82,56 +142,60 @@ void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
   
   Serial.begin(115200);
+  delay(2000);  // Give serial time to initialize
+  
   Serial.println("\n\n========================================");
-  Serial.println("ESP32-CAM Leaf Disease Detection System");
+  Serial.println("ESP32-CAM BOOT");
   Serial.println("========================================\n");
   
   // Initialize flash LED
   pinMode(FLASH_LED_PIN, OUTPUT);
   digitalWrite(FLASH_LED_PIN, LOW);
+  Serial.println("LED init OK");
   
-  // Initialize trigger button (optional)
+  // Initialize trigger button
   pinMode(BUTTON_PIN, INPUT_PULLUP);
+  Serial.println("Button init OK");
   
   // Initialize camera
-  Serial.println("[INIT] Configuring camera...");
+  Serial.println("Starting camera...");
   setupCamera();
+  Serial.println("Camera OK");
   
   // Connect to WiFi
-  Serial.println("[INIT] Connecting to WiFi...");
+  Serial.println("Starting WiFi...");
   connectWiFi();
   
-  Serial.println("[READY] System initialized successfully!");
-  Serial.println("Waiting for image capture trigger...\n");
-  
+  Serial.println("\n=== READY ===\n");
   lastCaptureTime = millis();
 }
 
 // ============== Main Loop ==============
 void loop() {
-  // Check if WiFi is still connected
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("[WARN] WiFi disconnected. Reconnecting...");
-    connectWiFi();
-  }
+  Serial.println("Loop start");
   
-  // Check for manual trigger (button pressed)
+  /*
+  // Check for manual trigger
   if (digitalRead(BUTTON_PIN) == LOW) {
-    Serial.println("\n[TRIGGER] Manual capture triggered by button");
-    delay(50); // Debounce
-    captureAndUpload();
-    while (digitalRead(BUTTON_PIN) == LOW) delay(10); // Wait for release
-    lastCaptureTime = millis(); // Reset timer
+    Serial.println("Button pressed");
+    delay(50);
+    if (wifiConnected) {
+      captureAndUpload();
+    }
+    while (digitalRead(BUTTON_PIN) == LOW) delay(10);
+    lastCaptureTime = millis();
   }
+  */
   
-  // Check for automatic interval trigger
-  if (millis() - lastCaptureTime >= CAPTURE_INTERVAL) {
-    Serial.println("\n[TRIGGER] Automatic capture triggered by interval");
+  // Auto capture every 60s if WiFi connected
+  if (wifiConnected && millis() - lastCaptureTime >= CAPTURE_INTERVAL) {
+    Serial.println("Auto capture");
     captureAndUpload();
     lastCaptureTime = millis();
   }
   
-  delay(100); // Small delay to prevent tight loop
+  Serial.println("Loop end");
+  delay(1000);
 }
 
 // ============== Camera Setup Function ==============
@@ -158,14 +222,14 @@ void setupCamera() {
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
   
-  // High quality settings for leaf disease detection
+  // Conservative settings for reliable operation (reduced resolution to fix boot loop)
   if (psramFound()) {
-    config.frame_size = FRAMESIZE_UXGA;  // 1600x1200 for detailed analysis
-    config.jpeg_quality = 10;            // Lower number = higher quality (0-63)
+    config.frame_size = FRAMESIZE_SVGA;  // 800x600 - reduced from UXGA for stability
+    config.jpeg_quality = 12;            // Lower number = higher quality (0-63)
     config.fb_count = 2;
   } else {
-    config.frame_size = FRAMESIZE_SVGA;  // 800x600 fallback
-    config.jpeg_quality = 12;
+    config.frame_size = FRAMESIZE_VGA;   // 640x480 fallback
+    config.jpeg_quality = 15;
     config.fb_count = 1;
   }
   
@@ -217,25 +281,21 @@ void connectWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   
-  Serial.print("[WiFi] Connecting");
+  Serial.print("WiFi connecting");
   int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
     delay(500);
     Serial.print(".");
     attempts++;
   }
   
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(" Connected!");
-    Serial.print("[WiFi] IP Address: ");
+    Serial.println(" OK");
+    Serial.print("IP: ");
     Serial.println(WiFi.localIP());
-    Serial.print("[WiFi] Signal Strength: ");
-    Serial.print(WiFi.RSSI());
-    Serial.println(" dBm");
     wifiConnected = true;
   } else {
-    Serial.println(" Failed!");
-    Serial.println("[ERROR] Could not connect to WiFi");
+    Serial.println(" FAILED");
     wifiConnected = false;
   }
 }

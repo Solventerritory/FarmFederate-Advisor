@@ -1,0 +1,7 @@
+{
+  "client_id": "esp32_greenhouse_01",
+  "temperature": 26.5,
+  "humidity": 75.3,
+  "soil_moisture": 52.8,
+  "timestamp": "2026-01-02T11:42:32.279654"
+}

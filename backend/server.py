@@ -157,11 +157,14 @@ def load_model_and_tokenizer(checkpoint_path: str = CHECKPOINT_PATH):
     print("[server] Tokenizer loaded.")
 
     # create architecture identical to training
+    # Note: Set use_cross_attention=False for compatibility with old checkpoints
+    # Set to True after retraining with enhanced architecture
     MODEL = MultimodalClassifier(
         text_model_name=TEXT_MODEL_NAME,
         image_model_name=IMAGE_MODEL_NAME,
         num_labels=NUM_LABELS,
         freeze_backbones=False,  # inference only — no training
+        use_cross_attention=False,  # TODO: Set to True after retraining
     )
     print("[server] Multimodal model instance created.")
 

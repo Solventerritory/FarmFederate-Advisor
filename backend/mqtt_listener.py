@@ -5,7 +5,7 @@ BROKER = os.environ.get("MQTT_HOST","localhost")
 PORT = int(os.environ.get("MQTT_PORT",1883))
 TOPIC = "farmfederate/sensors/#"
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     print("mqtt connected", rc)
     client.subscribe(TOPIC)
 
@@ -23,7 +23,7 @@ def on_message(client, userdata, msg):
         print("mqtt message error", e)
 
 if __name__=="__main__":
-    client = mqtt.Client()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(BROKER, PORT, 60)

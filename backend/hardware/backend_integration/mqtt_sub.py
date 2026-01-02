@@ -22,7 +22,7 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print(f"Failed to save sensor data: {e}")
 
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.connect("localhost", 1883, 60)
 client.subscribe("farmfederate/sensors/#")
 client.on_message = on_message
