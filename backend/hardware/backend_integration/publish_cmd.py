@@ -1,7 +1,7 @@
 # hardware/backend_integration/publish_cmd.py
 import json
 import paho.mqtt.client as mqtt
-b = mqtt.Client()
+b = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 b.connect("localhost",1883,60)
 b.publish("farmfederate/control/relay", "ON")
 print("Relay ON")

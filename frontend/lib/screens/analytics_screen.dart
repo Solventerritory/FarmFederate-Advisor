@@ -33,11 +33,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     _historicalData = List.generate(30, (index) {
       return SensorData(
         soilMoisture: 45.0 + (index % 20) - 10,
-        soilTemperature: 22.0 + (index % 10) - 5,
-        soilPH: 6.5 + (index % 4) * 0.2 - 0.4,
         humidity: 60.0 + (index % 15) - 7,
         airTemperature: 25.0 + (index % 12) - 6,
-        lightIntensity: 80.0 + (index % 25) - 12,
+        flowRate: 1.5 + (index % 5) * 0.2 - 0.5,
+        totalLiters: 10.0 + (index * 2.5),
         timestamp: now.subtract(Duration(days: 30 - index)),
       );
     });
@@ -94,7 +93,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     
     final avgMoisture = _historicalData.map((e) => e.soilMoisture).reduce((a, b) => a + b) / _historicalData.length;
     final avgTemp = _historicalData.map((e) => e.airTemperature).reduce((a, b) => a + b) / _historicalData.length;
-    final avgPH = _historicalData.map((e) => e.soilPH).reduce((a, b) => a + b) / _historicalData.length;
+    final avgHumidity = _historicalData.map((e) => e.humidity).reduce((a, b) => a + b) / _historicalData.length;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,10 +129,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                'Avg pH',
-                avgPH.toStringAsFixed(1),
-                Icons.science,
-                Colors.purple,
+                'Avg Humidity',
+                '${avgHumidity.toStringAsFixed(1)}%',
+                Icons.cloud,
+                const Color(0xFF4AE2E2),
               ),
             ),
           ],

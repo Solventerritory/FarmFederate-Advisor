@@ -466,18 +466,17 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     
     int score = 100;
     final moisture = _currentData!.soilMoisture;
-    final temp = _currentData!.soilTemperature;
-    final ph = _currentData!.soilPH;
+    final temp = _currentData!.airTemperature;
+    final humidity = _currentData!.humidity;
     
     // Deduct points for out-of-range values
-    if (moisture < 40 || moisture > 60) score -= 20;
-    if (moisture < 30 || moisture > 70) score -= 20;
+    if (moisture < 40 || moisture > 60) score -= 25;
+    if (moisture < 30 || moisture > 70) score -= 25;
     
-    if (temp < 18 || temp > 25) score -= 15;
-    if (temp < 15 || temp > 30) score -= 15;
+    if (temp < 18 || temp > 28) score -= 20;
+    if (temp < 15 || temp > 32) score -= 20;
     
-    if (ph < 6.0 || ph > 7.5) score -= 15;
-    if (ph < 5.5 || ph > 8.0) score -= 15;
+    if (humidity < 40 || humidity > 80) score -= 10;
     
     return score.clamp(0, 100);
   }
@@ -487,8 +486,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     
     int alerts = 0;
     if (_currentData!.soilMoisture < 30 || _currentData!.soilMoisture > 70) alerts++;
-    if (_currentData!.soilTemperature < 15 || _currentData!.soilTemperature > 30) alerts++;
-    if (_currentData!.soilPH < 5.5 || _currentData!.soilPH > 8.0) alerts++;
+    if (_currentData!.airTemperature < 15 || _currentData!.airTemperature > 32) alerts++;
+    if (_currentData!.humidity < 35 || _currentData!.humidity > 85) alerts++;
     
     return alerts;
   }
@@ -510,9 +509,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         const SizedBox(height: 16),
         _buildMetricRow('Soil Moisture', '${_currentData!.soilMoisture.toStringAsFixed(1)}%', 40, 60, _currentData!.soilMoisture),
         const SizedBox(height: 12),
-        _buildMetricRow('Soil Temperature', '${_currentData!.soilTemperature.toStringAsFixed(1)}°C', 18, 25, _currentData!.soilTemperature),
+        _buildMetricRow('Air Temperature', '${_currentData!.airTemperature.toStringAsFixed(1)}°C', 18, 28, _currentData!.airTemperature),
         const SizedBox(height: 12),
-        _buildMetricRow('pH Level', _currentData!.soilPH.toStringAsFixed(1), 6.0, 7.5, _currentData!.soilPH),
+        _buildMetricRow('Humidity', '${_currentData!.humidity.toStringAsFixed(1)}%', 40, 80, _currentData!.humidity),
+        const SizedBox(height: 12),
+        _buildMetricRow('Water Flow', '${_currentData!.flowRate.toStringAsFixed(2)} L/min', 0, 5, _currentData!.flowRate),
       ],
     );
   }
@@ -586,28 +587,35 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       });
     }
     
-    if (_currentData!.soilPH < 6.0) {
+    if (_currentData!.airTemperature < 18) {
       recommendations.add({
-        'title': 'Increase Soil pH',
-        'description': 'Soil is too acidic. Consider adding lime to raise pH levels.',
-        'icon': Icons.science,
-        'color': Colors.purple,
+        'title': 'Temperature Alert',
+        'description': 'Air temperature is low. Monitor crop health and consider protection.',
+        'icon': Icons.thermostat,
+        'color': Colors.red,
       });
-    } else if (_currentData!.soilPH > 7.5) {
+    } else if (_currentData!.airTemperature > 30) {
       recommendations.add({
-        'title': 'Decrease Soil pH',
-        'description': 'Soil is too alkaline. Consider adding sulfur or organic matter.',
-        'icon': Icons.science,
-        'color': Colors.purple,
+        'title': 'High Temperature',
+        'description': 'Air temperature is high. Ensure adequate watering and ventilation.',
+        'icon': Icons.thermostat,
+        'color': Colors.orange,
       });
     }
     
-    if (_currentData!.soilTemperature < 18) {
+    if (_currentData!.humidity < 40) {
       recommendations.add({
-        'title': 'Warm Soil',
-        'description': 'Soil temperature is low. Consider using mulch or row covers.',
-        'icon': Icons.thermostat,
-        'color': Colors.red,
+        'title': 'Low Humidity',
+        'description': 'Humidity is low. Consider misting or increasing watering.',
+        'icon': Icons.cloud,
+        'color': Colors.blue,
+      });
+    } else if (_currentData!.humidity > 80) {
+      recommendations.add({
+        'title': 'High Humidity',
+        'description': 'Humidity is high. Ensure good air circulation to prevent disease.',
+        'icon': Icons.cloud,
+        'color': Colors.orange,
       });
     }
 
@@ -734,21 +742,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         ),
         const SizedBox(height: 12),
         _buildScheduleCard(
-          'Evening Pest Control',
-          '07:00 PM',
-          'Automated pest management system',
-          Icons.bug_report,
-          Colors.orange,
+          'Evening Irrigation',
+          '06:00 PM',
+          'Secondary watering cycle',
+          Icons.water,
+          const Color(0xFF1D976C),
           true,
-        ),
-        const SizedBox(height: 12),
-        _buildScheduleCard(
-          'Night Lighting',
-          '06:00 PM - 10:00 PM',
-          'Grow lights active period',
-          Icons.light_mode,
-          Colors.yellow,
-          false,
         ),
       ],
     );
@@ -1132,30 +1131,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSoilMetric(
-                  'Temperature',
-                  '${_currentData!.soilTemperature.toStringAsFixed(1)}°C',
-                  _getTemperatureStatus(_currentData!.soilTemperature),
-                  _getTemperatureColor(_currentData!.soilTemperature),
-                  Icons.thermostat,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSoilMetric(
-                  'pH Level',
-                  _currentData!.soilPH.toStringAsFixed(1),
-                  _getPHStatus(_currentData!.soilPH),
-                  _getPHColor(_currentData!.soilPH),
-                  Icons.science,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildSoilMetric(
                   'Condition',
                   _getOverallSoilCondition(),
                   _getOverallSoilCondition() == 'Optimal' ? 'Good' : 'Attention',
@@ -1229,17 +1204,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     if (_currentData == null) return 'Unknown';
     
     final moisture = _currentData!.soilMoisture;
-    final temp = _currentData!.soilTemperature;
-    final ph = _currentData!.soilPH;
+    final temp = _currentData!.airTemperature;
     
-    // Check if all parameters are in optimal range
+    // Check if parameters are in optimal range (simplified for available sensors)
     if (moisture >= 40 && moisture <= 60 &&
-        temp >= 18 && temp <= 25 &&
-        ph >= 6.0 && ph <= 7.5) {
+        temp >= 18 && temp <= 28) {
       return 'Optimal';
     } else if (moisture >= 30 && moisture <= 70 &&
-               temp >= 15 && temp <= 30 &&
-               ph >= 5.5 && ph <= 8.0) {
+               temp >= 15 && temp <= 32) {
       return 'Good';
     } else {
       return 'Needs Attention';
@@ -1272,15 +1244,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Live Conditions',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -1290,25 +1253,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           childAspectRatio: 1.1,
           children: [
             _buildSensorCard(
-              'Soil Moisture',
-              '${_currentData!.soilMoisture.toStringAsFixed(1)}%',
-              Icons.water_drop,
-              const Color(0xFF4A90E2),
-              _getMoistureStatus(_currentData!.soilMoisture),
-            ),
-            _buildSensorCard(
-              'Soil Temp',
-              '${_currentData!.soilTemperature.toStringAsFixed(1)}°C',
+              'Temperature',
+              '${_currentData!.airTemperature.toStringAsFixed(1)}°C',
               Icons.thermostat,
               const Color(0xFFE24A4A),
-              _getTemperatureStatus(_currentData!.soilTemperature),
-            ),
-            _buildSensorCard(
-              'Soil pH',
-              _currentData!.soilPH.toStringAsFixed(1),
-              Icons.science,
-              const Color(0xFFE2B74A),
-              _getPHStatus(_currentData!.soilPH),
+              _getTemperatureStatus(_currentData!.airTemperature),
             ),
             _buildSensorCard(
               'Humidity',
@@ -1318,18 +1267,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               _getHumidityStatus(_currentData!.humidity),
             ),
             _buildSensorCard(
-              'Air Temp',
-              '${_currentData!.airTemperature.toStringAsFixed(1)}°C',
-              Icons.air,
-              const Color(0xFFE27A4A),
-              'Normal',
+              'Soil Moisture',
+              '${_currentData!.soilMoisture.toStringAsFixed(1)}%',
+              Icons.water_drop,
+              const Color(0xFF4A90E2),
+              _getMoistureStatus(_currentData!.soilMoisture),
             ),
             _buildSensorCard(
-              'Light',
-              '${_currentData!.lightIntensity.toStringAsFixed(0)} lux',
-              Icons.wb_sunny,
-              const Color(0xFFE2D44A),
-              _getLightStatus(_currentData!.lightIntensity),
+              'Water Flow',
+              '${_currentData!.flowRate.toStringAsFixed(2)} L/min',
+              Icons.water,
+              const Color(0xFF1D976C),
+              'Active',
             ),
           ],
         ),
@@ -1415,7 +1364,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Environmental Controls',
+          'Irrigation Controls',
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,
@@ -1425,7 +1374,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         const SizedBox(height: 16),
         _buildControlCard(
           'Water Pump',
-          'Irrigation system control',
+          'Main irrigation pump control',
           Icons.water,
           const Color(0xFF4A90E2),
           _controlState.waterPump,
@@ -1436,38 +1385,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         ),
         const SizedBox(height: 12),
         _buildControlCard(
-          'Pest Control',
-          'Automated pest management',
-          Icons.bug_report,
-          const Color(0xFFE24A9D),
-          _controlState.pestControl,
+          'Relay/Solenoid',
+          'Water valve control',
+          Icons.toggle_on,
+          const Color(0xFF1D976C),
+          _controlState.relay,
           (value) {
-            setState(() => _controlState = _controlState.copyWith(pestControl: value));
-            _sendControlCommand('pest_control', value);
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildControlCard(
-          'Heater',
-          'Temperature regulation',
-          Icons.local_fire_department,
-          const Color(0xFFE24A4A),
-          _controlState.heater,
-          (value) {
-            setState(() => _controlState = _controlState.copyWith(heater: value));
-            _sendControlCommand('heater', value);
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildControlCard(
-          'Grow Lights',
-          'Supplemental lighting',
-          Icons.lightbulb,
-          const Color(0xFFE2D44A),
-          _controlState.growLights,
-          (value) {
-            setState(() => _controlState = _controlState.copyWith(growLights: value));
-            _sendControlCommand('grow_lights', value);
+            setState(() => _controlState = _controlState.copyWith(relay: value));
+            _sendControlCommand('relay', value);
           },
         ),
       ],

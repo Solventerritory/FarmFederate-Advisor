@@ -1,0 +1,158 @@
+╔════════════════════════════════════════════════════════════════╗
+║           ESP32 SENSOR CONNECTION STATUS REPORT                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📊 SENSOR DATA CURRENTLY AVAILABLE:
+═══════════════════════════════════════════════════════════════
+
+Current sensor files (from previous simulation):
+  ✓ esp32_field_01.json
+  ✓ esp32_field_02.json
+  ✓ esp32_field_03.json
+  ✓ esp32_greenhouse_01.json
+
+Data Format (OLD - from simulation):
+  - temperature: ✓
+  - humidity: ✓
+  - soil_moisture: ✓
+  - timestamp: ✓
+  - flow_rate: ✗ NOT PRESENT
+  - relay_state: ✗ NOT PRESENT
+
+Last Update: 2026-01-02 11:42:32 (NOT LIVE)
+
+
+🔍 LIVE ESP32 MONITORING TEST:
+═══════════════════════════════════════════════════════════════
+
+Test Duration: 15 seconds
+Messages Received: 0 ❌
+
+Status: NO LIVE DATA DETECTED
+
+
+🔌 ESP32 HARDWARE CONFIGURATION:
+═══════════════════════════════════════════════════════════════
+
+Your ESP32 sketch (esp32_complete_sensors.ino) is configured for:
+
+Sensors Connected:
+  ✓ DHT22 (Temperature & Humidity) → GPIO 4
+  ✓ Soil Moisture Sensor → GPIO 34
+  ✓ Water Flow Meter (YF-S201) → GPIO 18
+  ✓ Relay/Solenoid Valve → GPIO 5
+
+Expected Data Fields:
+  - client_id
+  - temperature (°C)
+  - humidity (%)
+  - soil_moisture (%)
+  - flow_rate (L/min) ← INCLUDES FLOW METER!
+  - relay_state (ON/OFF)
+  - timestamp
+  - wifi_rssi
+
+
+⚙️ REQUIRED ESP32 CONFIGURATION:
+═══════════════════════════════════════════════════════════════
+
+Your PC IP Addresses:
+  → 192.168.0.195
+  → 192.168.208.1
+
+ESP32 Sketch Configuration Needed:
+  File: backend/hardware/esp32_sensor_node/esp32_complete_sensors.ino
+
+  Line 30: const char* WIFI_SSID = "YOUR_WIFI_SSID";
+           ↑ Change to your actual WiFi network name
+
+  Line 31: const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+           ↑ Change to your actual WiFi password
+
+  Line 34: const char* MQTT_SERVER = "192.168.1.100";
+           ↑ Change to: "192.168.0.195" or "192.168.208.1"
+              (Use the IP on same network as ESP32)
+
+
+📋 TO GET LIVE DATA FROM YOUR ESP32:
+═══════════════════════════════════════════════════════════════
+
+1. OPEN Arduino IDE or PlatformIO
+
+2. OPEN the sketch:
+   backend/hardware/esp32_sensor_node/esp32_complete_sensors.ino
+
+3. UPDATE these lines (29-36):
+   const char* WIFI_SSID = "YourActualWiFiName";
+   const char* WIFI_PASSWORD = "YourActualPassword";
+   const char* MQTT_SERVER = "192.168.0.195";  // Your PC IP
+   const char* CLIENT_ID = "esp32_field_01";
+
+4. INSTALL Required Libraries (Tools → Manage Libraries):
+   - WiFi (built-in)
+   - PubSubClient
+   - ArduinoJson
+   - DHT sensor library
+
+5. CONNECT ESP32 via USB
+
+6. SELECT:
+   - Board: "ESP32 Dev Module" or your specific board
+   - Port: The COM port for your ESP32
+
+7. UPLOAD the sketch to ESP32
+
+8. OPEN Serial Monitor (115200 baud)
+   You should see:
+   ✓ WiFi connected
+   ✓ MQTT connected
+   ✓ Publishing sensor data every 10 seconds
+
+9. RUN CHECK AGAIN:
+   cd backend
+   python check_mqtt_live.py
+
+
+🖥️ SYSTEM COMPONENTS STATUS:
+═══════════════════════════════════════════════════════════════
+
+✓ MQTT Broker (Mosquitto): RUNNING on localhost:1883
+✓ MQTT Listener: Running (background terminal)
+✓ Backend Server: Running on http://0.0.0.0:8000
+✓ Flutter Frontend: Starting on Chrome
+✗ ESP32 Hardware: NOT PUBLISHING (needs configuration)
+
+
+💡 QUICK TEST:
+═══════════════════════════════════════════════════════════════
+
+To verify ESP32 is working:
+1. Check ESP32 power LED is on
+2. Open Arduino Serial Monitor
+3. Look for these messages:
+   - "WiFi connected successfully!"
+   - "MQTT connected successfully!"
+   - "Data published successfully!"
+
+
+📡 CURRENT DATA SOURCE:
+═══════════════════════════════════════════════════════════════
+
+Currently using: SIMULATED sensor data (from send_real_sensor_data.py)
+Contains: Temperature, Humidity, Soil Moisture
+Missing: Flow meter data, relay state
+
+Once ESP32 is configured: LIVE HARDWARE data with all sensors
+Will include: Flow rate, total flow, relay control
+
+
+🚀 NEXT STEPS:
+═══════════════════════════════════════════════════════════════
+
+1. Configure ESP32 WiFi credentials
+2. Set MQTT_SERVER to your PC IP (192.168.0.195)
+3. Upload sketch to ESP32
+4. Monitor Serial output for connection confirmation
+5. Run: python check_mqtt_live.py
+
+The frontend and backend are ready - just waiting for ESP32 to connect!

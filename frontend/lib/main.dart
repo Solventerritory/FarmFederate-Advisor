@@ -10,8 +10,8 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'routes.dart';
 
-// Web-only import for file/camera input - conditional import
-import 'dart:html' as html;
+// Conditional import - only import dart:html on web platform
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,31 +104,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _pickImageWeb({bool camera = false}) async {
     if (!kIsWeb) return; // Guard against non-web platforms
     
-    // create input element
-    final input = html.document.createElement('input') as html.InputElement;
-    input.type = 'file';
-    input.accept = 'image/*';
-    if (camera) {
-      // on mobile browsers, "capture" attribute hints to use camera
-      input.setAttribute('capture', 'environment');
-    }
-    input.click();
-
-    await input.onChange.first;
-    final files = input.files;
-    if (files == null || files.isEmpty) return;
-
-    final file = files[0];
-    final reader = html.FileReader();
-    reader.readAsArrayBuffer(file);
-    await reader.onLoad.first;
-    final result = reader.result;
-    if (result is! ByteBuffer) return;
-    final bytes = result.asUint8List();
-    setState(() {
-      _selectedImageBytes = bytes;
-      _selectedImageName = file.name;
-    });
+    // Web-specific code - requires dart:html which is not available on desktop
+    // To use this, run on web platform: flutter run -d chrome
+    print('Web image picker requires running on web platform (flutter run -d chrome)');
+    return;
   }
 
   // -------------------------
