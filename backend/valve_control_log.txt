@@ -1,0 +1,5 @@
+{"timestamp": "2026-01-03 13:39:07", "action": "OPEN", "command": "ON", "mqtt_success": true, "topic": "farmfederate/control/relay"}
+{"timestamp": "2026-01-03 13:41:07", "action": "OPEN", "command": "ON", "mqtt_success": true, "topic": "farmfederate/control/relay"}
+{"timestamp": "2026-01-03 14:13:56", "action": "OPEN", "command": "ON", "mqtt_success": true, "topic": "farmfederate/control/relay"}
+{"timestamp": "2026-01-03 14:17:51", "action": "OPEN", "command": "ON", "mqtt_success": true, "topic": "farmfederate/control/relay"}
+{"timestamp": "2026-01-03 14:19:54", "action": "OPEN", "command": "ON", "mqtt_success": true, "topic": "farmfederate/control/relay"}

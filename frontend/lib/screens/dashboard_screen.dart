@@ -1395,6 +1395,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             _sendControlCommand('relay', value);
           },
         ),
+        const SizedBox(height: 12),
+        _buildControlCard(
+          'Solenoid Valve',
+          'Irrigation valve control',
+          Icons.water_drop,
+          const Color(0xFF2196F3),
+          _controlState.solenoidValve,
+          (value) {
+            setState(() => _controlState = _controlState.copyWith(solenoidValve: value));
+            _sendControlCommand('solenoid_valve', value);
+          },
+        ),
       ],
     );
   }

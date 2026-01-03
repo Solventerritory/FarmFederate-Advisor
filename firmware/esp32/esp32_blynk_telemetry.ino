@@ -12,6 +12,7 @@ const int TEMP_PIN = 35;
 const int FLOW_PIN = 25;
 const int HUM_PIN = 32;
 const int RELAY_PIN = 26;
+const int SOLENOID_VALVE_PIN = 27;
 
 volatile unsigned long flow_pulse_count = 0;
 void IRAM_ATTR flow_pulse() { flow_pulse_count++; }
@@ -27,6 +28,8 @@ void setup() {
   Serial.begin(115200);
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
+  pinMode(SOLENOID_VALVE_PIN, OUTPUT);
+  digitalWrite(SOLENOID_VALVE_PIN, LOW);
   pinMode(FLOW_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(FLOW_PIN), flow_pulse, RISING);
 
@@ -98,6 +101,12 @@ void pollForActions() {
           Serial.printf("Executed action pin=%s value=%d\n", pin, value);
           // ack back to server
           ackAction(true, String("executed pin=") + String(pin));
+        } else if (strcmp(pin, "solenoid_valve") == 0 || strcmp(pin, "V2") == 0) {
+          // Solenoid valve control
+          if (value == 1) digitalWrite(SOLENOID_VALVE_PIN, HIGH);
+          else digitalWrite(SOLENOID_VALVE_PIN, LOW);
+          Serial.printf("Executed solenoid valve action pin=%s value=%d\n", pin, value);
+          ackAction(true, String("executed solenoid_valve pin=") + String(pin));
         } else {
           // unknown pin - send ack failure
           ackAction(false, String("unknown pin:") + String(pin));

@@ -31,19 +31,23 @@ class SensorData {
 class ControlState {
   final bool waterPump;
   final bool relay;
+  final bool solenoidValve;
 
   ControlState({
     this.waterPump = false,
     this.relay = false,
+    this.solenoidValve = false,
   });
 
   ControlState copyWith({
     bool? waterPump,
     bool? relay,
+    bool? solenoidValve,
   }) {
     return ControlState(
       waterPump: waterPump ?? this.waterPump,
       relay: relay ?? this.relay,
+      solenoidValve: solenoidValve ?? this.solenoidValve,
     );
   }
 
@@ -51,6 +55,7 @@ class ControlState {
     return {
       'water_pump': waterPump,
       'relay': relay,
+      'solenoid_valve': solenoidValve,
     };
   }
 }
