@@ -27,11 +27,11 @@
 // ============================================
 
 // WiFi Settings
-const char* WIFI_SSID = "YOUR_WIFI_SSID";        // ← Change to your WiFi name
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"; // ← Change to your WiFi password
+const char* WIFI_SSID = "Ayush";        // ✓ WiFi configured
+const char* WIFI_PASSWORD = "123093211"; // ✓ Password configured
 
 // MQTT Broker Settings
-const char* MQTT_SERVER = "192.168.1.100";  // ← Change to YOUR computer's IP address!
+const char* MQTT_SERVER = "192.168.0.195";  // ✓ Your computer's IP address
 const int MQTT_PORT = 1883;
 const char* CLIENT_ID = "esp32_field_01";   // ← Unique ID for this device
 

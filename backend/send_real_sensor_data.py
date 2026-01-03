@@ -16,6 +16,7 @@ sensors_data = [
         'temperature': 28.5,
         'humidity': 65.2,
         'soil_moisture': 42.3,
+        'solenoid_valve': False,
         'timestamp': datetime.now().isoformat()
     },
     {
@@ -23,6 +24,7 @@ sensors_data = [
         'temperature': 27.8,
         'humidity': 68.5,
         'soil_moisture': 38.7,
+        'solenoid_valve': False,
         'timestamp': datetime.now().isoformat()
     },
     {
@@ -30,6 +32,7 @@ sensors_data = [
         'temperature': 29.2,
         'humidity': 62.1,
         'soil_moisture': 45.1,
+        'solenoid_valve': True,
         'timestamp': datetime.now().isoformat()
     },
     {
@@ -37,6 +40,7 @@ sensors_data = [
         'temperature': 26.5,
         'humidity': 75.3,
         'soil_moisture': 52.8,
+        'solenoid_valve': False,
         'timestamp': datetime.now().isoformat()
     }
 ]
