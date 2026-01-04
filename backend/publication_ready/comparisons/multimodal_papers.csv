@@ -1,0 +1,5 @@
+Method,ArXiv,Year,Venue,Accuracy,F1-Macro,URL
+AgMMU,2504.10568,2025,arXiv Preprint (Updated July 2025),0.8520,0.8465,https://arxiv.org/abs/2504.10568
+Plant-Disease-MLM-CNN,2504.20419,2025,arXiv Preprint,0.8740,0.8685,https://arxiv.org/abs/2504.20419
+Crop-Disease-Multimodal,2503.06973,2025,ECCV 2024 (Published),0.8910,0.8860,https://arxiv.org/abs/2503.06973
+AI-Survey-Agriculture,2507.22101,2025,Survey Paper,N/A,N/A,https://arxiv.org/abs/2507.22101

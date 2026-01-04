@@ -1,0 +1,25 @@
+{
+  "image_dataset": {
+    "path": "data\\real_datasets\\plantvillage\\metadata.csv",
+    "samples": 1000,
+    "crops": 5,
+    "diseases": 9
+  },
+  "text_dataset": {
+    "path": "data\\real_datasets\\text\\crop_stress_descriptions.csv",
+    "samples": 2000,
+    "crops": 15,
+    "stress_categories": 5
+  },
+  "multimodal_dataset": {
+    "path": "data\\real_datasets\\multimodal\\multimodal_pairs.csv",
+    "samples": 1000
+  },
+  "stress_categories": [
+    "water_stress",
+    "nutrient_def",
+    "pest_risk",
+    "disease_risk",
+    "heat_stress"
+  ]
+}
