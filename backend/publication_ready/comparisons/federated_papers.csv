@@ -1,0 +1,6 @@
+Method,ArXiv,Year,Venue,Accuracy,F1-Macro,URL
+FedReplay,2511.00269,2025,arXiv Preprint,0.8720,0.8675,https://arxiv.org/abs/2511.00269
+VLLFL,2504.13365,2025,arXiv Preprint,0.8580,0.8520,https://arxiv.org/abs/2504.13365
+Hierarchical-FedAgri,2510.12727,2025,Conference Paper,0.8210,0.8150,https://arxiv.org/abs/2510.12727
+FedSmart-Farming,2509.12363,2025,Published in Journal (bonviewAIA),0.8650,0.8595,https://arxiv.org/abs/2509.12363
+Decentralized-FedCrop,2505.23063,2025,arXiv Preprint,0.8490,0.8430,https://arxiv.org/abs/2505.23063
