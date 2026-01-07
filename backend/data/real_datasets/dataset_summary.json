@@ -1,15 +1,16 @@
 {
   "image_dataset": {
     "path": "data\\real_datasets\\plantvillage\\metadata.csv",
-    "samples": 1000,
-    "crops": 5,
-    "diseases": 9
+    "samples": 20342,
+    "crops": 10,
+    "source": "real"
   },
   "text_dataset": {
     "path": "data\\real_datasets\\text\\crop_stress_descriptions.csv",
-    "samples": 2000,
+    "samples": 3223,
     "crops": 15,
-    "stress_categories": 5
+    "stress_categories": 5,
+    "source": "real"
   },
   "multimodal_dataset": {
     "path": "data\\real_datasets\\multimodal\\multimodal_pairs.csv",

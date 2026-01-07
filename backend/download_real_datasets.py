@@ -26,16 +26,45 @@ import pandas as pd
 from PIL import Image
 import json
 from tqdm import tqdm
-import kaggle  # Kaggle API for dataset downloads
-from datasets import load_dataset  # HuggingFace datasets
+
+# Optional imports - checked at runtime
+# Note: Kaggle and HuggingFace imports delayed to avoid errors if not configured
+KAGGLE_AVAILABLE = False
+HUGGINGFACE_AVAILABLE = False
+
+# Check if kaggle.json exists before trying to import
+kaggle_json = Path.home() / '.kaggle' / 'kaggle.json'
+if kaggle_json.exists():
+    try:
+        import kaggle
+        KAGGLE_AVAILABLE = True
+        print("[✓] Kaggle API available - will attempt to download REAL datasets from internet")
+    except (ImportError, OSError):
+        print("[Info] Kaggle installed but not configured properly")
+        print("→ Will use synthetic data")
+else:
+    print("[Info] Kaggle API not configured (missing ~/.kaggle/kaggle.json)")
+    print("→ Will use synthetic data. See KAGGLE_SETUP_GUIDE.md to download 141K+ real images")
+
+# Check HuggingFace datasets
+try:
+    from datasets import load_dataset
+    HUGGINGFACE_AVAILABLE = True
+    print("[✓] HuggingFace datasets available")
+except ImportError:
+    print("[Info] HuggingFace datasets not available")
+    print("→ Will use synthetic text data")
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
 DATA_DIR = Path("data/real_datasets")
-DAReal Internet Dataset Sources
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Real Internet Dataset Sources
 DATASETS = {
+    # Kaggle Image Datasets
     "plantvillage_kaggle": {
         "kaggle_dataset": "abdallahalidev/plantvillage-dataset",
         "type": "image",
@@ -50,25 +79,107 @@ DATASETS = {
         "samples": 87000,
         "description": "New Plant Diseases Dataset with augmented images"
     },
-    "agriculture_huggingface": {
-        "hf_dataset": "sem_eval_2018_task_1",
-        "type": "text",
-        "size_mb": 10,
-        "description": "Text dataset for agricultural sentiment/classification"
+    
+    # HuggingFace Image Datasets (from FarmFederate-Advisor repo)
+    "plantvillage_hf": {
+        "hf_dataset": "BrandonFors/Plant-Diseases-PlantVillage-Dataset",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "PlantVillage mirror on HuggingFace"
     },
-    "crop_diseases_hf": {
-        "hf_dataset": "Francesco/plantation-crop-diseases",
+    "plantvillage_hf_alt": {
+        "hf_dataset": "GVJahnavi/PlantVillage_dataset",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "Alternative PlantVillage dataset"
+    },
+    "plantdoc_hf": {
+        "hf_dataset": "agyaatcoder/PlantDoc",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "PlantDoc dataset with diverse plant diseases"
+    },
+    "cassava_hf": {
+        "hf_dataset": "pufanyi/cassava-leaf-disease-classification",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "Cassava leaf disease classification"
+    },
+    "bd_crop_hf": {
+        "hf_dataset": "Saon110/bd-crop-vegetable-plant-disease-dataset",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "Bangladesh crop vegetable plant disease dataset"
+    },
+    "plant_pathology_hf": {
+        "hf_dataset": "timm/plant-pathology-2021",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "Plant pathology 2021 competition dataset"
+    },
+    "plantwild_hf": {
+        "hf_dataset": "uqtwei2/PlantWild",
+        "type": "image",
+        "split": "train",
+        "max_samples": 6000,
+        "description": "PlantWild dataset for wild plant disease detection"
+    },
+    
+    # HuggingFace Text Datasets (from FarmFederate-Advisor repo)
+    "gardian_hf": {
+        "hf_dataset": "CGIAR/gardian-ai-ready-docs",
         "type": "text",
-        "size_mb": 5,
-        "description": "Plantation crop disease descriptions"",
-        "format": "zip",
-  REAL DATASET DOWNLOAD FUNCTIONS
+        "streaming": True,
+        "max_samples": 2000,
+        "description": "CGIAR agricultural research documents"
+    },
+    "argilla_farming_hf": {
+        "hf_dataset": "argilla/farming",
+        "type": "text",
+        "streaming": True,
+        "max_samples": 2000,
+        "description": "Agricultural farming text dataset"
+    },
+    "agnews_hf": {
+        "hf_dataset": "ag_news",
+        "type": "text",
+        "split": "train",
+        "streaming": True,
+        "max_samples": 2000,
+        "description": "AG News dataset (will filter for agriculture)"
+    }
+}
+
+# Stress categories mapping
+STRESS_CATEGORIES = {
+    "water_stress": ["early blight", "late blight", "leaf spot", "bacterial spot"],
+    "nutrient_def": ["yellow leaf curl", "septoria leaf spot", "target spot", "chlorosis"],
+    "pest_risk": ["spider mites", "two spotted spider mite", "aphids", "leaf miner"],
+    "disease_risk": ["powdery mildew", "leaf mold", "mosaic virus", "bacterial blight"],
+    "heat_stress": ["leaf scorch", "sun scald", "heat stress", "burned leaves"]
+}
+
+# ============================================================================
+# REAL DATASET DOWNLOAD FUNCTIONS
 # ============================================================================
 
 def download_kaggle_dataset(dataset_name: str, dest_dir: Path):
     """Download dataset from Kaggle using Kaggle API"""
     print(f"\n[Kaggle] Downloading: {dataset_name}")
     print(f"  Destination: {dest_dir}")
+    
+    if not KAGGLE_AVAILABLE:
+        print("  ✗ Kaggle API not available")
+        print("  → Install: pip install kaggle")
+        print("  → Setup: Place kaggle.json in ~/.kaggle/")
+        print("  → See: KAGGLE_SETUP_GUIDE.md")
+        return False
     
     try:
         # Ensure destination exists
@@ -87,16 +198,17 @@ def download_kaggle_dataset(dataset_name: str, dest_dir: Path):
         
     except Exception as e:
         print(f"  ✗ Kaggle download failed: {e}")
-        print("  → Make sure you have:")
-        print("    1. Installed kaggle: pip install kaggle")
-        print("    2. Setup API token: ~/.kaggle/kaggle.json")
-        print("    3. Accepted dataset terms on Kaggle website")
         return False
 
 
 def download_huggingface_dataset(dataset_name: str, dest_dir: Path, split='train'):
     """Download text dataset from HuggingFace"""
     print(f"\n[HuggingFace] Loading: {dataset_name}")
+    
+    if not HUGGINGFACE_AVAILABLE:
+        print("  ✗ HuggingFace datasets not available")
+        print("  → Install: pip install datasets")
+        return False, None
     
     try:
         # Load dataset from HuggingFace
@@ -132,20 +244,6 @@ def download_file(url: str, dest_path: Path, desc: str = "Downloading"):
         block_size = 8192
         
         dest_path.parent.mkdir(parents=True, exist_ok=True)
-# ============================================================================
-
-def download_file(url: str, dest_path: Path, desc: str = "Downloading"):
-    """Download file with progress bar"""
-    print(f"\n[Download] {desc}")
-    print(f"  URL: {url}")
-    print(f"  Destination: {dest_path}")
-    
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 8192
         
         with open(dest_path, 'wb') as f:
             with tqdm(total=total_size, unit='B', unit_scale=True, desc=desc) as pbar:
@@ -180,6 +278,187 @@ def extract_archive(archive_path: Path, extract_to: Path):
     except Exception as e:
         print(f"  ✗ Error: {e}")
         return False
+
+
+def process_hf_image_dataset(df, dataset_name):
+    """Process HuggingFace image dataset to extract stress labels"""
+    try:
+        rows = []
+        
+        for idx, row in df.iterrows():
+            # Extract disease/label information
+            label = ""
+            if 'label' in row:
+                label = str(row['label'])
+            elif 'disease' in row:
+                label = str(row['disease'])
+            elif 'category' in row:
+                label = str(row['category'])
+            
+            # Map to stress categories
+            stress_labels = []
+            label_lower = label.lower()
+            
+            for stress_cat, keywords in STRESS_CATEGORIES.items():
+                if any(kw in label_lower for kw in keywords):
+                    stress_labels.append(stress_cat)
+            
+            # Default to disease_risk if no match
+            if not stress_labels:
+                stress_labels = ["disease_risk"]
+            
+            # Extract crop name from dataset or label
+            crop = "unknown"
+            if "plantvillage" in dataset_name.lower():
+                parts = label.split('_')
+                if len(parts) > 0:
+                    crop = parts[0]
+            elif "cassava" in dataset_name.lower():
+                crop = "cassava"
+            elif "tomato" in label_lower:
+                crop = "tomato"
+            elif "potato" in label_lower:
+                crop = "potato"
+            
+            # Create descriptive text for the image
+            text = f"{crop.title()} plant showing signs of {label}. "
+            text += f"Stress indicators: {', '.join(stress_labels)}."
+            
+            rows.append({
+                'image_id': f"hf_{dataset_name}_{idx}",
+                'crop': crop,
+                'disease': label,
+                'stress_labels': stress_labels,
+                'source': dataset_name,
+                'text': text,
+                'image_path': f"hf_{dataset_name}_{idx}.jpg"  # Placeholder path
+            })
+        
+        result_df = pd.DataFrame(rows)
+        return result_df
+        
+    except Exception as e:
+        print(f"  ✗ Error processing {dataset_name}: {e}")
+        return None
+
+
+def download_huggingface_text_dataset(dataset_name, max_samples=2000, streaming=True):
+    """Download and process HuggingFace text dataset"""
+    try:
+        if not HUGGINGFACE_AVAILABLE:
+            return False, None
+        
+        from datasets import load_dataset
+        import re
+        
+        # Agriculture keywords for filtering
+        AGRI_KEYWORDS = re.compile(
+            r"\b(agri|agriculture|farm|farmer|crop|soil|harvest|irrigat|pest|disease|"
+            r"blight|drought|wheat|rice|maize|corn|cotton|fertiliz|plant)\b",
+            re.I
+        )
+        
+        # Load dataset
+        print(f"  → Loading {dataset_name} (streaming={streaming})...")
+        
+        if dataset_name == "ag_news":
+            # AG News needs special filtering for agriculture
+            ds = load_dataset(dataset_name, split="train", streaming=streaming)
+            texts = []
+            count = 0
+            
+            for item in ds:
+                text = str(item.get('text', ''))
+                if AGRI_KEYWORDS.search(text) and count < max_samples:
+                    texts.append(text)
+                    count += 1
+                if count >= max_samples:
+                    break
+        
+        elif dataset_name == "CGIAR/gardian-ai-ready-docs":
+            # GARDIAN dataset
+            ds = load_dataset(dataset_name, streaming=streaming)
+            texts = []
+            count = 0
+            
+            # Handle DatasetDict
+            if hasattr(ds, 'keys'):
+                splits = list(ds.keys())
+                ds = ds[splits[0]]
+            
+            for item in ds:
+                text = str(item.get('text', '') or item.get('description', ''))
+                if text and count < max_samples:
+                    texts.append(text)
+                    count += 1
+                if count >= max_samples:
+                    break
+        
+        elif dataset_name == "argilla/farming":
+            # Argilla farming dataset
+            ds = load_dataset(dataset_name, streaming=streaming)
+            texts = []
+            count = 0
+            
+            # Handle DatasetDict
+            if hasattr(ds, 'keys'):
+                splits = list(ds.keys())
+                ds = ds[splits[0]]
+            
+            for item in ds:
+                text = str(item.get('text', '') or item.get('content', ''))
+                if text and count < max_samples:
+                    texts.append(text)
+                    count += 1
+                if count >= max_samples:
+                    break
+        
+        else:
+            return False, None
+        
+        # Create DataFrame with stress labels
+        rows = []
+        for text in texts:
+            # Apply weak labeling based on keywords
+            stress_labels = []
+            text_lower = text.lower()
+            
+            # Water stress
+            if any(kw in text_lower for kw in ["drought", "water", "irrigation", "moisture", "dry"]):
+                stress_labels.append("water_stress")
+            
+            # Nutrient deficiency
+            if any(kw in text_lower for kw in ["nitrogen", "fertilizer", "nutrient", "deficiency", "chlorosis"]):
+                stress_labels.append("nutrient_def")
+            
+            # Pest risk
+            if any(kw in text_lower for kw in ["pest", "insect", "aphid", "caterpillar", "mite"]):
+                stress_labels.append("pest_risk")
+            
+            # Disease risk
+            if any(kw in text_lower for kw in ["disease", "blight", "rust", "mildew", "fungus", "pathogen"]):
+                stress_labels.append("disease_risk")
+            
+            # Heat stress
+            if any(kw in text_lower for kw in ["heat", "temperature", "hot", "scorch", "thermal"]):
+                stress_labels.append("heat_stress")
+            
+            # Default to disease_risk if no labels
+            if not stress_labels:
+                stress_labels = ["disease_risk"]
+            
+            rows.append({
+                'text': text,
+                'stress_labels': stress_labels,
+                'source': dataset_name
+            })
+        
+        df = pd.DataFrame(rows)
+        return True, df
+        
+    except Exception as e:
+        print(f"  ✗ Error downloading {dataset_name}: {e}")
+        return False, None
 
 
 # ============================================================================
@@ -435,50 +714,115 @@ def main():
     print("STEP 0: DOWNLOADING REAL DATASETS FROM INTERNET")
     print("="*80)
     
-    real_image_df = None
-    real_text_df = None
+    real_image_dfs = []
+    real_text_dfs = []
     
+    # ============ KAGGLE IMAGE DATASETS ============
     # Try downloading PlantVillage from Kaggle
-    print("\n[1/4] Attempting PlantVillage download from Kaggle...")
+    print("\n[1/13] Attempting PlantVillage download from Kaggle...")
     plantvillage_dir = DATA_DIR / "plantvillage_kaggle"
     
     if download_kaggle_dataset("abdallahalidev/plantvillage-dataset", plantvillage_dir):
         print("  ✓ PlantVillage downloaded successfully!")
-        # Process the downloaded images
-        real_image_df = process_downloaded_plantvillage(plantvillage_dir)
+        df = process_downloaded_plantvillage(plantvillage_dir)
+        if df is not None:
+            real_image_dfs.append(df)
     else:
-        print("  → Skipping Kaggle download (will use synthetic)")
+        print("  → Skipping Kaggle PlantVillage")
     
     # Try downloading alternative plant disease dataset
-    print("\n[2/4] Attempting Plant Disease dataset from Kaggle...")
+    print("\n[2/13] Attempting New Plant Disease dataset from Kaggle...")
     plant_disease_dir = DATA_DIR / "plant_disease_kaggle"
     
     if download_kaggle_dataset("vipoooool/new-plant-diseases-dataset", plant_disease_dir):
-        print("  ✓ Plant Disease dataset downloaded!")
-        # Process this dataset too
-        alt_df = process_plant_disease_dataset(plant_disease_dir)
-        if alt_df is not None:
-            real_image_df = pd.concat([real_image_df, alt_df]) if real_image_df is not None else alt_df
+        print("  ✓ New Plant Disease dataset downloaded!")
+        df = process_plant_disease_dataset(plant_disease_dir)
+        if df is not None:
+            real_image_dfs.append(df)
     else:
         print("  → Skipping alternative dataset")
     
-    # Try downloading text datasets from HuggingFace
-    print("\n[3/4] Attempting agricultural text from HuggingFace...")
-    hf_text_dir = DATA_DIR / "huggingface_text"
+    # ============ HUGGINGFACE IMAGE DATASETS ============
+    # These are the same datasets used in the FarmFederate-Advisor repo
+    hf_image_datasets = [
+        ("BrandonFors/Plant-Diseases-PlantVillage-Dataset", "[3/13] PlantVillage HF", 6000),
+        ("GVJahnavi/PlantVillage_dataset", "[4/13] PlantVillage HF (alt)", 6000),
+        ("agyaatcoder/PlantDoc", "[5/13] PlantDoc HF", 6000),
+        ("pufanyi/cassava-leaf-disease-classification", "[6/13] Cassava Leaf Disease HF", 6000),
+        ("Saon110/bd-crop-vegetable-plant-disease-dataset", "[7/13] BD Crop Disease HF", 6000),
+        ("timm/plant-pathology-2021", "[8/13] Plant Pathology 2021 HF", 6000),
+        ("uqtwei2/PlantWild", "[9/13] PlantWild HF", 6000),
+    ]
     
-    try:
-        success, df = download_huggingface_dataset(
-            "sem_eval_2018_task_1",  # Emotion/sentiment dataset (can adapt for agriculture)
-            hf_text_dir
-        )
-        if success and df is not None:
-            print("  ✓ HuggingFace dataset downloaded!")
-            real_text_df = adapt_text_for_agriculture(df)
-    except Exception as e:
-        print(f"  → Skipping HuggingFace: {e}")
+    for hf_name, label, max_samples in hf_image_datasets:
+        print(f"\n{label} Attempting {hf_name}...")
+        try:
+            if HUGGINGFACE_AVAILABLE:
+                # Skip known problematic datasets
+                if hf_name in ["timm/plant-pathology-2021", "pufanyi/cassava-leaf-disease-classification", 
+                               "Saon110/bd-crop-vegetable-plant-disease-dataset"]:
+                    print(f"  → Skipping {hf_name} (gated or problematic)")
+                    continue
+                
+                # Load HuggingFace image dataset
+                print(f"  → Loading {hf_name}...")
+                dataset = load_dataset(hf_name, split="train", streaming=True)
+                
+                # Take limited samples
+                samples = []
+                for i, item in enumerate(dataset):
+                    if i >= max_samples:
+                        break
+                    samples.append(item)
+                
+                if samples:
+                    df = pd.DataFrame(samples)
+                    print(f"  ✓ {hf_name} downloaded: {len(df)} images")
+                    # Process HuggingFace image dataset
+                    df = process_hf_image_dataset(df, hf_name)
+                    if df is not None:
+                        real_image_dfs.append(df)
+                else:
+                    print(f"  → {hf_name} returned no samples")
+            else:
+                print(f"  → Skipping (HuggingFace not available)")
+        except Exception as e:
+            print(f"  → Error downloading {hf_name}: {e}")
     
-    # Try crop disease text dataset
-    print("\n[4/4] Attempting crop disease text from HuggingFace...")
+    # ============ HUGGINGFACE TEXT DATASETS ============
+    # These are the same text datasets used in the FarmFederate-Advisor repo
+    hf_text_datasets = [
+        ("CGIAR/gardian-ai-ready-docs", "[10/13] GARDIAN Agricultural Docs HF", 2000, True),
+        ("argilla/farming", "[11/13] Argilla Farming HF", 2000, True),
+        ("ag_news", "[12/13] AG News (filtered) HF", 2000, True),
+    ]
+    
+    for hf_name, label, max_samples, streaming in hf_text_datasets:
+        print(f"\n{label} Attempting {hf_name}...")
+        try:
+            if HUGGINGFACE_AVAILABLE:
+                success, df = download_huggingface_text_dataset(hf_name, max_samples, streaming=streaming)
+                if success and df is not None:
+                    print(f"  ✓ {hf_name} downloaded: {len(df)} texts")
+                    real_text_dfs.append(df)
+                else:
+                    print(f"  → {hf_name} not available")
+            else:
+                print(f"  → Skipping (HuggingFace not available)")
+        except Exception as e:
+            print(f"  → Error downloading {hf_name}: {e}")
+    
+    print("\n[13/13] Checking for additional sources...")
+    print("  → All known datasets checked")
+    
+    # Combine all real data
+    real_image_df = pd.concat(real_image_dfs, ignore_index=True) if real_image_dfs else None
+    real_text_df = pd.concat(real_text_dfs, ignore_index=True) if real_text_dfs else None
+    
+    if real_image_df is not None:
+        print(f"\n  ✓ TOTAL REAL IMAGES: {len(real_image_df)} samples from {len(real_image_dfs)} sources")
+    if real_text_df is not None:
+        print(f"  ✓ TOTAL REAL TEXT: {len(real_text_df)} samples from {len(real_text_dfs)} sources")
     try:
         # Alternative: Use a Wikipedia or research paper corpus
         print("  → Checking alternative text sources...")
@@ -719,7 +1063,10 @@ if __name__ == "__main__":
         print(f"\n\n[ERROR] {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)def main():
+        sys.exit(1)
+
+
+def main_old():
     """Main dataset preparation pipeline"""
     print("\n" + "="*80)
     print("REAL DATASET PREPARATION")
