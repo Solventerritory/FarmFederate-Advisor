@@ -515,3 +515,89 @@ class FederatedMetrics:
         }
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
+
+
+# ------------- Helper Functions -------------
+
+def weighted_average_state_dicts(state_dicts: List[Dict], weights: List[float]) -> Dict:
+    """
+    Compute weighted average of state dictionaries (FedAvg).
+    
+    Args:
+        state_dicts: List of model state dictionaries
+        weights: List of weights (e.g., dataset sizes)
+    
+    Returns:
+        Averaged state dictionary
+    """
+    if not state_dicts:
+        raise ValueError("No state dicts provided")
+    
+    # Normalize weights
+    total_weight = sum(weights)
+    normalized_weights = [w / total_weight for w in weights]
+    
+    # Initialize averaged state dict
+    avg_state = {}
+    
+    # Average each parameter
+    for key in state_dicts[0].keys():
+        avg_state[key] = sum(
+            state_dicts[i][key] * normalized_weights[i]
+            for i in range(len(state_dicts))
+        )
+    
+    return avg_state
+
+
+def evaluate_model(model, dataloader, device="cuda"):
+    """
+    Evaluate model on a dataset.
+    
+    Args:
+        model: PyTorch model
+        dataloader: DataLoader for evaluation
+        device: Device to run evaluation on
+    
+    Returns:
+        Dictionary of metrics
+    """
+    model.eval()
+    all_preds = []
+    all_labels = []
+    
+    with torch.no_grad():
+        for batch in dataloader:
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            pixel_values = batch['pixel_values'].to(device)
+            labels = batch['labels'].to(device)
+            
+            # Forward pass
+            outputs = model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                pixel_values=pixel_values
+            )
+            
+            logits = outputs.logits if hasattr(outputs, 'logits') else outputs
+            preds = torch.sigmoid(logits) > 0.5
+            
+            all_preds.append(preds.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+    
+    # Compute metrics
+    all_preds = np.vstack(all_preds)
+    all_labels = np.vstack(all_labels)
+    
+    from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+    
+    metrics = {
+        'f1_macro': f1_score(all_labels, all_preds, average='macro', zero_division=0),
+        'f1_micro': f1_score(all_labels, all_preds, average='micro', zero_division=0),
+        'accuracy': accuracy_score(all_labels, all_preds),
+        'precision': precision_score(all_labels, all_preds, average='macro', zero_division=0),
+        'recall': recall_score(all_labels, all_preds, average='macro', zero_division=0),
+    }
+    
+    return metrics

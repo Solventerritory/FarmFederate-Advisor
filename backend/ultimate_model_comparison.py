@@ -761,18 +761,21 @@ def main():
     train_df, val_df = train_test_split(df, test_size=0.2, random_state=SEED)
     print(f"\n[INFO] Final dataset sizes - Train: {len(train_df)}, Val: {len(val_df)}")
     
-    # Models to compare - COMPREHENSIVE LIST
+    # Models to compare - COMPREHENSIVE LIST (without DeBERTa due to Python 3.13 compatibility)
     models_config = {
         'LLM': [
             ('roberta-base', 'RoBERTa-Base'),
             ('bert-base-uncased', 'BERT-Base'),
             ('distilbert-base-uncased', 'DistilBERT'),
-            ('microsoft/deberta-v3-base', 'DeBERTa-v3'),
+            ('xlm-roberta-base', 'XLM-RoBERTa'),
             ('google/electra-base-discriminator', 'ELECTRA-Base'),
+            ('albert-base-v2', 'ALBERT-Base'),
+            ('microsoft/mpnet-base', 'MPNet-Base'),
         ],
         'ViT': [
             ('google/vit-base-patch16-224-in21k', 'ViT-Base'),
             ('facebook/deit-base-distilled-patch16-224', 'DeiT-Base'),
+            ('microsoft/beit-base-patch16-224', 'BEiT-Base'),
         ],
         'VLM': [
             (('roberta-base', 'google/vit-base-patch16-224-in21k'), 'RoBERTa+ViT'),
@@ -920,8 +923,7 @@ def main():
                     torch.cuda.empty_cache() if torch.cuda.is_available() else None
                     gc.collect()
                 
-                # Free memory
-                del model_central, model_fed
+                # Free memory after all configs
                 torch.cuda.empty_cache() if torch.cuda.is_available() else None
                 gc.collect()
                 
