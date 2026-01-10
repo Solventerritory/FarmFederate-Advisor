@@ -432,6 +432,97 @@ MODELS_TO_TRAIN = {
         local_epochs=3,
         num_rounds=10,
         description="Large CLIP for enhanced multimodal understanding"
+    ),
+    "blip-base": ModelConfig(
+        name="BLIP-Base",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="Salesforce/blip-image-captioning-base",
+        image_size=384,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=10,
+        local_epochs=3,
+        num_rounds=10,
+        description="BLIP for image-text understanding"
+    ),
+    "blip2-opt": ModelConfig(
+        name="BLIP2-OPT",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="Salesforce/blip2-opt-2.7b",
+        image_size=224,
+        max_length=77,
+        learning_rate=8e-6,
+        batch_size=8,
+        local_epochs=3,
+        num_rounds=10,
+        description="BLIP-2 with OPT language model"
+    ),
+    "blip2-flan-t5": ModelConfig(
+        name="BLIP2-Flan-T5",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="Salesforce/blip2-flan-t5-xl",
+        image_size=224,
+        max_length=77,
+        learning_rate=8e-6,
+        batch_size=6,
+        local_epochs=3,
+        num_rounds=10,
+        description="BLIP-2 with Flan-T5 language model"
+    ),
+    "bridgetower": ModelConfig(
+        name="BridgeTower",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="BridgeTower/bridgetower-large-itm-mlm-itc",
+        image_size=288,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=8,
+        local_epochs=3,
+        num_rounds=10,
+        description="BridgeTower for cross-modal alignment"
+    ),
+    "altclip": ModelConfig(
+        name="AltCLIP",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="BAAI/AltCLIP",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=12,
+        local_epochs=3,
+        num_rounds=10,
+        description="Alternative CLIP with multilingual support"
+    ),
+    "chinese-clip": ModelConfig(
+        name="Chinese-CLIP",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="OFA-Sys/chinese-clip-vit-base-patch16",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=12,
+        local_epochs=3,
+        num_rounds=10,
+        description="Chinese-CLIP for robust multimodal features"
+    ),
+    "groupvit": ModelConfig(
+        name="GroupViT",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="nvidia/groupvit-gcc-yfcc",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=10,
+        local_epochs=3,
+        num_rounds=10,
+        description="GroupViT for semantic grouping"
     )
 }
 
