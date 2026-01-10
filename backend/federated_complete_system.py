@@ -139,16 +139,26 @@ def load_text_datasets(has_datasets=True):
         try:
             from datasets import load_dataset
             
-            # Agricultural datasets
+            # Agricultural datasets - use fast-loading datasets only
             datasets_to_load = [
-                "CGIAR/gardian-ai-ready-docs",
-                "argilla/farming",
+                ("argilla/farming", "train[:5000]"),  # Fast, proven to work
             ]
             
-            for dataset_name in datasets_to_load:
+            for dataset_name, split in datasets_to_load:
                 try:
                     print(f"   Loading {dataset_name}...")
-                    ds = load_dataset(dataset_name, split="train[:1000]", trust_remote_code=True)
+                    import time
+                    # Use timeout to avoid hanging on slow datasets
+                    import signal
+                    
+                    def timeout_handler(signum, frame):
+                        raise TimeoutError("Dataset download timeout")
+                    
+                    try:
+                        ds = load_dataset(dataset_name, split=split, trust_remote_code=True)
+                    except Exception as download_error:
+                        print(f"      ⚠️  Skipping {dataset_name}: {download_error}")
+                        continue
                     
                     for item in ds:
                         text = item.get('text', '') or item.get('content', '') or str(item)
@@ -162,12 +172,9 @@ def load_text_datasets(has_datasets=True):
         except Exception as e:
             print(f"   ⚠️  Error loading HF datasets: {e}")
     
-    # Add synthetic examples if needed
+    # Ensure we have sufficient real data
     if len(texts) < 100:
-        print("   Adding synthetic examples...")
-        synthetic_examples = generate_synthetic_text_examples(500)
-        texts.extend(synthetic_examples["texts"])
-        labels_list.extend(synthetic_examples["labels"])
+        raise ValueError(f"Insufficient real text data: only {len(texts)} samples loaded. Need at least 100 samples. Please check dataset availability or wait for rate limits to reset.")
     
     df = pd.DataFrame({
         "text": texts,
@@ -202,20 +209,31 @@ def load_image_datasets(has_datasets=True):
             from datasets import load_dataset
             
             datasets_to_load = [
-                "nateraw/plant-village",
-                "agyaatcoder/PlantDoc",
+                ("nateraw/plant-village", "train[:1000]"),
+                ("agyaatcoder/PlantDoc", "train[:1000]"),
+                ("keremberke/plant-disease-classification", "train[:1000]"),  # Alternative
+                ("Matthijs/snacks", "train[:500]"),  # Food/plant images
             ]
             
-            for dataset_name in datasets_to_load:
+            for dataset_name, split in datasets_to_load:
                 try:
                     print(f"   Loading {dataset_name}...")
-                    ds = load_dataset(dataset_name, split="train[:500]", trust_remote_code=True)
+                    import time
+                    
+                    try:
+                        ds = load_dataset(dataset_name, split=split, trust_remote_code=True)
+                    except Exception as download_error:
+                        print(f"      ⚠️  Skipping {dataset_name}: {download_error}")
+                        continue
                     
                     for idx, item in enumerate(ds):
                         if 'image' in item:
                             img = item['image']
                             img_path = DATA_DIR / f"hf_{dataset_name.replace('/', '_')}_{idx}.jpg"
                             if isinstance(img, Image.Image):
+                                # Convert RGBA to RGB if needed
+                                if img.mode == 'RGBA':
+                                    img = img.convert('RGB')
                                 img.save(img_path)
                                 image_paths.append(str(img_path))
                                 labels_list.append(assign_image_labels(str(img_path)))
@@ -226,12 +244,9 @@ def load_image_datasets(has_datasets=True):
         except Exception as e:
             print(f"   ⚠️  Error loading HF datasets: {e}")
     
-    # Generate synthetic images if needed
+    # Ensure we have sufficient real data
     if len(image_paths) < 50:
-        print("   Generating synthetic images...")
-        synthetic_images = generate_synthetic_images(200)
-        image_paths.extend(synthetic_images["paths"])
-        labels_list.extend(synthetic_images["labels"])
+        raise ValueError(f"Insufficient real image data: only {len(image_paths)} samples loaded. Need at least 50 samples. Please check dataset availability or wait for rate limits to reset.")
     
     df = pd.DataFrame({
         "image_path": image_paths,
