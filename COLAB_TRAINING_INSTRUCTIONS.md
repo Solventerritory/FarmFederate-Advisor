@@ -1,5 +1,31 @@
 # 🚀 Running FarmFederate Training on Google Colab GPU
 
+## 🎯 QUICK START - USE THIS NOTEBOOK!
+
+**✅ Complete Notebook with All Fixes (RECOMMENDED):**
+
+**Option 1 (Direct Commit - Bypasses Cache):**
+```
+https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/1fbfbe6/FarmFederate_Colab_Complete.ipynb
+```
+
+**Option 2 (Branch Link):**
+```
+https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/dummy-sensor-data-clean/FarmFederate_Colab_Complete.ipynb
+```
+
+**What's Included:**
+- ✅ Keep-alive (prevents 90-min idle timeout)
+- ✅ Auto-reconnect (network recovery)
+- ✅ Memory management (prevents OOM)
+- ✅ Google Drive backup (saves progress)
+- ✅ Auto-configuration (T4/V100/A100)
+- ✅ 10 ready-to-run cells
+
+**Just click → Enable GPU → Run cells 1-10!**
+
+---
+
 ## ⚠️ RUNTIME DISCONNECTION FIXES
 
 ### Common Causes & Solutions:
@@ -37,7 +63,9 @@
 
 ---
 
-## 📋 Colab Setup Cells
+## 📋 Manual Setup (If You Want to Copy Cells)
+
+If you prefer to create your own notebook or understand the setup, here are the individual cells:
 
 ### Cell 1A: Keep Session Alive (PREVENTS DISCONNECTION)
 ```python
