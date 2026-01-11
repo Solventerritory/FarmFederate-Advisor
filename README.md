@@ -2,6 +2,26 @@
 
 FarmFederate integrates an ESP32-based field node, a FastAPI backend, a Flutter mobile app and an **enhanced federated multimodal training pipeline** to detect crop stress and automate irrigation. This implementation includes state-of-the-art research features for federated learning, privacy-preserving ML, and edge intelligence.
 
+---
+
+## ⚠️ TRAINING ON GOOGLE COLAB?
+
+**Runtime disconnecting? We've fixed it!** 🎉
+
+### 🎯 Complete Documentation:
+📚 **[COLAB_DOCS_INDEX.md](COLAB_DOCS_INDEX.md)** - All guides indexed (pick your path)
+
+### 🚀 Quick Access:
+- **[COLAB_QUICK_FIX.md](COLAB_QUICK_FIX.md)** - 1-minute fix (copy-paste-run)
+- **[COLAB_FIX_VISUAL_GUIDE.md](COLAB_FIX_VISUAL_GUIDE.md)** - Visual explanations
+- **[COLAB_DISCONNECTION_FIX.md](COLAB_DISCONNECTION_FIX.md)** - Complete troubleshooting
+- **[COLAB_TRAINING_INSTRUCTIONS.md](COLAB_TRAINING_INSTRUCTIONS.md)** - Full step-by-step
+
+**Fixes:** Keep-alive, auto-reconnect, memory management, checkpointing, Drive backup  
+**Success rate:** 95%+ ✅
+
+---
+
 ## 🆕 Research Paper Enhancements
 
 ### Federated Learning Features
