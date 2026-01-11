@@ -22,8 +22,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // IoT Device Settings
   bool _relayEnabled = true;
   bool _solenoidValveEnabled = true;
-  String _relayPin = 'GPIO 26';
-  String _solenoidValvePin = 'GPIO 27';
+  final String _relayPin = 'GPIO 26';
+  final String _solenoidValvePin = 'GPIO 27';
 
   @override
   Widget build(BuildContext context) {
