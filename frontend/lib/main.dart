@@ -11,7 +11,6 @@ import 'services/auth_service.dart';
 import 'routes.dart';
 
 // Conditional import - only import dart:html on web platform
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
