@@ -4,12 +4,12 @@
 
 **✅ Complete Notebook with All Fixes (RECOMMENDED):**
 
-**Option 1 (Direct Commit - Bypasses Cache):**
+**Option 1 (Latest - Direct Commit):**
 ```
-https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/1fbfbe6/FarmFederate_Colab_Complete.ipynb
+https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/6e61d24/FarmFederate_Colab_Complete.ipynb
 ```
 
-**Option 2 (Branch Link):**
+**Option 2 (Branch Link - May need cache clear):**
 ```
 https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/dummy-sensor-data-clean/FarmFederate_Colab_Complete.ipynb
 ```
