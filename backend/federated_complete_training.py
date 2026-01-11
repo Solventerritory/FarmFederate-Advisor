@@ -523,6 +523,58 @@ MODELS_TO_TRAIN = {
         local_epochs=3,
         num_rounds=10,
         description="GroupViT for semantic grouping"
+    ),
+    "git-base": ModelConfig(
+        name="GIT-Base",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="microsoft/git-base",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=12,
+        local_epochs=3,
+        num_rounds=10,
+        description="GIT for generative image-to-text"
+    ),
+    "blip-vqa": ModelConfig(
+        name="BLIP-VQA",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="Salesforce/blip-vqa-base",
+        image_size=480,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=8,
+        local_epochs=3,
+        num_rounds=10,
+        description="BLIP for visual question answering"
+    ),
+    "x-clip": ModelConfig(
+        name="X-CLIP",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="microsoft/xclip-base-patch32",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=10,
+        local_epochs=3,
+        num_rounds=10,
+        description="X-CLIP for video-text understanding"
+    ),
+    "flava": ModelConfig(
+        name="FLAVA",
+        model_type="vlm",
+        architecture="vision_language",
+        pretrained_name="facebook/flava-full",
+        image_size=224,
+        max_length=77,
+        learning_rate=1e-5,
+        batch_size=8,
+        local_epochs=3,
+        num_rounds=10,
+        description="FLAVA for foundational language-vision alignment"
     )
 }
 
@@ -1557,10 +1609,16 @@ def main():
     print("="*80)
     print("FEDERATED LEARNING COMPLETE TRAINING SYSTEM")
     print("="*80)
-    print(f"Device: {DEVICE}")
-    print(f"Checkpoint Dir: {CHECKPOINT_DIR}")
-    print(f"Results Dir: {RESULTS_DIR}")
-    print(f"Plots Dir: {PLOTS_DIR}")
+    print(f"\n📊 Total Models: 39 (13 LLM + 13 ViT + 13 VLM)")
+    print(f"🔄 Training Paradigms: Federated (5 clients, 10 rounds) + Centralized (10 epochs)")
+    print(f"⚡ Total Training Runs: 78 (39 models × 2 paradigms)")
+    print(f"\n⏱️  Estimated Time: 26-38 hours on CPU, 3-5 hours on GPU")
+    print(f"💾 Estimated Disk Space: 15-20 GB for models + 2-3 GB for results")
+    print(f"\n🖥️  Device: {DEVICE}")
+    print(f"📁 Checkpoint Dir: {CHECKPOINT_DIR}")
+    print(f"📁 Results Dir: {RESULTS_DIR}")
+    print(f"📁 Plots Dir: {PLOTS_DIR}")
+    print("="*80)
     
     # Initialize managers
     checkpoint_manager = CheckpointManager(CHECKPOINT_DIR)
