@@ -29,6 +29,40 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 import traceback
 
+# --- Aggressive checkpointing for Colab Free users ---
+CHECKPOINT_FREQUENCY = int(os.environ.get('CHECKPOINT_FREQUENCY', '5'))  # Save every N models
+AUTO_SAVE_DRIVE = os.environ.get('AUTO_SAVE_DRIVE', '0') == '1'
+DRIVE_RESULTS_DIR = os.environ.get('DRIVE_RESULTS_DIR', '/content/drive/MyDrive/FarmFederate_Results')
+CHECKPOINT_FILE = os.path.join(DRIVE_RESULTS_DIR, 'training_checkpoint.json')
+
+def save_checkpoint(model_index, model_name, status):
+    checkpoint = {
+        'timestamp': datetime.now().isoformat(),
+        'model_index': model_index,
+        'model_name': model_name,
+        'status': status
+    }
+    try:
+        with open(CHECKPOINT_FILE, 'w') as f:
+            json.dump(checkpoint, f)
+        print(f"💾 [Checkpoint] Saved at model {model_index}: {model_name}")
+    except Exception as e:
+        print(f"⚠️ [Checkpoint] Save failed: {e}")
+
+def load_checkpoint():
+    if os.path.exists(CHECKPOINT_FILE):
+        try:
+            with open(CHECKPOINT_FILE, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"⚠️ [Checkpoint] Load failed: {e}")
+    return None
+
+def clear_checkpoint():
+    if os.path.exists(CHECKPOINT_FILE):
+        os.remove(CHECKPOINT_FILE)
+        print("🧹 [Checkpoint] Cleared.")
+
 warnings.filterwarnings('ignore')
 
 import numpy as np
@@ -1648,6 +1682,32 @@ def main():
     print(f"📁 Results Dir: {RESULTS_DIR}")
     print(f"📁 Plots Dir: {PLOTS_DIR}")
     print("="*80)
+
+    # --- Resume logic ---
+    last_checkpoint = load_checkpoint()
+    resume_index = 0
+    if last_checkpoint:
+        print(f"\n⚠️ [Resume] Found checkpoint: Model {last_checkpoint['model_index']} - {last_checkpoint['model_name']}")
+        print("   Training will resume from next model.")
+        resume_index = last_checkpoint['model_index'] + 1
+    else:
+        print("\nℹ️ [Resume] No checkpoint found. Training will start from scratch.")
+
+    # ...existing code...
+
+    # Example: Replace your main training loop with this pattern:
+    # for model_index, model_name in enumerate(model_list):
+    #     if model_index < resume_index:
+    #         print(f"[Skip] Model {model_index}: {model_name} already completed.")
+    #         continue
+    #     ...existing training code...
+    #     if (model_index + 1) % CHECKPOINT_FREQUENCY == 0 or (model_index + 1) == len(model_list):
+    #         save_checkpoint(model_index, model_name, status="in_progress")
+    #         # Optionally, save results to Drive here
+
+    # After all models complete:
+    clear_checkpoint()
+    print("✅ All models trained. Checkpoint cleared.")
     
     # Initialize managers
     checkpoint_manager = CheckpointManager(CHECKPOINT_DIR)
