@@ -24,7 +24,17 @@ https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/bl
 
 **Just click → Enable GPU → Run cells 1-10!**
 
----
+# 🚀 Running FarmFederate Training on Google Colab GPU
+
+## 🟢 One-Click Colab Notebook (Recommended)
+
+**Open this notebook in Colab:**
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/master/FarmFederate_Colab_Complete.ipynb)
+
+- This notebook automates: Google Drive mount, repo clone, requirements install, checkpointed training, and resume after disconnects.
+- Just follow the cell instructions in the notebook for a robust, interruption-resilient training workflow.
+
 
 ## ⚠️ RUNTIME DISCONNECTION FIXES
 
