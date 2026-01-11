@@ -66,6 +66,23 @@ from federated_core import (
 )
 
 # ============================================================================
+# MEMORY MANAGEMENT
+# ============================================================================
+
+import gc
+
+def clear_gpu_memory():
+    """Aggressively clear GPU memory"""
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        # Print memory stats
+        allocated = torch.cuda.memory_allocated() / 1e9
+        cached = torch.cuda.memory_reserved() / 1e9
+        print(f"   [MEM] GPU: {allocated:.2f}GB allocated, {cached:.2f}GB cached")
+
+# ============================================================================
 # CONFIGURATION
 # ============================================================================
 
@@ -74,6 +91,8 @@ np.random.seed(SEED)
 torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
+    # Enable memory management
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"[INFO] Using device: {DEVICE}")
@@ -91,6 +110,16 @@ PLOTS_DIR.mkdir(exist_ok=True)
 # MODEL DEFINITIONS
 # ============================================================================
 
+# Check if running in Colab or with limited memory
+IS_COLAB = os.environ.get('COLAB_GPU', '0') == '1' or 'COLAB_JUPYTER' in os.environ
+if IS_COLAB or (torch.cuda.is_available() and torch.cuda.get_device_properties(0).total_memory < 20e9):
+    print("[INFO] Detected Colab/Limited GPU - Using reduced batch sizes")
+    DEFAULT_BATCH_SIZE = 4  # Reduced for Colab
+    DEFAULT_LORA = True
+else:
+    DEFAULT_BATCH_SIZE = 16
+    DEFAULT_LORA = False
+
 @dataclass
 class ModelConfig:
     """Configuration for each model"""
@@ -101,11 +130,11 @@ class ModelConfig:
     max_length: int = 256
     image_size: int = 224
     learning_rate: float = 2e-5
-    batch_size: int = 16
+    batch_size: int = DEFAULT_BATCH_SIZE  # Use detected default
     local_epochs: int = 3
     num_rounds: int = 10
     num_clients: int = 5
-    use_lora: bool = False
+    use_lora: bool = DEFAULT_LORA  # Enable LoRA for Colab
     checkpoint_path: Optional[str] = None
     description: str = ""
     train_centralized: bool = True  # Also train centralized version
@@ -1627,7 +1656,11 @@ def main():
     # Load datasets
     print("\n[DATA] Loading datasets...")
     try:
-        df_text = build_text_corpus_mix(max_per_source=2000, max_samples=5000)
+        df_text = build_text_corpus_mix(
+            mix_sources="argilla,agnews,localmini",
+            max_per_source=2000, 
+            max_samples=5000
+        )
         print(f"[DATA] Text corpus: {len(df_text)} samples")
     except Exception as e:
         print(f"[ERROR] Failed to load text data: {e}")
@@ -1649,6 +1682,10 @@ def main():
     
     for model_key, config in MODELS_TO_TRAIN.items():
         try:
+            # Clear memory before starting new model
+            print(f"\n[MEM] Clearing memory before {config.name}...")
+            clear_gpu_memory()
+            
             # Train Federated version
             print(f"\n{'#'*80}")
             print(f"# FEDERATED TRAINING: {config.name}")
@@ -1667,6 +1704,10 @@ def main():
             print(f"\n✓ Completed Federated: {config.name}")
             print(f"  Final F1: {fed_metrics['f1_macro']:.4f}")
             print(f"  Final Accuracy: {fed_metrics['accuracy']:.4f}")
+            
+            # Clear memory after federated training
+            del fed_model
+            clear_gpu_memory()
             
             # Train Centralized version for comparison
             if config.train_centralized:
@@ -1687,6 +1728,10 @@ def main():
                 print(f"\n✓ Completed Centralized: {config.name}")
                 print(f"  Final F1: {cent_metrics['f1_macro']:.4f}")
                 print(f"  Final Accuracy: {cent_metrics['accuracy']:.4f}")
+                
+                # Clear memory after centralized training
+                del cent_model
+                clear_gpu_memory()
                 
                 # Compare
                 print(f"\n📊 Comparison:")
