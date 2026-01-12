@@ -18,6 +18,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _temperatureUnit = 'Celsius';
   String _dataRefreshRate = '5 seconds';
   double _alertThreshold = 80.0;
+  
+  // IoT Device Settings
+  bool _relayEnabled = true;
+  bool _solenoidValveEnabled = true;
+  final String _relayPin = 'GPIO 26';
+  final String _solenoidValvePin = 'GPIO 27';
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +159,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: _temperatureUnit,
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
             onTap: () => _showTemperatureUnitDialog(),
+          ),
+          const SizedBox(height: 30),
+
+          // IoT Device Configuration Section
+          _buildSectionTitle('IoT Device Configuration'),
+          const SizedBox(height: 12),
+          _buildSettingCard(
+            icon: Icons.toggle_on,
+            title: 'Relay Module',
+            subtitle: 'Water valve relay on $_relayPin',
+            trailing: Switch(
+              value: _relayEnabled,
+              onChanged: (value) {
+                setState(() {
+                  _relayEnabled = value;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Relay ${value ? "enabled" : "disabled"}')),
+                );
+              },
+              activeThumbColor: const Color(0xFF1D976C),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildSettingCard(
+            icon: Icons.water_drop,
+            title: 'Solenoid Valve',
+            subtitle: '230V AC irrigation valve on $_solenoidValvePin',
+            trailing: Switch(
+              value: _solenoidValveEnabled,
+              onChanged: (value) {
+                setState(() {
+                  _solenoidValveEnabled = value;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Solenoid valve ${value ? "enabled" : "disabled"}')),
+                );
+              },
+              activeThumbColor: const Color(0xFF2196F3),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildSettingCard(
+            icon: Icons.developer_board,
+            title: 'GPIO Pin Configuration',
+            subtitle: 'Configure ESP32 GPIO pins',
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
+            onTap: () => _showGpioPinDialog(),
+          ),
+          const SizedBox(height: 12),
+          _buildSettingCard(
+            icon: Icons.sensors,
+            title: 'Device Status',
+            subtitle: 'View connected hardware status',
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('ESP32 Connected | Relay: Active | Solenoid: Active'),
+                  backgroundColor: Color(0xFF1D976C),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 30),
 
@@ -456,6 +525,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
         Navigator.pop(context);
       },
+    );
+  }
+
+  Future<void> _showGpioPinDialog() async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1D1E33),
+        title: const Text('GPIO Pin Configuration', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Current Pin Assignments:',
+              style: TextStyle(color: Color(0xFF93F9B9), fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildPinInfo('Relay Module', _relayPin, Icons.toggle_on, const Color(0xFF1D976C)),
+            const SizedBox(height: 12),
+            _buildPinInfo('Solenoid Valve', _solenoidValvePin, Icons.water_drop, const Color(0xFF2196F3)),
+            const SizedBox(height: 12),
+            _buildPinInfo('Soil Moisture', 'GPIO 34 (ADC)', Icons.grass, const Color(0xFFFFA726)),
+            const SizedBox(height: 12),
+            _buildPinInfo('Temperature', 'GPIO 35 (ADC)', Icons.thermostat, Colors.red),
+            const SizedBox(height: 12),
+            _buildPinInfo('Flow Sensor', 'GPIO 25', Icons.water, const Color(0xFF2196F3)),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0A0E21),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFFFA726)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.warning_amber, color: Color(0xFFFFA726), size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Changing pins requires reflashing ESP32 firmware',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(color: Color(0xFF1D976C))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPinInfo(String device, String pin, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            device,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color.withOpacity(0.5)),
+          ),
+          child: Text(
+            pin,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

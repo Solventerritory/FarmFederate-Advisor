@@ -1,0 +1,60 @@
+{
+  "federated_learning": {
+    "aggregation_method": "fedavg",
+    "num_rounds": 10,
+    "local_epochs": 3,
+    "clients_per_round": 5,
+    "min_clients": 3,
+    "batch_size": 16,
+    "learning_rate": 3e-5,
+    "weight_decay": 0.01
+  },
+  "differential_privacy": {
+    "enabled": true,
+    "noise_scale": 0.01,
+    "clip_norm": 1.0,
+    "target_epsilon": 8.0,
+    "target_delta": 1e-5
+  },
+  "client_sampling": {
+    "strategy": "importance",
+    "strategies_available": ["random", "importance", "loss_weighted", "staleness"]
+  },
+  "communication": {
+    "gradient_compression": true,
+    "compression_ratio": 0.1,
+    "compression_method": "topk"
+  },
+  "byzantine_robustness": {
+    "enabled": false,
+    "method": "krum",
+    "num_byzantine": 1,
+    "use_multi_krum": true
+  },
+  "model": {
+    "text_model_name": "roberta-base",
+    "image_model_name": "google/vit-base-patch16-224-in21k",
+    "use_cross_attention": true,
+    "dropout": 0.1,
+    "freeze_backbones": false,
+    "projection_dim": 512
+  },
+  "training": {
+    "max_len": 160,
+    "img_size": 224,
+    "grad_accum_steps": 1,
+    "warmup_ratio": 0.1,
+    "use_mixed_precision": true,
+    "gradient_clip_norm": 1.0
+  },
+  "uncertainty": {
+    "enabled": true,
+    "mc_dropout_samples": 10,
+    "dropout_rate": 0.2
+  },
+  "metrics": {
+    "track_per_client": true,
+    "export_interval": 1,
+    "export_path": "metrics/federated_metrics.json"
+  }
+}

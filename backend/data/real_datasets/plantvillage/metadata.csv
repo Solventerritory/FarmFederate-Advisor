@@ -1,0 +1,1001 @@
+image_path,text,crop,disease,stress_labels,is_healthy
+plantvillage/tomato_septoria_leaf_spot_0000.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0001.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0002.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/pepper_healthy_0003.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0004.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0005.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0006.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_leaf_spot_0007.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0008.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0009.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/potato_yellow_curl_0010.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_late_blight_0011.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_yellow_curl_0012.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_powdery_mildew_0013.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0014.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0015.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_late_blight_0016.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0017.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_late_blight_0018.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0019.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_healthy_0020.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_yellow_curl_0021.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_powdery_mildew_0022.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0023.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0024.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_early_blight_0025.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0026.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0027.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_early_blight_0028.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0029.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_leaf_spot_0030.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0031.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0032.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0033.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/potato_late_blight_0034.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/pepper_late_blight_0035.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0036.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0037.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0038.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0039.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_healthy_0040.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_bacterial_spot_0041.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0042.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0043.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0044.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0045.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_healthy_0046.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/cucumber_bacterial_spot_0047.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0048.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0049.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0050.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0051.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_leaf_spot_0052.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0053.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_powdery_mildew_0054.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_leaf_spot_0055.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0056.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_early_blight_0057.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_early_blight_0058.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/pepper_healthy_0059.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_mosaic_virus_0060.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_late_blight_0061.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_early_blight_0062.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0063.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0064.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0065.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0066.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0067.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/corn_yellow_curl_0068.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_powdery_mildew_0069.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0070.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0071.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0072.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0073.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0074.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/tomato_healthy_0075.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/tomato_yellow_curl_0076.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_yellow_curl_0077.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/potato_yellow_curl_0078.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_septoria_leaf_spot_0079.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0080.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_healthy_0081.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0082.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0083.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0084.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0085.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0086.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0087.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0088.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0089.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0090.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0091.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0092.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/corn_early_blight_0093.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/corn_healthy_0094.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/corn_leaf_spot_0095.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0096.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/cucumber_powdery_mildew_0097.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0098.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/corn_late_blight_0099.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0100.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0101.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0102.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/potato_yellow_curl_0103.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_early_blight_0104.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0105.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/corn_late_blight_0106.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0107.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0108.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_early_blight_0109.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0110.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0111.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0112.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0113.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0114.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0115.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_bacterial_spot_0116.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0117.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0118.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0119.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0120.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0121.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0122.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0123.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0124.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0125.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0126.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0127.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_powdery_mildew_0128.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0129.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0130.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0131.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_healthy_0132.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/cucumber_early_blight_0133.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/corn_yellow_curl_0134.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_leaf_spot_0135.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0136.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/corn_leaf_spot_0137.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0138.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0139.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0140.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/corn_yellow_curl_0141.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/corn_yellow_curl_0142.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_early_blight_0143.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/corn_yellow_curl_0144.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_yellow_curl_0145.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_yellow_curl_0146.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_mosaic_virus_0147.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0148.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/corn_healthy_0149.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/corn_healthy_0150.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/tomato_leaf_spot_0151.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0152.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0153.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0154.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0155.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0156.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0157.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0158.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_yellow_curl_0159.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_bacterial_spot_0160.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_yellow_curl_0161.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_powdery_mildew_0162.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0163.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0164.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0165.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/corn_yellow_curl_0166.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0167.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_late_blight_0168.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0169.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0170.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0171.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0172.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0173.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_yellow_curl_0174.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_yellow_curl_0175.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_early_blight_0176.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0177.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0178.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_late_blight_0179.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0180.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/potato_bacterial_spot_0181.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0182.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/corn_late_blight_0183.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0184.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0185.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0186.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_healthy_0187.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/tomato_healthy_0188.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/corn_leaf_spot_0189.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0190.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/corn_yellow_curl_0191.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0192.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_healthy_0193.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/corn_early_blight_0194.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0195.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0196.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0197.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0198.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0199.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0200.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0201.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/potato_leaf_spot_0202.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/potato_leaf_spot_0203.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0204.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0205.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0206.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0207.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0208.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0209.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0210.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0211.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0212.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0213.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_bacterial_spot_0214.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0215.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0216.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/potato_late_blight_0217.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0218.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0219.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_mosaic_virus_0220.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0221.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0222.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0223.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0224.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0225.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0226.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0227.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0228.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_late_blight_0229.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0230.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0231.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0232.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0233.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_powdery_mildew_0234.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0235.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0236.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0237.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0238.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0239.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_mosaic_virus_0240.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0241.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0242.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0243.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_early_blight_0244.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0245.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_bacterial_spot_0246.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0247.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_yellow_curl_0248.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_septoria_leaf_spot_0249.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0250.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/cucumber_late_blight_0251.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0252.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0253.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0254.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0255.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0256.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0257.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0258.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/cucumber_septoria_leaf_spot_0259.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0260.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0261.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0262.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_early_blight_0263.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0264.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0265.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_leaf_spot_0266.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0267.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_late_blight_0268.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0269.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0270.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0271.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0272.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0273.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0274.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0275.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0276.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/potato_leaf_spot_0277.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0278.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0279.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0280.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0281.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0282.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0283.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0284.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0285.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0286.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0287.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0288.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_yellow_curl_0289.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_septoria_leaf_spot_0290.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0291.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0292.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0293.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_late_blight_0294.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0295.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_early_blight_0296.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_early_blight_0297.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0298.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0299.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_mosaic_virus_0300.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_healthy_0301.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/tomato_yellow_curl_0302.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_yellow_curl_0303.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/corn_healthy_0304.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_bacterial_spot_0305.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0306.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_healthy_0307.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/pepper_bacterial_spot_0308.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_healthy_0309.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/tomato_bacterial_spot_0310.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0311.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/corn_yellow_curl_0312.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_late_blight_0313.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_early_blight_0314.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0315.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0316.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0317.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0318.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0319.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0320.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_septoria_leaf_spot_0321.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0322.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0323.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0324.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_mosaic_virus_0325.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0326.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0327.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0328.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0329.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0330.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0331.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/potato_leaf_spot_0332.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0333.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0334.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0335.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/cucumber_early_blight_0336.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/tomato_healthy_0337.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/pepper_mosaic_virus_0338.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0339.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0340.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0341.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0342.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0343.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0344.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0345.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0346.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0347.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0348.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0349.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0350.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0351.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0352.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0353.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0354.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_bacterial_spot_0355.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0356.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0357.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0358.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_leaf_spot_0359.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0360.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0361.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0362.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_healthy_0363.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_healthy_0364.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/cucumber_leaf_spot_0365.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0366.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0367.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0368.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/corn_healthy_0369.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/cucumber_powdery_mildew_0370.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0371.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/corn_bacterial_spot_0372.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0373.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0374.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0375.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_powdery_mildew_0376.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0377.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0378.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/corn_leaf_spot_0379.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0380.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0381.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0382.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0383.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0384.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0385.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0386.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_leaf_spot_0387.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/corn_healthy_0388.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_late_blight_0389.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0390.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0391.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0392.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0393.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0394.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0395.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0396.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0397.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_early_blight_0398.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0399.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0400.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0401.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_mosaic_virus_0402.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0403.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0404.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0405.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_early_blight_0406.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0407.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0408.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0409.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0410.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0411.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0412.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0413.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/tomato_leaf_spot_0414.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0415.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0416.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0417.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0418.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0419.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_leaf_spot_0420.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0421.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0422.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0423.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0424.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0425.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0426.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0427.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0428.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0429.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_late_blight_0430.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/corn_healthy_0431.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_healthy_0432.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_leaf_spot_0433.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0434.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0435.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_healthy_0436.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/pepper_powdery_mildew_0437.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0438.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_yellow_curl_0439.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_leaf_spot_0440.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_late_blight_0441.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_healthy_0442.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_bacterial_spot_0443.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0444.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0445.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0446.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_late_blight_0447.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0448.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0449.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_leaf_spot_0450.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0451.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0452.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0453.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0454.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0455.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0456.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_leaf_spot_0457.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0458.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_healthy_0459.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_bacterial_spot_0460.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0461.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0462.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0463.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_early_blight_0464.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0465.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0466.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_bacterial_spot_0467.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0468.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_yellow_curl_0469.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/corn_healthy_0470.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/cucumber_late_blight_0471.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0472.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0473.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0474.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0475.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_septoria_leaf_spot_0476.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0477.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0478.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0479.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0480.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_early_blight_0481.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0482.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0483.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0484.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/tomato_late_blight_0485.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0486.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/potato_early_blight_0487.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0488.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_mosaic_virus_0489.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_early_blight_0490.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0491.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0492.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0493.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0494.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_early_blight_0495.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0496.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/corn_mosaic_virus_0497.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/corn_early_blight_0498.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/corn_leaf_spot_0499.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0500.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0501.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0502.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/corn_healthy_0503.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0504.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0505.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_healthy_0506.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_late_blight_0507.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/tomato_healthy_0508.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/corn_early_blight_0509.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/pepper_late_blight_0510.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/corn_late_blight_0511.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0512.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_late_blight_0513.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0514.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0515.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0516.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0517.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_healthy_0518.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_mosaic_virus_0519.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_late_blight_0520.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_late_blight_0521.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0522.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0523.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_septoria_leaf_spot_0524.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0525.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0526.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0527.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_early_blight_0528.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_early_blight_0529.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0530.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0531.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0532.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0533.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_septoria_leaf_spot_0534.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0535.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/cucumber_late_blight_0536.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/corn_early_blight_0537.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0538.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0539.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0540.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_healthy_0541.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/pepper_powdery_mildew_0542.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0543.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0544.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0545.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0546.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0547.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0548.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_powdery_mildew_0549.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0550.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_late_blight_0551.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0552.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0553.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_powdery_mildew_0554.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0555.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0556.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_healthy_0557.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/cucumber_yellow_curl_0558.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_late_blight_0559.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0560.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0561.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0562.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_early_blight_0563.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0564.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0565.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0566.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0567.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0568.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/corn_yellow_curl_0569.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_septoria_leaf_spot_0570.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0571.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0572.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0573.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/corn_healthy_0574.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0575.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0576.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0577.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0578.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0579.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_bacterial_spot_0580.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0581.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0582.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0583.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/corn_leaf_spot_0584.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0585.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0586.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/potato_early_blight_0587.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0588.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_septoria_leaf_spot_0589.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0590.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0591.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0592.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0593.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0594.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0595.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0596.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_powdery_mildew_0597.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_early_blight_0598.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0599.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0600.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0601.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/potato_healthy_0602.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_leaf_spot_0603.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0604.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0605.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0606.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/tomato_late_blight_0607.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0608.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0609.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0610.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0611.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0612.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0613.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_healthy_0614.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_mosaic_virus_0615.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_late_blight_0616.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0617.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_early_blight_0618.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0619.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_late_blight_0620.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0621.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/potato_leaf_spot_0622.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0623.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_late_blight_0624.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0625.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0626.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0627.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_early_blight_0628.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0629.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0630.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_bacterial_spot_0631.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0632.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/pepper_late_blight_0633.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0634.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0635.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/corn_healthy_0636.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/tomato_yellow_curl_0637.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_early_blight_0638.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0639.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0640.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_late_blight_0641.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0642.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0643.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0644.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/corn_late_blight_0645.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0646.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0647.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0648.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_leaf_spot_0649.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0650.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0651.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0652.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_early_blight_0653.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0654.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0655.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/potato_healthy_0656.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_bacterial_spot_0657.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0658.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_early_blight_0659.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0660.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0661.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0662.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0663.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/potato_powdery_mildew_0664.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0665.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0666.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0667.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0668.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0669.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0670.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_healthy_0671.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/pepper_powdery_mildew_0672.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0673.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_healthy_0674.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_yellow_curl_0675.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_healthy_0676.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_powdery_mildew_0677.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/corn_late_blight_0678.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0679.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0680.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_yellow_curl_0681.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_late_blight_0682.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0683.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0684.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_healthy_0685.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_early_blight_0686.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0687.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0688.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0689.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0690.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0691.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0692.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0693.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0694.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0695.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0696.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0697.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_healthy_0698.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_powdery_mildew_0699.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_early_blight_0700.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0701.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0702.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0703.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/cucumber_late_blight_0704.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/potato_leaf_spot_0705.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0706.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/potato_yellow_curl_0707.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_mosaic_virus_0708.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0709.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_yellow_curl_0710.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_bacterial_spot_0711.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0712.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/tomato_powdery_mildew_0713.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0714.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0715.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0716.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_healthy_0717.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0718.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0719.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0720.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0721.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_early_blight_0722.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0723.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0724.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0725.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0726.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/potato_septoria_leaf_spot_0727.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0728.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_early_blight_0729.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0730.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_healthy_0731.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_leaf_spot_0732.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0733.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0734.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0735.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0736.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0737.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0738.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_healthy_0739.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_powdery_mildew_0740.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_late_blight_0741.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0742.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/corn_early_blight_0743.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/tomato_healthy_0744.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/pepper_septoria_leaf_spot_0745.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_healthy_0746.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/tomato_healthy_0747.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/cucumber_mosaic_virus_0748.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/corn_healthy_0749.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_septoria_leaf_spot_0750.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0751.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0752.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0753.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_late_blight_0754.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0755.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_early_blight_0756.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0757.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0758.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0759.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_healthy_0760.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/cucumber_yellow_curl_0761.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0762.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0763.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_yellow_curl_0764.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_early_blight_0765.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/tomato_late_blight_0766.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0767.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0768.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0769.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0770.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0771.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0772.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0773.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0774.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/corn_septoria_leaf_spot_0775.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0776.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0777.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/potato_healthy_0778.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_yellow_curl_0779.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_bacterial_spot_0780.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0781.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_late_blight_0782.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0783.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0784.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0785.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_yellow_curl_0786.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/potato_bacterial_spot_0787.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0788.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0789.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0790.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/potato_early_blight_0791.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0792.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0793.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/potato_yellow_curl_0794.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_early_blight_0795.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0796.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_leaf_spot_0797.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0798.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_leaf_spot_0799.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0800.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0801.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0802.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0803.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0804.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0805.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0806.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0807.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0808.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0809.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_mosaic_virus_0810.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0811.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0812.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0813.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/corn_late_blight_0814.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_healthy_0815.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/tomato_early_blight_0816.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0817.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0818.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0819.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0820.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/corn_healthy_0821.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/corn_healthy_0822.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/cucumber_powdery_mildew_0823.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/potato_healthy_0824.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/pepper_leaf_spot_0825.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0826.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0827.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/potato_leaf_spot_0828.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0829.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0830.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0831.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/corn_leaf_spot_0832.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0833.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0834.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0835.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_yellow_curl_0836.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_leaf_spot_0837.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0838.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0839.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0840.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/corn_early_blight_0841.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0842.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0843.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_healthy_0844.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/pepper_early_blight_0845.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0846.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0847.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0848.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0849.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/potato_healthy_0850.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0851.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0852.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_late_blight_0853.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0854.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0855.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0856.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0857.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/potato_yellow_curl_0858.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_early_blight_0859.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0860.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_late_blight_0861.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0862.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0863.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/potato_early_blight_0864.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0865.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0866.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0867.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0868.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/potato_early_blight_0869.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0870.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0871.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0872.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_healthy_0873.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/cucumber_septoria_leaf_spot_0874.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0875.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_leaf_spot_0876.jpg,Tomato plant showing symptoms of leaf spot. Indicates disease risk.,tomato,leaf_spot,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0877.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_powdery_mildew_0878.jpg,Tomato plant showing symptoms of powdery mildew. Indicates disease risk.,tomato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0879.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/tomato_late_blight_0880.jpg,Tomato plant showing symptoms of late blight. Indicates disease risk.,tomato,late_blight,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0881.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0882.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_powdery_mildew_0883.jpg,Cucumber plant showing symptoms of powdery mildew. Indicates disease risk.,cucumber,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0884.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0885.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0886.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0887.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_early_blight_0888.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0889.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0890.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/potato_healthy_0891.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/cucumber_bacterial_spot_0892.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0893.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/potato_yellow_curl_0894.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_yellow_curl_0895.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_healthy_0896.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/potato_mosaic_virus_0897.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0898.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_yellow_curl_0899.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_early_blight_0900.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/corn_early_blight_0901.jpg,Corn plant showing symptoms of early blight. Indicates disease risk.,corn,early_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0902.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0903.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_septoria_leaf_spot_0904.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0905.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_bacterial_spot_0906.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0907.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_late_blight_0908.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0909.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0910.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0911.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0912.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_early_blight_0913.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0914.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_yellow_curl_0915.jpg,Tomato plant showing symptoms of yellow curl. Indicates nutrient def.,tomato,yellow_curl,['nutrient_def'],False
+plantvillage/corn_bacterial_spot_0916.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0917.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0918.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0919.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0920.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_late_blight_0921.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_yellow_curl_0922.jpg,Potato plant showing symptoms of yellow curl. Indicates nutrient def.,potato,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_powdery_mildew_0923.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0924.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/tomato_healthy_0925.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True
+plantvillage/pepper_yellow_curl_0926.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/cucumber_bacterial_spot_0927.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/tomato_septoria_leaf_spot_0928.jpg,Tomato plant showing symptoms of septoria leaf spot. Indicates disease risk.,tomato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_healthy_0929.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_late_blight_0930.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/corn_mosaic_virus_0931.jpg,Corn plant showing symptoms of mosaic virus. Indicates disease risk.,corn,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_early_blight_0932.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0933.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/pepper_late_blight_0934.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0935.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_healthy_0936.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/tomato_bacterial_spot_0937.jpg,Tomato plant showing symptoms of bacterial spot. Indicates disease risk.,tomato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0938.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/corn_septoria_leaf_spot_0939.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_leaf_spot_0940.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0941.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_early_blight_0942.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0943.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/potato_leaf_spot_0944.jpg,Potato plant showing symptoms of leaf spot. Indicates disease risk.,potato,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0945.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0946.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/potato_late_blight_0947.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/potato_mosaic_virus_0948.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_yellow_curl_0949.jpg,Corn plant showing symptoms of yellow curl. Indicates nutrient def.,corn,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_leaf_spot_0950.jpg,Pepper plant showing symptoms of leaf spot. Indicates disease risk.,pepper,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0951.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_mosaic_virus_0952.jpg,Cucumber plant showing symptoms of mosaic virus. Indicates disease risk.,cucumber,mosaic_virus,['disease_risk'],False
+plantvillage/corn_healthy_0953.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/pepper_early_blight_0954.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0955.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/corn_septoria_leaf_spot_0956.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_early_blight_0957.jpg,Pepper plant showing symptoms of early blight. Indicates disease risk.,pepper,early_blight,['disease_risk'],False
+plantvillage/corn_healthy_0958.jpg,Healthy corn plant with no visible signs of stress or disease.,corn,healthy,[],True
+plantvillage/potato_mosaic_virus_0959.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0960.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0961.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/corn_bacterial_spot_0962.jpg,Corn plant showing symptoms of bacterial spot. Indicates disease risk.,corn,bacterial_spot,['disease_risk'],False
+plantvillage/corn_late_blight_0963.jpg,Corn plant showing symptoms of late blight. Indicates disease risk.,corn,late_blight,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0964.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/potato_late_blight_0965.jpg,Potato plant showing symptoms of late blight. Indicates disease risk.,potato,late_blight,['disease_risk'],False
+plantvillage/cucumber_healthy_0966.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/pepper_healthy_0967.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/potato_mosaic_virus_0968.jpg,Potato plant showing symptoms of mosaic virus. Indicates disease risk.,potato,mosaic_virus,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0969.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0970.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/corn_powdery_mildew_0971.jpg,Corn plant showing symptoms of powdery mildew. Indicates disease risk.,corn,powdery_mildew,['disease_risk'],False
+plantvillage/tomato_early_blight_0972.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_early_blight_0973.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_healthy_0974.jpg,Healthy potato plant with no visible signs of stress or disease.,potato,healthy,[],True
+plantvillage/tomato_early_blight_0975.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/potato_powdery_mildew_0976.jpg,Potato plant showing symptoms of powdery mildew. Indicates disease risk.,potato,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_healthy_0977.jpg,Healthy pepper plant with no visible signs of stress or disease.,pepper,healthy,[],True
+plantvillage/corn_septoria_leaf_spot_0978.jpg,Corn plant showing symptoms of septoria leaf spot. Indicates disease risk.,corn,septoria_leaf_spot,['disease_risk'],False
+plantvillage/tomato_early_blight_0979.jpg,Tomato plant showing symptoms of early blight. Indicates disease risk.,tomato,early_blight,['disease_risk'],False
+plantvillage/tomato_mosaic_virus_0980.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/potato_septoria_leaf_spot_0981.jpg,Potato plant showing symptoms of septoria leaf spot. Indicates disease risk.,potato,septoria_leaf_spot,['disease_risk'],False
+plantvillage/cucumber_yellow_curl_0982.jpg,Cucumber plant showing symptoms of yellow curl. Indicates nutrient def.,cucumber,yellow_curl,['nutrient_def'],False
+plantvillage/tomato_mosaic_virus_0983.jpg,Tomato plant showing symptoms of mosaic virus. Indicates disease risk.,tomato,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_leaf_spot_0984.jpg,Cucumber plant showing symptoms of leaf spot. Indicates disease risk.,cucumber,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_septoria_leaf_spot_0985.jpg,Cucumber plant showing symptoms of septoria leaf spot. Indicates disease risk.,cucumber,septoria_leaf_spot,['disease_risk'],False
+plantvillage/pepper_septoria_leaf_spot_0986.jpg,Pepper plant showing symptoms of septoria leaf spot. Indicates disease risk.,pepper,septoria_leaf_spot,['disease_risk'],False
+plantvillage/potato_bacterial_spot_0987.jpg,Potato plant showing symptoms of bacterial spot. Indicates disease risk.,potato,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_powdery_mildew_0988.jpg,Pepper plant showing symptoms of powdery mildew. Indicates disease risk.,pepper,powdery_mildew,['disease_risk'],False
+plantvillage/pepper_bacterial_spot_0989.jpg,Pepper plant showing symptoms of bacterial spot. Indicates disease risk.,pepper,bacterial_spot,['disease_risk'],False
+plantvillage/cucumber_bacterial_spot_0990.jpg,Cucumber plant showing symptoms of bacterial spot. Indicates disease risk.,cucumber,bacterial_spot,['disease_risk'],False
+plantvillage/pepper_mosaic_virus_0991.jpg,Pepper plant showing symptoms of mosaic virus. Indicates disease risk.,pepper,mosaic_virus,['disease_risk'],False
+plantvillage/cucumber_healthy_0992.jpg,Healthy cucumber plant with no visible signs of stress or disease.,cucumber,healthy,[],True
+plantvillage/cucumber_late_blight_0993.jpg,Cucumber plant showing symptoms of late blight. Indicates disease risk.,cucumber,late_blight,['disease_risk'],False
+plantvillage/pepper_yellow_curl_0994.jpg,Pepper plant showing symptoms of yellow curl. Indicates nutrient def.,pepper,yellow_curl,['nutrient_def'],False
+plantvillage/pepper_late_blight_0995.jpg,Pepper plant showing symptoms of late blight. Indicates disease risk.,pepper,late_blight,['disease_risk'],False
+plantvillage/potato_early_blight_0996.jpg,Potato plant showing symptoms of early blight. Indicates disease risk.,potato,early_blight,['disease_risk'],False
+plantvillage/corn_leaf_spot_0997.jpg,Corn plant showing symptoms of leaf spot. Indicates disease risk.,corn,leaf_spot,['disease_risk'],False
+plantvillage/cucumber_early_blight_0998.jpg,Cucumber plant showing symptoms of early blight. Indicates disease risk.,cucumber,early_blight,['disease_risk'],False
+plantvillage/tomato_healthy_0999.jpg,Healthy tomato plant with no visible signs of stress or disease.,tomato,healthy,[],True

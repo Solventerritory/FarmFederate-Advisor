@@ -54,11 +54,12 @@ class _HardwareDashboardState extends State<HardwareDashboard> {
         const SizedBox(height: 16),
         if (_lastSensors.isEmpty) const Text("No sensors yet"),
         if (_lastSensors.isNotEmpty) ...[
-          ListTile(title: const Text("Client"), subtitle: Text("${_lastSensors['client_id'] ?? 'unknown'}")),
-          ListTile(title: const Text("Soil moisture"), subtitle: Text("${_lastSensors['soil_moisture'] ?? '-'}")),
-          ListTile(title: const Text("Temp (°C)"), subtitle: Text("${_lastSensors['temp'] ?? '-'}")),
+          ListTile(title: const Text("Device ID"), subtitle: Text("${_lastSensors['client_id'] ?? 'unknown'}")),
+          ListTile(title: const Text("Temperature (°C)"), subtitle: Text("${_lastSensors['temperature'] ?? '-'}")),
           ListTile(title: const Text("Humidity (%)"), subtitle: Text("${_lastSensors['humidity'] ?? '-'}")),
-          ListTile(title: const Text("VPD"), subtitle: Text("${_lastSensors['vpd'] ?? '-'}")),
+          ListTile(title: const Text("Soil Moisture (%)"), subtitle: Text("${_lastSensors['soil_moisture'] ?? '-'}")),
+          ListTile(title: const Text("Water Flow (L/min)"), subtitle: Text("${_lastSensors['flow_rate'] ?? '-'}")),
+          ListTile(title: const Text("Total Water (L)"), subtitle: Text("${_lastSensors['total_liters'] ?? '-'}")),
         ],
       ]),
     );

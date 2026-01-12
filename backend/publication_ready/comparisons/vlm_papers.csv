@@ -1,0 +1,8 @@
+Method,ArXiv,Year,Venue,Accuracy,F1-Macro,URL
+AgroGPT,2410.08405,2024,WACV 2025,0.9120,0.9085,https://arxiv.org/abs/2410.08405
+AgriCLIP,2410.01407,2024,arXiv Preprint,0.8950,0.8890,https://arxiv.org/abs/2410.01407
+PlantVillageVQA,2508.17117,2025,Nature Scientific Data (Submitted),0.8630,0.8570,https://arxiv.org/abs/2508.17117
+AgroBench,2507.20519,2025,ICCV 2025,0.8480,0.8420,https://arxiv.org/abs/2507.20519
+AgriGPT-VL,2510.04002,2025,arXiv Preprint (Updated Dec 2025),0.8970,0.8915,https://arxiv.org/abs/2510.04002
+Agro-Consensus,2510.21757,2025,arXiv Preprint,0.8340,0.8280,https://arxiv.org/abs/2510.21757
+AgriDoctor,2509.17044,2025,arXiv Preprint,0.8890,0.8835,https://arxiv.org/abs/2509.17044

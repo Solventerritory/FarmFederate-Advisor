@@ -318,24 +318,38 @@ NON_AG_NOISE = re.compile(
 
 
 def build_gardian_stream(max_per: int = 2000) -> List[str]:
-    ds = _load_ds("CGIAR/gardian-ai-ready-docs", streaming=True)
+    # Try multiple agricultural datasets as fallback
+    dataset_options = [
+        "CGIAR/gardian-ai-ready-docs",
+        "maharshipandya/agricultural-datasets",
+        "turing-motors/agricultural-qa"
+    ]
+    
     texts = []
-    seen = 0
-    if isinstance(ds, dict):
-        splits = ds.keys()
-    else:
-        splits = [None]
-    for sp in splits:
-        subset = ds[sp] if sp is not None else ds
-        for r in subset:
-            raw = (r.get("text") or r.get("content") or "").strip()
-            if raw and _lang_ok(raw):
-                texts.append(_norm(raw))
-                seen += 1
+    for dataset_name in dataset_options:
+        try:
+            ds = _load_ds(dataset_name, streaming=True)
+            seen = 0
+            if isinstance(ds, dict):
+                splits = ds.keys()
+            else:
+                splits = [None]
+            for sp in splits:
+                subset = ds[sp] if sp is not None else ds
+                for r in subset:
+                    raw = (r.get("text") or r.get("content") or r.get("question") or "").strip()
+                    if raw and _lang_ok(raw):
+                        texts.append(_norm(raw))
+                        seen += 1
+                        if seen >= max_per:
+                            break
                 if seen >= max_per:
                     break
-        if seen >= max_per:
-            break
+            if texts:  # If we got any texts, return them
+                return texts
+        except Exception as e:
+            print(f"[WARN] {dataset_name} failed: {e}, trying next...")
+            continue
     return texts
 
 

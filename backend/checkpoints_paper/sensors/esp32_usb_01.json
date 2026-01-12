@@ -1,0 +1,11 @@
+{
+  "client_id": "esp32_usb_01",
+  "temperature": 27.7,
+  "humidity": 69.4,
+  "soil_moisture": 46.2,
+  "flow_rate": 1.27,
+  "total_liters": 14.46,
+  "relay_state": "ON",
+  "uptime_sec": 1767339598,
+  "timestamp": "2026-01-02T13:09:58.369272"
+}

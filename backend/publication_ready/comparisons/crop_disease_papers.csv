@@ -1,0 +1,7 @@
+Method,ArXiv,Year,Venue,Accuracy,F1-Macro,URL
+PlantDiseaseNet-RT50,2512.18500,2025,IEEE ACROSET 2025 (Best Paper Award),0.9420,0.9385,https://arxiv.org/abs/2512.18500
+Rethinking-PlantDisease-ViT,2511.18989,2025,arXiv Preprint,0.8950,0.8880,https://arxiv.org/abs/2511.18989
+Mobile-Friendly-CNN,2508.10817,2025,arXiv Preprint,0.8380,0.8310,https://arxiv.org/abs/2508.10817
+Citrus-CGMCR,2507.11171,2025,arXiv Preprint,0.9180,0.9135,https://arxiv.org/abs/2507.11171
+Multi-Class-CNN-Pathology,2507.09375,2025,arXiv Preprint,0.8620,0.8565,https://arxiv.org/abs/2507.09375
+Transfer-Learning-Comparison,2506.20323,2025,arXiv Preprint,0.8850,0.8795,https://arxiv.org/abs/2506.20323
