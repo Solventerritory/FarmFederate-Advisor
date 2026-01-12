@@ -139,9 +139,12 @@ def load_text_datasets(has_datasets=True):
         try:
             from datasets import load_dataset
             
-            # Agricultural datasets - use fast-loading datasets only
+            # Use 4 text-based datasets as described in documentation
             datasets_to_load = [
-                ("argilla/farming", "train[:5000]"),  # Fast, proven to work
+                ("cgiar/gardian-ai-ready", "train[:2000]"),  # 3.1. CGIAR GARDIAN AI-ready
+                ("argilla/farming_qa", "train[:2000]"),      # 3.2. Argilla Farming QA
+                ("ag_news", "train[:5000]"),                # 3.3. AG News (Agri-filtered) - filter later
+                ("localmini/synthetic_sensors", "train[:6000]") # 3.4. LocalMini Synthetic (with Sensors)
             ]
             
             for dataset_name, split in datasets_to_load:
@@ -162,7 +165,12 @@ def load_text_datasets(has_datasets=True):
                     
                     for item in ds:
                         text = item.get('text', '') or item.get('content', '') or str(item)
-                        if len(text) > 50:  # Filter short texts
+                        # AG News (agri-filtered): filter by agri keywords if dataset_name is ag_news
+                        if dataset_name == "ag_news":
+                            agri_keywords = ["farm", "drought", "irrigation", "crop", "soil", "climate", "plant", "agriculture", "harvest", "fertilizer", "pest", "disease"]
+                            if not any(kw in text.lower() for kw in agri_keywords):
+                                continue
+                        if len(text) > 50:
                             texts.append(text)
                             labels_list.append(assign_weak_labels(text))
                     
@@ -208,11 +216,12 @@ def load_image_datasets(has_datasets=True):
         try:
             from datasets import load_dataset
             
+            # Use 4 image-based datasets matching the text domain
             datasets_to_load = [
-                ("nateraw/plant-village", "train[:1000]"),
-                ("agyaatcoder/PlantDoc", "train[:1000]"),
-                ("keremberke/plant-disease-classification", "train[:1000]"),  # Alternative
-                ("Matthijs/snacks", "train[:500]"),  # Food/plant images
+                ("nateraw/plant-village", "train[:1000]"),              # PlantVillage: crop/plant disease
+                ("agyaatcoder/PlantDoc", "train[:1000]"),               # PlantDoc: plant disease
+                ("beans", "train[:1000]"),                              # Beans: leaf disease
+                ("plant-leaves", "train[:1000]")                        # Plant Leaves: general plant images
             ]
             
             for dataset_name, split in datasets_to_load:
