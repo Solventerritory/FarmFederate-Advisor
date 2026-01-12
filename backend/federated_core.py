@@ -124,7 +124,13 @@ class FocalLoss(nn.Module):
                  gamma: float = 2.0, label_smoothing: float = 0.02):
         super().__init__()
         self.gamma = gamma
-        self.alpha = alpha
+        if alpha is not None:
+            if not isinstance(alpha, torch.Tensor):
+                self.alpha = torch.tensor(alpha, dtype=torch.float32)
+            else:
+                self.alpha = alpha.float().clone()
+        else:
+            self.alpha = None
         self.smooth = label_smoothing
         self.bce = nn.BCEWithLogitsLoss(reduction="none")
 
