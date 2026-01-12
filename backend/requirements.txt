@@ -1,0 +1,24 @@
+fastapi
+uvicorn[standard]
+
+torch
+torchvision
+torchaudio
+
+transformers
+datasets
+peft
+accelerate
+
+# Real dataset downloads
+kaggle
+huggingface-hub
+
+pillow
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+
+python-multipart

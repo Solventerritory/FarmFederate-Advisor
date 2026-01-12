@@ -1,0 +1,65 @@
+═══════════════════════════════════════════════════════════════
+ CP2102 DRIVER INSTALLATION GUIDE
+═══════════════════════════════════════════════════════════════
+
+Download link opened in browser:
+https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
+
+STEP-BY-STEP:
+
+1. On the webpage, find "Downloads" tab
+2. Download: "CP210x Windows Drivers" (v11.x or latest)
+   File name: CP210x_Universal_Windows_Driver.zip
+
+3. After download:
+   - Go to Downloads folder
+   - Right-click CP210x_Universal_Windows_Driver.zip
+   - Select "Extract All"
+   - Open the extracted folder
+
+4. Find the installer:
+   - Look for "CP210xVCPInstaller_x64.exe" (for 64-bit Windows)
+   - Or "CP210xVCPInstaller_x86.exe" (for 32-bit Windows)
+
+5. Install:
+   - Right-click the .exe file
+   - Select "Run as administrator"
+   - Click "Yes" on UAC prompt
+   - Follow installer wizard
+   - Click "Install"
+   - Wait for completion
+
+6. After installation:
+   - Unplug ESP32 from USB
+   - Wait 5 seconds
+   - Plug ESP32 back in
+
+7. Verify in Device Manager:
+   - Should now show under "Ports (COM & LPT)":
+     "Silicon Labs CP210x USB to UART Bridge (COM7)"
+     (or COM8, COM9, etc.)
+
+8. Note the COM port number!
+
+═══════════════════════════════════════════════════════════════
+ALTERNATIVE: Direct Download Link
+═══════════════════════════════════════════════════════════════
+
+If the webpage doesn't work, try:
+https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip
+
+═══════════════════════════════════════════════════════════════
+AFTER DRIVER IS INSTALLED:
+═══════════════════════════════════════════════════════════════
+
+Run this to check COM ports:
+  Get-PnpDevice -Class Ports | Where-Object { $_.Status -eq "OK" }
+
+You should see:
+  Silicon Labs CP210x USB to UART Bridge (COM7)    Status: OK
+
+Then you can run the USB serial reader:
+  cd C:\Users\USER_HP\Desktop\FarmFederate\FarmFederate-Advisor\backend
+  C:/Users/USER_HP/miniconda3/python.exe usb_serial_reader.py
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,67 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../services/mqtt_service.dart';
+
+class HardwareDashboard extends StatefulWidget {
+  final String mqttHost;
+  const HardwareDashboard({Key? key, required this.mqttHost}) : super(key: key);
+
+  @override
+  State<HardwareDashboard> createState() => _HardwareDashboardState();
+}
+
+class _HardwareDashboardState extends State<HardwareDashboard> {
+  Map<String, dynamic> _lastSensors = {};
+  late MqttService _mqtt;
+
+  @override
+  void initState() {
+    super.initState();
+    _mqtt = MqttService(host: widget.mqttHost, onSensor: _onSensor);
+    // On web we do not connect (stub). On mobile you will replace implementation to actually connect.
+    _mqtt.connect();
+  }
+
+  void _onSensor(Map<String, dynamic> s) {
+    setState(() {
+      _lastSensors = s;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Center(child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Image.asset('assets/logo.png', width: 96),
+          const SizedBox(height: 12),
+          const Text("Hardware dashboard (Web stub)", style: TextStyle(fontSize: 18)),
+          const SizedBox(height: 8),
+          const Text("Running on web — MQTT hardware integration is disabled here.\nRun the app on mobile/desktop for live sensor data.", textAlign: TextAlign.center),
+        ]),
+      ));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(children: [
+        Row(children: [
+          Image.asset('assets/logo.png', width: 48),
+          const SizedBox(width: 12),
+          const Text("Connected sensor data", style: TextStyle(fontSize: 18)),
+        ]),
+        const SizedBox(height: 16),
+        if (_lastSensors.isEmpty) const Text("No sensors yet"),
+        if (_lastSensors.isNotEmpty) ...[
+          ListTile(title: const Text("Device ID"), subtitle: Text("${_lastSensors['client_id'] ?? 'unknown'}")),
+          ListTile(title: const Text("Temperature (°C)"), subtitle: Text("${_lastSensors['temperature'] ?? '-'}")),
+          ListTile(title: const Text("Humidity (%)"), subtitle: Text("${_lastSensors['humidity'] ?? '-'}")),
+          ListTile(title: const Text("Soil Moisture (%)"), subtitle: Text("${_lastSensors['soil_moisture'] ?? '-'}")),
+          ListTile(title: const Text("Water Flow (L/min)"), subtitle: Text("${_lastSensors['flow_rate'] ?? '-'}")),
+          ListTile(title: const Text("Total Water (L)"), subtitle: Text("${_lastSensors['total_liters'] ?? '-'}")),
+        ],
+      ]),
+    );
+  }
+}

@@ -1,0 +1,183 @@
+╔════════════════════════════════════════════════════════════════╗
+║        ESP32 USB CONNECTION GUIDE (WiFi Not Needed!)           ║
+╚════════════════════════════════════════════════════════════════╝
+
+🎯 MUCH SIMPLER: Your ESP32 is connected via USB, so we'll read
+   the sensor data directly through the serial port!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 STEP 1: CHECK USB DRIVERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your ESP32 uses one of these USB chips:
+  - CP2102/CP2104 → Need CP210x driver
+  - CH340/CH341 → Need CH340 driver
+
+To check:
+1. Open Device Manager (Win + X → Device Manager)
+2. Look under "Ports (COM & LPT)" section
+3. You should see something like:
+   - "Silicon Labs CP210x USB to UART Bridge (COM7)"
+   - "USB-SERIAL CH340 (COM8)"
+   
+If you see a yellow warning or "Unknown Device":
+  → Download driver from:
+     - CP210x: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
+     - CH340: http://www.wch.cn/downloads/CH341SER_ZIP.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 STEP 2: UPLOAD USB SERIAL SKETCH TO ESP32
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open Arduino IDE
+
+2. Install required libraries:
+   Sketch → Include Library → Manage Libraries
+   Install: ArduinoJson, DHT sensor library
+
+3. Open the sketch:
+   File → Open → Navigate to:
+   backend/hardware/esp32_sensor_node/esp32_usb_serial.ino
+   
+   ⭐ This is the NEW sketch for USB mode (no WiFi config needed!)
+
+4. Select your board:
+   Tools → Board → ESP32 → ESP32 Dev Module (or your board)
+
+5. Select the COM port:
+   Tools → Port → Select the COM port you saw in Device Manager
+
+6. Upload:
+   Click Upload button (→)
+   Wait for "Done uploading"
+
+7. Open Serial Monitor:
+   Tools → Serial Monitor
+   Set baud rate to: 115200
+   
+   You should see:
+   ╔════════════════════════════════════════╗
+   ║  ESP32 Sensor Node - USB Serial Mode  ║
+   ║  FarmFederate-Advisor                  ║
+   ╚════════════════════════════════════════╝
+   ✓ Relay initialized (OFF)
+   ✓ Flow sensor initialized
+   ✓ DHT22 sensor initialized
+   ✓ Soil moisture sensor ready
+   
+   Ready! Sending sensor data via USB Serial...
+   
+   Then every 5 seconds you'll see JSON data like:
+   DATA:{"client_id":"esp32_usb_01","temperature":28.5,...}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 STEP 3: RUN USB SERIAL READER (ON YOUR PC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANT: Close Arduino Serial Monitor first!
+(Only one program can access the COM port at a time)
+
+1. Open PowerShell/Terminal
+
+2. Run:
+   cd C:\Users\USER_HP\Desktop\FarmFederate\FarmFederate-Advisor\backend
+   C:/Users/USER_HP/miniconda3/python.exe usb_serial_reader.py
+
+3. The script will:
+   ✓ Auto-detect your ESP32 COM port
+   ✓ Read sensor data every 5 seconds
+   ✓ Publish to MQTT (so your frontend can see it!)
+   ✓ Save to JSON files
+
+4. You'll see live data:
+   ⏰ 14:32:45
+   📍 Device: esp32_usb_01
+   🌡️  Temperature: 28.5°C
+   💧 Humidity: 65.2%
+   🌱 Soil Moisture: 42.3%
+   🌊 Flow Rate: 1.2 L/min ← YOUR FLOW METER!
+   📊 Total Flow: 15.4 L
+   🔌 Relay: OFF
+   ✓ Published to MQTT: farmfederate/sensors/esp32_usb_01
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 WHAT'S RUNNING NOW:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ MQTT Broker (Mosquitto) - localhost:1883
+✓ Backend Server - http://0.0.0.0:8000
+✓ Flutter Frontend - Chrome (launching)
+
+NEEDS TO START:
+→ USB Serial Reader (replaces MQTT listener for USB mode)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 DATA FLOW WITH USB:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ESP32 Sensors
+    ↓ (USB Cable)
+usb_serial_reader.py
+    ↓ (Publishes to)
+MQTT Broker
+    ↓ (Backend reads)
+Backend Server API
+    ↓ (Frontend displays)
+Flutter App in Chrome
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 COMMANDS TO CONTROL RELAY VIA USB:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You can send commands to ESP32 through the serial connection:
+  - Type "ON" or "RELAY_ON" → Turn on water valve
+  - Type "OFF" or "RELAY_OFF" → Turn off water valve
+  - Type "STATUS" → Get status
+  - Type "RESET_FLOW" → Reset flow meter counter
+
+These work when usb_serial_reader.py is NOT running.
+Open Arduino Serial Monitor and type the command.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ TROUBLESHOOTING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: ESP32 not showing in Device Manager
+→ Try different USB cable (must be data cable, not charge-only)
+→ Try different USB port
+→ Install USB drivers (see Step 1)
+
+Problem: "Port already in use" error
+→ Close Arduino Serial Monitor
+→ Close any other serial terminal programs
+
+Problem: Data looks garbled
+→ Check baud rate is 115200
+→ Try reconnecting ESP32
+
+Problem: Flow meter shows 0
+→ Check flow sensor wiring (GPIO 18)
+→ Make sure water is flowing through sensor
+→ Test with "RESET_FLOW" command
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ ADVANTAGES OF USB MODE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ No WiFi configuration needed!
+✓ No IP address to find
+✓ More reliable connection
+✓ Faster data transfer
+✓ Easier debugging
+✓ Works anywhere
+
+Only downside: ESP32 must stay connected to your PC via USB
+(For wireless mode, use esp32_complete_sensors.ino with WiFi)

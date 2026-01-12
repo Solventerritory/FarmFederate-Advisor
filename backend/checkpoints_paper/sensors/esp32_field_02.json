@@ -1,0 +1,7 @@
+{
+  "client_id": "esp32_field_02",
+  "temperature": 27.8,
+  "humidity": 68.5,
+  "soil_moisture": 38.7,
+  "timestamp": "2026-01-02T11:42:32.279652"
+}

@@ -1,0 +1,61 @@
+// Models for sensor data
+class SensorData {
+  final double soilMoisture;
+  final double airTemperature;
+  final double humidity;
+  final double flowRate;
+  final double totalLiters;
+  final DateTime timestamp;
+
+  SensorData({
+    required this.soilMoisture,
+    required this.airTemperature,
+    required this.humidity,
+    required this.flowRate,
+    required this.totalLiters,
+    required this.timestamp,
+  });
+
+  factory SensorData.fromJson(Map<String, dynamic> json) {
+    return SensorData(
+      soilMoisture: (json['soil_moisture'] ?? 0).toDouble(),
+      airTemperature: (json['temperature'] ?? json['air_temperature'] ?? 0).toDouble(),
+      humidity: (json['humidity'] ?? 0).toDouble(),
+      flowRate: (json['flow_rate'] ?? 0).toDouble(),
+      totalLiters: (json['total_liters'] ?? 0).toDouble(),
+      timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+}
+
+class ControlState {
+  final bool waterPump;
+  final bool relay;
+  final bool solenoidValve;
+
+  ControlState({
+    this.waterPump = false,
+    this.relay = false,
+    this.solenoidValve = false,
+  });
+
+  ControlState copyWith({
+    bool? waterPump,
+    bool? relay,
+    bool? solenoidValve,
+  }) {
+    return ControlState(
+      waterPump: waterPump ?? this.waterPump,
+      relay: relay ?? this.relay,
+      solenoidValve: solenoidValve ?? this.solenoidValve,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'water_pump': waterPump,
+      'relay': relay,
+      'solenoid_valve': solenoidValve,
+    };
+  }
+}
