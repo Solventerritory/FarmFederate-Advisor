@@ -642,8 +642,26 @@ class MultiModalModel(nn.Module):
             for p in base.parameters(): p.requires_grad = False
 
         if HAS_PEFT:
-            lcfg = LoraConfig(r=lora_r, lora_alpha=lora_alpha, lora_dropout=lora_dropout, bias="none", task_type="SEQ_CLS", target_modules=["query", "key", "value", "dense"])
-            self.text_encoder = get_peft_model(base, lcfg)
+            # Auto-detect target modules based on model architecture
+            model_type = base.config.model_type if hasattr(base.config, 'model_type') else ""
+            if "distilbert" in model_type or "distilbert" in text_model_name.lower():
+                target_modules = ["q_lin", "k_lin", "v_lin", "out_lin"]
+            elif "bert" in model_type or "roberta" in model_type:
+                target_modules = ["query", "key", "value", "dense"]
+            elif "gpt" in model_type:
+                target_modules = ["c_attn", "c_proj"]
+            elif "t5" in model_type:
+                target_modules = ["q", "k", "v", "o"]
+            else:
+                # Fallback: try to find attention modules
+                target_modules = ["query", "key", "value"]
+
+            try:
+                lcfg = LoraConfig(r=lora_r, lora_alpha=lora_alpha, lora_dropout=lora_dropout, bias="none", task_type="SEQ_CLS", target_modules=target_modules)
+                self.text_encoder = get_peft_model(base, lcfg)
+            except ValueError as e:
+                print(f"[Warn] LoRA failed ({e}), using full model without LoRA")
+                self.text_encoder = base
         else:
             self.text_encoder = base
 
