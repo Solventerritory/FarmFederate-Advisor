@@ -699,8 +699,7 @@ class MultiModalModel(nn.Module):
         fusion_dim = text_dim + vision_dim
         self.classifier = nn.Sequential(nn.Linear(fusion_dim, max(512, fusion_dim // 2)), nn.ReLU(), nn.Dropout(0.15), nn.Linear(max(512, fusion_dim // 2), num_labels))
 
-    def forward(self, input_ids=None, attention_mask=None, image=None, labels=None):
-        # FIX: Explicitly ignore 'labels' so it doesn't crash the base model
+    def forward(self, input_ids=None, attention_mask=None, image=None):
         txt_out = self.text_encoder(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
         tfeat = txt_out.pooler_output if hasattr(txt_out, "pooler_output") and txt_out.pooler_output is not None else txt_out.last_hidden_state.mean(dim=1)
 
@@ -757,10 +756,11 @@ def train_local(model, tok, tr_df, class_alpha):
     for _ in range(ARGS.local_epochs):
         for batch in loader:
             b = {k: v.to(DEVICE) for k, v in batch.items() if k != "raw_text"}
+            # Extract labels before passing to model (PEFT doesn't accept labels)
+            labels = b.pop("labels")
             with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):
-                # Pass labels to be absorbed by forward, preventing crash
                 logits = model(**b).logits
-                loss = loss_fn(logits, b["labels"])
+                loss = loss_fn(logits, labels)
             scaler.scale(loss).backward()
             scaler.step(opt); scaler.update(); opt.zero_grad()
             total_loss += loss.item()
