@@ -1,6 +1,12 @@
-# FarmFederate-Advisor (Research Paper Implementation)
+# FarmFederate: AI-Powered Crop Stress Detection
 
-FarmFederate integrates an ESP32-based field node, a FastAPI backend, a Flutter mobile app and an **enhanced federated multimodal training pipeline** to detect crop stress and automate irrigation. This implementation includes state-of-the-art research features for federated learning, privacy-preserving ML, and edge intelligence.
+**Core Mission:** Early detection of crop stress (water, nutrient, pest, disease, heat) using federated AI models
+
+FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yield loss. The system analyzes **plant images** and **text observations** using 17 AI models (LLM, ViT, VLM) while keeping farm data private through federated learning.
+
+**🌾 5 Crop Stresses Detected:** Water Stress • Nutrient Deficiency • Pest Risk • Disease Risk • Heat Stress
+
+**🎯 Best Result:** 82% F1-score with multimodal VLM (BLIP-2) | **🔒 Privacy:** Federated learning across farms
 
 ---
 
