@@ -4,21 +4,25 @@ FarmFederate integrates an ESP32-based field node, a FastAPI backend, a Flutter 
 
 ---
 
-## ⚠️ TRAINING ON GOOGLE COLAB?
+## 🚀 NEW: Comprehensive Federated LLM vs ViT vs VLM Training
 
-**Runtime disconnecting? We've fixed it!** 🎉
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/backend/Federated_LLM_ViT_VLM_Comprehensive_Training.ipynb)
 
-### 🎯 Complete Documentation:
-📚 **[COLAB_DOCS_INDEX.md](COLAB_DOCS_INDEX.md)** - All guides indexed (pick your path)
+**Complete comparison framework for plant stress detection:**
+- ✅ **17 Models:** 9 LLM + 4 ViT + 4 VLM
+- ✅ **3-Level Comparison:** Inter-category, Intra-category, Paradigm
+- ✅ **Federated Learning:** 5 clients, 10 rounds, non-IID data
+- ✅ **8 Comparison Plots:** Statistical analysis with 10 baseline papers
+- ✅ **Ready for Colab:** Click badge above to run with free GPU
 
-### 🚀 Quick Access:
-- **[COLAB_QUICK_FIX.md](COLAB_QUICK_FIX.md)** - 1-minute fix (copy-paste-run)
-- **[COLAB_FIX_VISUAL_GUIDE.md](COLAB_FIX_VISUAL_GUIDE.md)** - Visual explanations
-- **[COLAB_DISCONNECTION_FIX.md](COLAB_DISCONNECTION_FIX.md)** - Complete troubleshooting
-- **[COLAB_TRAINING_INSTRUCTIONS.md](COLAB_TRAINING_INSTRUCTIONS.md)** - Full step-by-step
+### 📚 Quick Links:
+- **[COLAB_QUICK_START.md](COLAB_QUICK_START.md)** - Run on Colab in 2 steps
+- **[COMPREHENSIVE_TRAINING_README.md](backend/COMPREHENSIVE_TRAINING_README.md)** - Complete training guide
+- **[COMPARISON_FRAMEWORK_README.md](backend/COMPARISON_FRAMEWORK_README.md)** - Comparison methodology
+- **[DATASETS_USED.md](backend/DATASETS_USED.md)** - Dataset documentation
+- **[FINAL_DELIVERABLES.md](FINAL_DELIVERABLES.md)** - What's included
 
-**Fixes:** Keep-alive, auto-reconnect, memory management, checkpointing, Drive backup  
-**Success rate:** 95%+ ✅
+**Training Time:** ~4-6 hours on Colab T4 GPU (free)
 
 ---
 
