@@ -166,24 +166,29 @@ ARGS = get_args()
 
 # ----------- Colab overrides (change here instead of CLI) ------------------
 class ArgsOverride:
-    dataset = "mix"            # "mix" uses LocalMini + HF text where available
+    dataset = "mix"            # "mix" uses ALL available HF datasets + LocalMini
     use_images = True          # <-- turn images ON
     image_dir = "images_hf"
     image_csv = ""             # if you have your own CSV, put its path here
-    max_per_source = 300       # cap per text/image HF dataset (keeps runtime reasonable)
-    max_samples = 2000         # global cap after filtering
-    rounds = 2                 # fewer rounds for Colab speed
-    clients = 4
-    local_epochs = 2
+
+    # MAXIMIZED DATASET USAGE - Use all available data sources
+    max_per_source = 1000      # Increased from 300 to 1000 per HF dataset
+    max_samples = 5000         # Increased from 2000 to 5000 total samples
+    mix_sources = "gardian,argilla,agnews,localmini"  # All text sources
+
+    # Training configuration
+    rounds = 10                # Full federated rounds for better convergence
+    clients = 5                # Standard 5 clients
+    local_epochs = 3           # Full local training
     batch_size = 8
     model_name = "roberta-base"
     vit_name = "google/vit-base-patch16-224-in21k"
     freeze_base = True
     freeze_vision = True
-    save_dir = "checkpoints_multimodal"
-    offline = False            # set True if you want to avoid HF network calls
-    lowmem = True              # reduce sizes if memory is tight
-    run_benchmark = True       # <-- generate the 15 plots at the end
+    save_dir = "checkpoints_multimodal_full"
+    offline = False            # Must be False to download HF datasets
+    lowmem = False             # Use full capacity
+    run_benchmark = True       # Generate the 15 plots at the end
 
 # apply overrides
 for k, v in ArgsOverride.__dict__.items():
@@ -367,10 +372,26 @@ def build_localmini(max_samples: int = 0, mqtt_csv: str = "", extra_csv: str = "
     return df
 
 # --------------------- HF image dataset autoretrieval ---------------------
+# EXPANDED LIST - Use ALL available agricultural/plant image datasets
 HF_IMAGE_CANDIDATES = [
-    "BrandonFors/Plant-Diseases-PlantVillage-Dataset", "GVJahnavi/PlantVillage_dataset", "agyaatcoder/PlantDoc",
-    "pufanyi/cassava-leaf-disease-classification", "Saon110/bd-crop-vegetable-plant-disease-dataset", "timm/plant-pathology-2021",
-    "uqtwei2/PlantWild",
+    # Primary plant disease datasets (high quality)
+    "BrandonFors/Plant-Diseases-PlantVillage-Dataset",  # 54K+ plant disease images
+    "GVJahnavi/PlantVillage_dataset",                    # PlantVillage variant
+
+    # Specialized crop datasets
+    "pufanyi/cassava-leaf-disease-classification",       # Cassava diseases
+    "Saon110/bd-crop-vegetable-plant-disease-dataset",   # Bangladesh crops
+    "timm/plant-pathology-2021",                         # Apple pathology
+
+    # Wild and diverse plant datasets
+    "uqtwei2/PlantWild",                                 # Wild plant images
+    "agyaatcoder/PlantDoc",                              # Plant documentation
+
+    # Additional agricultural datasets (if available)
+    "nateraw/plant-village",                             # Alternative PlantVillage
+    "keremberke/plant-disease-classification",           # Disease classification
+
+    # Note: Some may not exist or be gated - robust loader handles failures
 ]
 
 def _load_ds_robust(name, split=None, streaming=False):
