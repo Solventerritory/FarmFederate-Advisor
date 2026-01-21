@@ -513,14 +513,37 @@ class FarmMemoryAgent:
 # ============================================================================
 # TRAINING UTILITIES
 # ============================================================================
+def _compute_pos_weight_from_loader(dl, device):
+    """Compute pos_weight tensor from dataloader label distribution (clamped to [1,5])."""
+    import numpy as _np
+    counts = _np.zeros(NUM_LABELS, dtype=_np.float32)
+    total = 0
+    for b in dl:
+        try:
+            lbls = b['labels'].cpu().numpy() if isinstance(b['labels'], torch.Tensor) else _np.array(b['labels'])
+            counts += lbls.sum(axis=0)
+            total += lbls.shape[0]
+        except Exception:
+            continue
+    pos = counts
+    neg = _np.maximum(1, total - pos)
+    w = neg / (pos + 1e-6)
+    w = _np.clip(w, 1.0, 5.0)
+    return torch.tensor(w, dtype=torch.float32).to(device)
+
+
 def train_epoch(model, dataloader, optimizer, device, model_type='multimodal'):
     model.train()
     total_loss = 0
 
-    # CRITICAL FIX: penalize missing a stress label more than false alarms
-    pos_weight = torch.tensor([5.0] * NUM_LABELS).to(device)
     use_amp = torch.cuda.is_available()
     scaler = torch.cuda.amp.GradScaler() if use_amp else None
+
+    # compute a dataset-aware pos_weight (fallback to 5.0 if computation fails)
+    try:
+        pos_weight = _compute_pos_weight_from_loader(dataloader, device)
+    except Exception:
+        pos_weight = torch.tensor([5.0] * NUM_LABELS).to(device)
 
     for batch in tqdm(dataloader, desc="Training", leave=False):
         optimizer.zero_grad()
@@ -575,11 +598,14 @@ def evaluate(model, dataloader, device, model_type='multimodal'):
                 )
 
             labels = batch['labels'].to(device)
-            pos_weight = torch.tensor([5.0] * NUM_LABELS).to(device)
-            loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight)
+            try:
+                pos_weight_eval = _compute_pos_weight_from_loader(dataloader, device)
+            except Exception:
+                pos_weight_eval = torch.tensor([5.0] * NUM_LABELS).to(device)
+            loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight_eval)
             total_loss += loss.item()
 
-            # Lower decision threshold to detect early-stage stress
+            # Lower decision threshold to detect early-stage stress (default 0.3)
             preds = (torch.sigmoid(logits) > 0.3).float()
             all_preds.append(preds.cpu().numpy())
             all_labels.append(labels.cpu().numpy())

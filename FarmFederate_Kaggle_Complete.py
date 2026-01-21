@@ -2667,6 +2667,25 @@ for k, v in IMAGE_LABEL_ROOTS.items():
 with open('datasets_report.json', 'w', encoding='utf-8') as f:
     json.dump(report, f, indent=2)
 print('Wrote datasets_report.json')
+
+# --- Dataset integrity validation ---
+try:
+    min_real = int(os.environ.get('MIN_REAL_SAMPLES', '50'))
+    low_labels = []
+    prov = report.get('text_label_provenance', {})
+    for lbl, info in prov.items():
+        real_count = info.get('real_count', 0)
+        synth = info.get('synthesized_count', 0)
+        if real_count < min_real:
+            low_labels.append((lbl, real_count, synth))
+    if low_labels:
+        print('[WARN] Some labels have low real sample counts (consider providing real datasets):')
+        for lbl, rc, sc in low_labels:
+            print(f"  - {lbl}: real={rc}, synthesized={sc}")
+        if os.environ.get('STRICT_DATA_CHECK', '0') == '1':
+            raise SystemExit('STRICT_DATA_CHECK enabled and some labels have insufficient real samples. Aborting.')
+except Exception as e:
+    print('[WARN] Dataset integrity check failed:', e)
 # Save discovery manifest for manual follow-up
 os.makedirs('results', exist_ok=True)
 with open('results/dataset_discovery_manifest.json', 'w', encoding='utf-8') as mf:
@@ -3271,8 +3290,13 @@ def train_epoch(model, loader, optimizer, device, model_type='vlm'):
                     sensor_data=sensors
                 )
 
-            # Create weights: treat positive cases (stress) as 5x more important than negative (healthy)
-            pos_weight = torch.tensor([5.0] * NUM_LABELS).to(device)
+            # Create approximate per-batch pos_weight based on label counts (clamped to [1,5]) to handle imbalance
+            try:
+                pos = batch['labels'].sum(dim=0).to(device).float()
+                neg = batch['labels'].size(0) - pos
+                pos_weight = (neg / (pos + 1e-6)).clamp(1.0, 5.0)
+            except Exception:
+                pos_weight = torch.tensor([5.0] * NUM_LABELS).to(device)
             loss = F.binary_cross_entropy_with_logits(logits, batch['labels'].to(device), pos_weight=pos_weight)
 
         if scaler is not None:
@@ -3317,11 +3341,16 @@ def evaluate(model, loader, device, model_type='vlm'):
                 )
 
             labels = batch['labels'].to(device)
-            pos_weight_eval = torch.tensor([5.0] * NUM_LABELS).to(device)
+            try:
+                pos = labels.sum(dim=0).to(device).float()
+                neg = labels.size(0) - pos
+                pos_weight_eval = (neg / (pos + 1e-6)).clamp(1.0, 5.0)
+            except Exception:
+                pos_weight_eval = torch.tensor([5.0] * NUM_LABELS).to(device)
             loss = F.binary_cross_entropy_with_logits(logits, labels, pos_weight=pos_weight_eval)
             total_loss += loss.item()
 
-            preds = (torch.sigmoid(logits) > 0.35).float()
+            preds = (torch.sigmoid(logits) > 0.3).float()
             all_preds.append(preds.cpu().numpy())
             all_labels.append(labels.cpu().numpy())
 
@@ -4833,9 +4862,9 @@ class CropStressInferencePipeline:
         text: Optional[str] = None,
         image: Optional[Union[str, Image.Image, torch.Tensor]] = None,
         sensor_data: Optional[Dict[str, float]] = None,
-        threshold: float = 0.5
+        threshold: float = 0.3
     ) -> Dict:
-        """Run inference on text and/or image input."""
+        """Run inference on text and/or image input (default threshold = 0.3)."""
         assert text is not None or image is not None, "Provide at least text or image"
 
         # Encode inputs
@@ -4886,6 +4915,26 @@ class CropStressInferencePipeline:
         # Generate recommendations
         result['recommendations'] = get_recommendations(preds.tolist(), probs.tolist())
 
+        # Attempt to store session entry to Qdrant when memory enabled or QDRANT_URL set
+        try:
+            if os.environ.get('ENABLE_QDRANT_MEMORY', '0') == '1' or os.environ.get('QDRANT_URL'):
+                try:
+                    from backend.qdrant_utils import get_qdrant_client
+                    from backend.qdrant_rag import store_session_entry, Embedders
+                    client = get_qdrant_client()
+                    emb = Embedders()
+                    farm_id = os.environ.get('DEFAULT_FARM_ID', 'colab_farm')
+                    plant_id = os.environ.get('DEFAULT_PLANT_ID', 'plant_001')
+                    treatment = json.dumps(result.get('recommendations', [])[:3])
+                    diag = ";".join(result.get('detected_issues', [])) or 'healthy'
+                    sid = store_session_entry(client, farm_id=farm_id, plant_id=plant_id, diagnosis=diag, treatment=treatment, emb=emb)
+                    result['_qdrant_session_id'] = sid
+                    print(f'[INFO] Stored session entry to Qdrant (id={sid})')
+                except Exception as e:
+                    print('[WARN] Failed to store session memory to Qdrant:', e)
+        except Exception:
+            pass
+
         return result
 
     def _process_sensor_data(self, sensor_data: Dict[str, float]) -> torch.Tensor:
@@ -4908,7 +4957,7 @@ class CropStressInferencePipeline:
         texts: List[str],
         images: Optional[List] = None,
         sensor_data_list: Optional[List[Dict]] = None,
-        threshold: float = 0.5
+        threshold: float = 0.3
     ) -> List[Dict]:
         """Run batch inference."""
         results = []
@@ -4945,7 +4994,7 @@ def format_prediction_report(result: Dict, include_recommendations: bool = True)
     # Confidence scores
     lines.append("\nCONFIDENCE SCORES:")
     for label, score in result['confidence_scores'].items():
-        indicator = "!" if score > 0.5 else " "
+        indicator = "!" if score > 0.3 else " "
         bar = "#" * int(score * 20) + "-" * (20 - int(score * 20))
         lines.append(f"  {indicator} {label:<15} [{bar}] {score*100:5.1f}%")
 

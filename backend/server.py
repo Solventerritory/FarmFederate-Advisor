@@ -89,7 +89,7 @@ def advisor_from_mask(mask: List[int]) -> str:
 TOKENIZER = None
 IMAGE_PROCESSOR = None
 MODEL: Optional[nn.Module] = None
-THRESHOLDS = np.array([0.5]*NUM_LABELS, dtype=np.float32)
+THRESHOLDS = np.array([0.3]*NUM_LABELS, dtype=np.float32)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
