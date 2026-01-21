@@ -30,6 +30,15 @@ jobs:
           mkdir -p results
           python -m backend.demo_farm_memory_demo
 
+      - name: Upload demo CSV artifact (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-farm-history
+          path: results/demo_farm_1_history.csv
+          if-no-files-found: warn
+
       - name: Run unit tests for FarmMemoryAgent (skips if qdrant-client missing)
         run: |
           python -m pytest -q tests/test_farm_memory_agent.py -q
+          python -m pytest -q tests/test_demo_csv.py -q
