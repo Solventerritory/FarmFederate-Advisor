@@ -1,0 +1,52 @@
+{
+  "status": "ok",
+  "missing_labels": [
+    "water_stress",
+    "nutrient_def",
+    "pest_risk",
+    "disease_risk",
+    "heat_stress"
+  ],
+  "found_label_provenance": {},
+  "image_label_roots": {},
+  "text_label_counts": {
+    "water_stress": 150,
+    "nutrient_def": 150,
+    "pest_risk": 150,
+    "disease_risk": 150,
+    "heat_stress": 150
+  },
+  "paired_samples": 750,
+  "text_label_provenance": {
+    "water_stress": {
+      "method": "synthetic",
+      "real_count": 0,
+      "synthesized_count": 150,
+      "sources": []
+    },
+    "nutrient_def": {
+      "method": "synthetic",
+      "real_count": 0,
+      "synthesized_count": 150,
+      "sources": []
+    },
+    "pest_risk": {
+      "method": "synthetic",
+      "real_count": 0,
+      "synthesized_count": 150,
+      "sources": []
+    },
+    "disease_risk": {
+      "method": "synthetic",
+      "real_count": 0,
+      "synthesized_count": 150,
+      "sources": []
+    },
+    "heat_stress": {
+      "method": "synthetic",
+      "real_count": 0,
+      "synthesized_count": 150,
+      "sources": []
+    }
+  }
+}

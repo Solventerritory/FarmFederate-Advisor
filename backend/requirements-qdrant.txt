@@ -1,0 +1,5 @@
+qdrant-client>=1.7.0
+transformers>=4.30.0
+sentence-transformers>=2.2.2
+torch>=1.12.0
+pillow>=8.0.0

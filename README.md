@@ -12,7 +12,7 @@ FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yie
 
 ## 🚀 NEW: Comprehensive Federated LLM vs ViT vs VLM Training
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/backend/Federated_LLM_ViT_VLM_Comprehensive_Training.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/backend/Federated_LLM_ViT_VLM_Comprehensive_Training.ipynb)  [![Run FarmFederate on Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/colab_run_farmfederate.ipynb)
 
 **Complete comparison framework for plant stress detection:**
 - ✅ **17 Models:** 9 LLM + 4 ViT + 4 VLM

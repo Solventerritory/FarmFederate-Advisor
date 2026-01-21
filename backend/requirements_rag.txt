@@ -1,0 +1,7 @@
+# Additional dependencies for Qdrant RAG agent
+qdrant-client>=1.9.0
+transformers>=4.30.0
+sentence-transformers>=2.2.2
+torch>=1.13.0
+pillow
+requests

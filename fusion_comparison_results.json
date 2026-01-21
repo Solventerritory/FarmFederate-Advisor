@@ -1,0 +1,90 @@
+{
+  "concat": {
+    "num_params": 14284963,
+    "inference_time_ms": 174.0222454071045,
+    "final_loss": 0.6897309064865113,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0.2878787878787879
+  },
+  "attention": {
+    "num_params": 14251299,
+    "inference_time_ms": 151.49617195129395,
+    "final_loss": 0.6894622683525086,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0
+  },
+  "gated": {
+    "num_params": 14300067,
+    "inference_time_ms": 189.47272300720215,
+    "final_loss": 0.6870519399642945,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0.07058823529411765
+  },
+  "clip": {
+    "num_params": 14416804,
+    "inference_time_ms": 171.75779342651367,
+    "final_loss": 0.6881272554397583,
+    "f1_micro": 0.047619047619047616,
+    "f1_macro": 0.05,
+    "precision": 0.5,
+    "recall": 0.025,
+    "exact_match": 0.0,
+    "best_f1": 0.20689655172413793
+  },
+  "flamingo": {
+    "num_params": 14453668,
+    "inference_time_ms": 201.47438049316406,
+    "final_loss": 0.6850244283676148,
+    "f1_micro": 0.023809523809523808,
+    "f1_macro": 0.026666666666666665,
+    "precision": 0.25,
+    "recall": 0.0125,
+    "exact_match": 0.0,
+    "best_f1": 0.18
+  },
+  "blip2": {
+    "num_params": 14468131,
+    "inference_time_ms": 260.6462001800537,
+    "final_loss": 0.691423213481903,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0.04395604395604396
+  },
+  "coca": {
+    "num_params": 14614308,
+    "inference_time_ms": 212.53676414489746,
+    "final_loss": 0.6866299390792847,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0.25
+  },
+  "unified_io": {
+    "num_params": 14582179,
+    "inference_time_ms": 536.0631942749023,
+    "final_loss": 0.6890329360961914,
+    "f1_micro": 0.0,
+    "f1_macro": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "exact_match": 0.0,
+    "best_f1": 0
+  }
+}
