@@ -52,8 +52,9 @@ class FarmMemoryAgent:
         self._distance = distance
 
         if qdrant_url == ":memory:":
-            # In-memory Qdrant for demos (no auth)
-            self.client = QdrantClient("")
+            # In-memory Qdrant for demos (no auth). Use the special ':memory:' URL
+            # which the qdrant-client interprets as an in-memory instance.
+            self.client = QdrantClient(":memory:")
         else:
             # For remote Qdrant, trust QDRANT_URL and optional QDRANT_API_KEY
             api_key = os.environ.get("QDRANT_API_KEY")
@@ -66,15 +67,21 @@ class FarmMemoryAgent:
         Args:
             recreate: if True, drop and recreate the collection.
         """
-        if recreate and self.client.get_collection(self.COLLECTION, check=False) is not None:
+        if recreate:
             try:
-                self.client.delete_collection(self.COLLECTION)
+                existing = self.client.get_collection(self.COLLECTION)
+                if existing is not None:
+                    try:
+                        self.client.delete_collection(self.COLLECTION)
+                    except Exception:
+                        pass
             except Exception:
+                # collection doesn't exist; nothing to delete
                 pass
 
         # If already exists, return
         try:
-            existing = self.client.get_collection(self.COLLECTION, check=False)
+            existing = self.client.get_collection(self.COLLECTION)
             if existing is not None:
                 return
         except Exception:
@@ -86,15 +93,12 @@ class FarmMemoryAgent:
         }
 
         print(f"Creating collection {self.COLLECTION} with visual_dim={self._visual_dim} semantic_dim={self._semantic_dim}")
-        self.client.recreate_collection(collection_name=self.COLLECTION, vectors=vectors_config)
+        # qdrant-client expects `vectors_config` argument name
+        self.client.recreate_collection(collection_name=self.COLLECTION, vectors_config=vectors_config)
 
-        # Create index on farm_id for fast filtering (payload indexed implicitly)
-        self.client.upsert(
-            collection_name=self.COLLECTION,
-            points=[
-                rest.PointStruct(id=str(uuid.uuid4()), vector=None, payload={"__init__": True})
-            ],
-        )
+        # No initial upsert needed; payload fields are indexed when points are added.
+        # Leaving empty collection ready for inserts.
+        pass
 
     def _ensure_collection(self) -> None:
         try:
@@ -161,15 +165,36 @@ class FarmMemoryAgent:
 
         f = rest.Filter(must=[rest.FieldCondition(key="farm_id", match=rest.MatchValue(value=farm_id))])
 
-        hits = self.client.search(
-            collection_name=self.COLLECTION,
-            query_vector=qv,
-            limit=top_k,
-            vector_name="visual",
-            with_payload=True,
-            with_vectors=False,
-            query_filter=f,
-        )
+        # qdrant-client uses `search_points` in some versions; fall back when necessary
+        # Try high-level search if available (some qdrant versions expose client.search)
+        try:
+            hits = self.client.search(
+                collection_name=self.COLLECTION,
+                query_vector=("visual", qv),
+                query_filter=f,
+                limit=top_k,
+                with_payload=True,
+                with_vectors=False,
+            )
+        except Exception:
+            # Fall back to the lower-level client implementation
+            try:
+                hits = self.client._client.search(
+                    collection_name=self.COLLECTION,
+                    query_vector=("visual", qv),
+                    query_filter=f,
+                    limit=top_k,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+            except Exception as e:
+                raise
+
+        out = []
+        for h in hits:
+            # ScoredPoint has id, score, payload
+            out.append({"id": str(h.id), "score": float(getattr(h, 'score', 0.0) or 0.0), "payload": h.payload})
+        return out
 
         out = []
         for h in hits:
@@ -183,7 +208,7 @@ class FarmMemoryAgent:
         """
         self._ensure_collection()
         f = rest.Filter(must=[rest.FieldCondition(key="farm_id", match=rest.MatchValue(value=farm_id))])
-        pts = self.client.scroll(collection_name=self.COLLECTION, filter=f, limit=limit)
+        pts, _ = self.client.scroll(collection_name=self.COLLECTION, scroll_filter=f, limit=limit)
         out = []
         for p in pts:
             out.append({"id": str(p.id), "payload": p.payload})

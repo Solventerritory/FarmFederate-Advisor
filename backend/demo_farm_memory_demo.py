@@ -33,6 +33,8 @@ def main():
         print('\nFarmMemoryAgent demo completed successfully')
         return 0
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print('Demo FAILED:', e)
         return 2
 
