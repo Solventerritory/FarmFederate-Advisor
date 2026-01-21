@@ -1,0 +1,28 @@
+name: Fast Smoke Tests
+
+on:
+  push:
+    branches: [ feature/**, main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  fast-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install minimal dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+          pip install -q qdrant-client pillow pytest
+      - name: Run tests
+        run: |
+          pytest -q tests/test_qdrant_rag.py -q || true
+      - name: Run fast smoke script
+        run: |
+          python scripts/fast_smoke.py

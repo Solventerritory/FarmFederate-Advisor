@@ -20,6 +20,10 @@ Click this link to open the notebook directly in Colab:
 
 👉 **[Open Comprehensive Training Notebook in Colab](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/backend/Federated_LLM_ViT_VLM_Comprehensive_Training.ipynb)**
 
+Or run the *one-click* launcher that prepares and validates the environment before running the full pipeline:
+
+👉 **[One-Click FarmFederate Colab Launcher](https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/blob/feature/multimodal-work/colab_run_farmfederate.ipynb)**
+
 ### **Step 2: Enable GPU & Run**
 
 1. **Enable GPU:**
