@@ -4,6 +4,14 @@ This script uses in-memory Qdrant to store three sample reports and performs a
 retrieve operation scoped to a farm_id. It exits with non-zero status when an
 error occurs to fail CI.
 """
+import os
+import sys
+# Ensure repository root is on sys.path so this script can be run directly
+# (python backend/demo_farm_memory_demo.py) or as a module (python -m backend.demo_farm_memory_demo)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
 from backend.farm_memory_agent import FarmMemoryAgent
 import numpy as np
 import pprint
