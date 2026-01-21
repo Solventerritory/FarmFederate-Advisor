@@ -28,7 +28,7 @@ jobs:
       - name: Run FarmMemoryAgent demo script
         run: |
           mkdir -p results
-          python backend/demo_farm_memory_demo.py
+          python -m backend.demo_farm_memory_demo
 
       - name: Run unit tests for FarmMemoryAgent (skips if qdrant-client missing)
         run: |
