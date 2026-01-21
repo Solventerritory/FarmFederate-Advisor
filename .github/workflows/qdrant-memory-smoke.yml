@@ -38,6 +38,109 @@ jobs:
           path: results/demo_farm_1_history.csv
           if-no-files-found: warn
 
+      - name: Upload demo CSV to Google Drive (optional)
+        if: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
+        env:
+          GDRIVE_FOLDER: FarmFederate-demo-artifacts
+        run: |
+          echo "Saving service account to /tmp/gdrive_sa.json"
+          # Secret must be base64-encoded service account JSON
+          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT }}" | base64 --decode > /tmp/gdrive_sa.json
+          echo "Installing rclone..."
+          curl https://rclone.org/install.sh | bash
+          cat > /tmp/rclone.conf <<'EOF'
+[gdrive]
+# Uses service account JSON to authenticate
+type = drive
+scope = drive.file
+service_account_file = /tmp/gdrive_sa.json
+EOF
+          echo "Uploading CSV to Google Drive folder: ${GDRIVE_FOLDER}"
+          rclone --config /tmp/rclone.conf copy results/demo_farm_1_history.csv gdrive:"${GDRIVE_FOLDER}" --drive-chunk-size=64M -v || echo "rclone upload failed (non-fatal)"
+
+      - name: Verify upload on Google Drive (optional, requires secret)
+        if: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
+        env:
+          GDRIVE_FOLDER: ${{ secrets.GDRIVE_FOLDER }}
+        run: |
+          echo "Verifying uploaded CSV in Drive..."
+          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT }}" | base64 --decode > /tmp/gdrive_sa.json
+          curl https://rclone.org/install.sh | bash
+          cat > /tmp/rclone.conf <<'EOF'
+[gdrive]
+# Uses service account JSON to authenticate
+type = drive
+scope = drive.file
+service_account_file = /tmp/gdrive_sa.json
+EOF
+          FOLDER="${GDRIVE_FOLDER:-FarmFederate-demo-artifacts}"
+          echo "Listing files in folder: $FOLDER"
+          # List files and assert presence of demo CSV
+          if rclone --config /tmp/rclone.conf lsf gdrive:"$FOLDER" | grep -q "demo_farm_1_history.csv"; then
+            echo "Verified: demo_farm_1_history.csv present in Drive folder $FOLDER"
+          else
+            echo "ERROR: demo_farm_1_history.csv not found in Drive folder $FOLDER" >&2
+            exit 1
+          fi
+
+      - name: Upload demo CSV to AWS S3 (optional)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID && secrets.AWS_SECRET_ACCESS_KEY && secrets.S3_BUCKET }}
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_PREFIX: demo_artifacts
+        run: |
+          echo "Installing AWS CLI..."
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install
+          echo "Configuring AWS creds"
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          if [ -n "${{ secrets.AWS_REGION }}" ]; then aws configure set region "${{ secrets.AWS_REGION }}"; fi
+          echo "Uploading results/demo_farm_1_history.csv to s3://${S3_BUCKET}/${S3_PREFIX}/"
+          aws s3 cp results/demo_farm_1_history.csv s3://${S3_BUCKET}/${S3_PREFIX}/ || echo "S3 upload failed (non-fatal)"
+
+      - name: Verify upload on AWS S3 (optional)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID && secrets.AWS_SECRET_ACCESS_KEY && secrets.S3_BUCKET }}
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_PREFIX: demo_artifacts
+        run: |
+          echo "Checking S3 for demo_farm_1_history.csv"
+          if aws s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/demo_farm_1_history.csv >/dev/null 2>&1; then
+            echo "Verified: demo_farm_1_history.csv present in s3://${S3_BUCKET}/${S3_PREFIX}/"
+          else
+            echo "ERROR: demo_farm_1_history.csv not found in S3" >&2
+            exit 1
+          fi
+
+      - name: Upload demo CSV to Azure Blob (optional)
+        if: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING && secrets.AZURE_CONTAINER }}
+        env:
+          AZ_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZ_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+        run: |
+          echo "Installing Azure CLI..."
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          echo "Uploading to Azure Blob container: ${AZ_CONTAINER}"
+          az storage blob upload --connection-string "$AZ_CONN" --container-name "$AZ_CONTAINER" --file results/demo_farm_1_history.csv --name demo_farm_1_history.csv || echo "Azure upload failed (non-fatal)"
+
+      - name: Verify upload on Azure Blob (optional)
+        if: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING && secrets.AZURE_CONTAINER }}
+        env:
+          AZ_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZ_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+        run: |
+          echo "Checking Azure Blob for demo_farm_1_history.csv"
+          if az storage blob exists --connection-string "$AZ_CONN" --container-name "$AZ_CONTAINER" --name demo_farm_1_history.csv --query exists | grep -q true; then
+            echo "Verified: demo_farm_1_history.csv present in container $AZ_CONTAINER"
+          else
+            echo "ERROR: demo_farm_1_history.csv not found in Azure container $AZ_CONTAINER" >&2
+            exit 1
+          fi
+
       - name: Run unit tests for FarmMemoryAgent (skips if qdrant-client missing)
         run: |
           python -m pytest -q tests/test_farm_memory_agent.py -q
