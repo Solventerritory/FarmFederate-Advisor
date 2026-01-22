@@ -91,6 +91,16 @@ IMAGE_PROCESSOR = None
 MODEL: Optional[nn.Module] = None
 THRESHOLDS = np.array([0.3]*NUM_LABELS, dtype=np.float32)
 
+# Qdrant optional integration
+try:
+    from qdrant_client import QdrantClient
+    from qdrant_rag import init_qdrant_collections, agentic_diagnose, Embedders
+    HAVE_QDRANT = True
+    QDRANT_CLIENT: Optional[QdrantClient] = None
+except Exception:
+    HAVE_QDRANT = False
+    QDRANT_CLIENT = None
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: load model
@@ -99,6 +109,20 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print("[server][ERROR] Failed startup model load:", e)
         traceback.print_exc()
+
+    # Initialize Qdrant client if configured via QDRANT_URL and qdrant-client is available
+    qdrant_url = os.environ.get("QDRANT_URL")
+    if qdrant_url and HAVE_QDRANT:
+        try:
+            global QDRANT_CLIENT
+            QDRANT_CLIENT = QdrantClient(url=qdrant_url)
+            init_qdrant_collections(QDRANT_CLIENT)
+            app.state.qdrant_client = QDRANT_CLIENT
+            print(f"[server] Qdrant initialized at {qdrant_url}")
+        except Exception as e:
+            print("[server][WARN] Failed to initialize Qdrant:", e)
+            traceback.print_exc()
+
     yield
     # Shutdown: cleanup if needed
     print("[server] Shutting down...")
@@ -428,6 +452,43 @@ async def predict(request: Request):
         "advice": result.get("advice", "")
     }
     return JSONResponse(out, status_code=200)
+
+# ---------------- RAG endpoint ----------------
+@app.post("/rag")
+async def rag_endpoint(request: Request):
+    """
+    RAG diagnose endpoint. Accepts multipart/form-data with optional 'image' file and 'description' form field, or JSON with 'description'.
+    Returns retrieved records and a grounding prompt (LLM call not performed by default).
+    """
+    if not HAVE_QDRANT or QDRANT_CLIENT is None:
+        return JSONResponse({"error": "Qdrant not configured. Set QDRANT_URL and ensure qdrant-client is installed."}, status_code=400)
+
+    try:
+        content_type = request.headers.get("content-type", "").lower()
+        description = ""
+        image = None
+
+        if "multipart/form-data" in content_type or "form-data" in content_type:
+            form = await request.form()
+            description = str(form.get("description", "") or "")
+            upload = form.get("image", None)
+            if upload is not None:
+                content = upload.file.read()
+                upload.file.seek(0)
+                image = Image.open(io.BytesIO(content)).convert("RGB")
+        elif "application/json" in content_type:
+            data = await request.json()
+            description = str(data.get("description", "") or "")
+        else:
+            return JSONResponse({"error": f"Unsupported Content-Type: {content_type}"}, status_code=415)
+
+        emb = Embedders(device=DEVICE)
+        res = agentic_diagnose(QDRANT_CLIENT, image=image, user_description=description or "", emb=emb, llm_func=None)
+        return JSONResponse({"result": res}, status_code=200)
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse({"error": "rag failed", "detail": str(e)}, status_code=500)
+
 
 # ---------------- Control endpoint for IoT devices ----------------
 @app.post("/control/{device}")

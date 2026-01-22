@@ -2458,8 +2458,11 @@ def run_training(config: Config, allow_short: bool = False):
     print("[3/7] TRAINING 5 VIT MODELS")
     print("=" * 70)
 
-    image_train_ds = ImageDataset(image_train, label_train)
-    image_val_ds = ImageDataset(image_val, label_val)
+    # Ensure image datasets are DataFrames and pass the image processor
+    image_train_df = pd.DataFrame({'image': image_train, 'label': label_train})
+    image_val_df = pd.DataFrame({'image': image_val, 'label': label_val})
+    image_train_ds = ImageDataset(image_train_df, image_processor)
+    image_val_ds = ImageDataset(image_val_df, image_processor)
     train_loader = DataLoader(image_train_ds, batch_size=config.batch_size, shuffle=True)
     val_loader = DataLoader(image_val_ds, batch_size=config.batch_size)
 
@@ -2481,8 +2484,9 @@ def run_training(config: Config, allow_short: bool = False):
     print("[4/7] TRAINING 8 VLM FUSION ARCHITECTURES")
     print("=" * 70)
 
-    mm_train_ds = MultiModalDataset(text_train['text'].tolist(), label_train, image_train, None, config.max_seq_length)
-    mm_val_ds = MultiModalDataset(text_val['text'].tolist(), label_val, image_val, None, config.max_seq_length)
+    # Build multimodal datasets using the DataFrame-based MultiModalDataset
+    mm_train_ds = MultiModalDataset(text_train, image_train_df, tokenizer, image_processor, config.max_seq_length)
+    mm_val_ds = MultiModalDataset(text_val, image_val_df, tokenizer, image_processor, config.max_seq_length)
     train_loader = DataLoader(mm_train_ds, batch_size=config.batch_size, shuffle=True)
     val_loader = DataLoader(mm_val_ds, batch_size=config.batch_size)
 

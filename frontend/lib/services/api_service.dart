@@ -43,4 +43,30 @@ class ApiService {
       return json.decode(resp.body) as Map<String, dynamic>;
     }
   }
+
+  /// RAG diagnose: image + description -> /rag
+  Future<Map<String, dynamic>> ragDiagnose({
+    required String description,
+    Uint8List? imageBytes,
+    String clientId = "web_client",
+  }) async {
+    final uri = Uri.parse("$baseUrl/rag");
+    // If image provided (bytes), send multipart; otherwise JSON
+    if (imageBytes != null) {
+      final request = http.MultipartRequest('POST', uri);
+      request.fields.addAll({
+        "description": description,
+        "client_id": clientId,
+      });
+      request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: 'upload.jpg'));
+      final streamed = await request.send();
+      final resp = await http.Response.fromStream(streamed);
+      return json.decode(resp.body) as Map<String, dynamic>;
+    } else {
+      final resp = await http.post(uri,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({"description": description, "client_id": clientId}));
+      return json.decode(resp.body) as Map<String, dynamic>;
+    }
+  }
 }

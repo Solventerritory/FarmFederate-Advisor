@@ -175,6 +175,70 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // RAG diagnose handler
+  Future<void> _sendRag() async {
+    final description = _ctrl.text.trim();
+    if (description.isEmpty && _imageFile == null && _imageBytes == null) {
+      _setStatus("provide text or image");
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _setStatus("running rag...");
+      _scores = [];
+      _advice = "";
+      _debug = {};
+    });
+
+    try {
+      final api = ApiService(baseUrl: widget.apiBase);
+      final resp = await api.ragDiagnose(
+        description: description,
+        imageBytes: _imageBytes,
+        clientId: "flutter_client",
+      );
+
+      if (resp == null) {
+        _setStatus("no response");
+        setState(() {
+          _advice = "No response from server.";
+        });
+      } else {
+        final res = resp['result'] ?? resp;
+        final retrieved = res['retrieved'] as List<dynamic>? ?? [];
+        final prompt = res['prompt']?.toString() ?? '';
+        final treatment = res['treatment'];
+
+        setState(() {
+          // If treatment is a string (mock LLM), show as advice; if dict, show prompt in debug
+          if (treatment is String) {
+            _advice = treatment;
+          } else if (treatment is Map) {
+            _debug['llm'] = treatment;
+            _advice = treatment['text']?.toString() ?? prompt;
+          } else {
+            _debug['prompt'] = prompt;
+            _advice = prompt;
+          }
+
+          _debug['retrieved'] = retrieved;
+          _setStatus("ok");
+        });
+      }
+    } catch (e, st) {
+      _setStatus("error");
+      debugPrint("rag error: $e\n$st");
+      setState(() {
+        _advice = "Error: $e";
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
   // Build chips; top1 red, top2 yellow.
   Widget _buildScoreChips() {
     if (_scores.isEmpty) return const SizedBox.shrink();
@@ -310,6 +374,12 @@ class _ChatScreenState extends State<ChatScreen> {
               label: Text(_loading ? "Sending..." : "Send to backend"),
             ),
             const SizedBox(width: 12),
+            ElevatedButton.icon(
+              onPressed: _loading ? null : _sendRag,
+              icon: const Icon(Icons.grain),
+              label: Text(_loading ? "Running RAG..." : "RAG Diagnose"),
+            ),
+            const SizedBox(width: 12),
             Text("Status: $_status"),
           ]),
 
@@ -418,6 +488,57 @@ class ApiService {
       }
     } catch (e) {
       debugPrint("ApiService.predict error: $e");
+      rethrow;
+    }
+  }
+
+  /// RAG diagnose
+  Future<Map<String, dynamic>?> ragDiagnose({
+    required String description,
+    File? imageFile,
+    Uint8List? imageBytes,
+    String? imageName,
+    String clientId = "flutter_client",
+  }) async {
+    final uri = Uri.parse("$baseUrl/rag");
+    try {
+      final hasImage = (imageFile != null) || (imageBytes != null);
+      if (hasImage) {
+        final request = http.MultipartRequest('POST', uri);
+        request.fields['description'] = description;
+        request.fields['client_id'] = clientId;
+
+        if (imageFile != null) {
+          final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
+          request.files.add(multipartFile);
+        } else if (imageBytes != null) {
+          final name = imageName ?? "upload.png";
+          final multipart = http.MultipartFile.fromBytes('image', imageBytes, filename: name);
+          request.files.add(multipart);
+        }
+
+        final streamed = await request.send().timeout(const Duration(seconds: 40));
+        final resp = await http.Response.fromStream(streamed);
+        if (resp.statusCode >= 200 && resp.statusCode < 300) {
+          return jsonDecode(resp.body) as Map<String, dynamic>;
+        } else {
+          debugPrint("rag multipart failed ${resp.statusCode} ${resp.body}");
+          return null;
+        }
+      } else {
+        final resp = await http.post(uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'description': description, 'client_id': clientId}))
+            .timeout(const Duration(seconds: 25));
+        if (resp.statusCode >= 200 && resp.statusCode < 300) {
+          return jsonDecode(resp.body) as Map<String, dynamic>;
+        } else {
+          debugPrint("rag json failed ${resp.statusCode} ${resp.body}");
+          return null;
+        }
+      }
+    } catch (e) {
+      debugPrint("ApiService.ragDiagnose error: $e");
       rethrow;
     }
   }
