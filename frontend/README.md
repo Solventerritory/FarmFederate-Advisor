@@ -1,5 +1,5 @@
 name: farmfederate_frontend
-description: FarmFederate Advisor - cross platform frontend for hardware + backend.
+description: FarmFederate Advisor - cross platform frontend for backend services.
 publish_to: "none"
 version: 0.1.0
 

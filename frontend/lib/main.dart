@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Uint8List? _selectedImageBytes;
   String? _selectedImageName;
 
-  // Hardware dashboard state (will poll /sensors/latest if available)
+  // Telemetry state (will poll /sensors/latest if available)
   Map<String, dynamic> _lastSensors = {};
   Timer? _sensorPoller;
 
@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.initState();
     _tabs = TabController(length: 2, vsync: this);
 
-    // start polling hardware sensors endpoint (if exists); safe if endpoint 404s
+    // start polling telemetry endpoint (if exists); safe if endpoint 404s
     _sensorPoller = Timer.periodic(const Duration(seconds: 5), (_) => _fetchLatestSensors());
   }
 
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         final req = http.MultipartRequest('POST', uri);
         // text fields
         req.fields['text'] = text;
-        req.fields['sensors'] = ''; // hardware provides sensors; we don't send here
+        req.fields['sensors'] = ''; // telemetry providers may add sensors; we don't send here
         req.fields['client_id'] = 'web_client';
 
         // image part
@@ -247,7 +247,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   // -------------------------
-  // Poll sensors (optional)
+  // Poll device telemetry (optional)
   // -------------------------
   Future<void> _fetchLatestSensors() async {
     try {
@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         // keep last sensors; no change
       }
     } catch (_) {
-      // ignore network errors; many backends don't expose sensors endpoint yet
+      // ignore network errors; many backends don't expose telemetry endpoint yet
     }
   }
 
@@ -279,7 +279,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ]),
         bottom: TabBar(controller: _tabs, tabs: const [
           Tab(text: 'Chat'),
-          Tab(text: 'Hardware'),
         ]),
         actions: [
           // User profile and logout
@@ -321,7 +320,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
       body: TabBarView(controller: _tabs, children: [
         _buildChatTab(),
-        _buildHardwareTab(),
       ]),
     );
   }
@@ -482,40 +480,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildHardwareTab() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(children: [
-        Row(children: [
-          const FlutterLogo(size: 32),
-          const SizedBox(width: 12),
-          const Text('Hardware Dashboard', style: TextStyle(fontSize: 18)),
-          const Spacer(),
-          ElevatedButton(onPressed: _fetchLatestSensors, child: const Text('Refresh')),
-        ]),
-        const SizedBox(height: 12),
-        if (_lastSensors.isEmpty)
-          const Text('No sensor data available (polling /sensors/latest every 5s).')
-        else
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Client: ${_lastSensors['client_id'] ?? 'unknown'}'),
-                const SizedBox(height: 6),
-                Text('Soil moisture: ${_lastSensors['soil_moisture'] ?? '-'}'),
-                const SizedBox(height: 4),
-                Text('Temperature: ${_lastSensors['temp'] ?? '-'}'),
-                const SizedBox(height: 4),
-                Text('Humidity: ${_lastSensors['humidity'] ?? '-'}'),
-                const SizedBox(height: 4),
-                Text('VPD: ${_lastSensors['vpd'] ?? '-'}'),
-              ]),
-            ),
-          )
-      ]),
-    );
-  }
+
 
   // Helper that dispatches to web/native pickers
   Future<void> _onPickImage({required bool camera}) async {

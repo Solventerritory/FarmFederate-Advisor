@@ -51,7 +51,7 @@ https://colab.research.google.com/github/Solventerritory/FarmFederate-Advisor/bl
 ### Step 2: Enable GPU
 
 1. Click `Runtime` → `Change runtime type`
-2. Select **Hardware accelerator**: `T4 GPU` (or `V100` if available)
+2. Select **Accelerator**: `T4 GPU` (or `V100` if available)
 3. Click `Save`
 
 ### Step 3: Configure Training (Optional)

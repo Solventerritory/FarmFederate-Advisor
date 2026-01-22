@@ -48,7 +48,7 @@ flutter run -d chrome
 - `backend/multimodal_model.py` — model architecture, expected state_dict keys
 - `backend/datasets_loader.py` — label list, dataset functions, synthetic data helpers
 - `frontend/lib/services/api_service.dart` — how `/predict` is called
-- `backend/hardware/*` — ESP32 sketches and MQTT config
+
 
 **Integration examples to reuse in patches**
 - To add a new label: update `ISSUE_LABELS` in `backend/datasets_loader.py`, regenerate data, retrain — server and Flutter UI expect lengths to match.

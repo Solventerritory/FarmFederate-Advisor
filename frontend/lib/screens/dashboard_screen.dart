@@ -891,11 +891,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Row(
             children: [
               Expanded(
-                child: _buildIoTDeviceCard('ESP32 Sensors', '5 devices', Icons.sensors, Colors.blue, true),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildIoTDeviceCard('ESP32-CAM', '2 cameras', Icons.camera_alt, Colors.purple, true),
+                child: _buildIoTDeviceCard('Devices', 'N/A', Icons.devices, Colors.blue, true),
               ),
             ],
           ),
@@ -1664,11 +1660,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDeviceItem('ESP32-Node-01', 'Sensor Hub', true, '98%'),
+              _buildDeviceItem('Device-01', 'Sensor Hub', true, '98%'),
               const SizedBox(height: 8),
-              _buildDeviceItem('ESP32-CAM-01', 'Field Camera', true, '95%'),
+              _buildDeviceItem('Camera-01', 'Field Camera', true, '95%'),
               const SizedBox(height: 8),
-              _buildDeviceItem('ESP32-Node-02', 'Weather Station', true, '100%'),
+              _buildDeviceItem('Device-02', 'Weather Station', true, '100%'),
               const SizedBox(height: 8),
               _buildDeviceItem('Gateway', 'Main Gateway', true, '99%'),
             ],

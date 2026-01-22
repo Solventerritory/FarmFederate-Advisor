@@ -35,13 +35,13 @@
 - [ ] `backend/test_paper_comparison.py`
 - [ ] `backend/test_quick_setup.py`
 - [ ] `backend/test_upload.py`
-- [ ] `backend/quick_esp32_check.py`
+- [ ] `backend/quick_device_check.py`
 - [ ] `backend/quick_start.py`
-- [ ] `backend/simulate_esp32_usb.py`
+- [ ] `backend/simulate_device_usb.py`
 - [ ] `backend/train_cpu.py`
-- [ ] `backend/troubleshoot_esp32.py`
+- [ ] `backend/troubleshoot_device.py`
 - [ ] `backend/verify_upload.py`
-- [ ] `backend/upload_esp32_vscode.py`
+- [ ] `backend/upload_device_vscode.py`
 
 ### 4. Redundant Training Scripts (5 files)
 - [ ] `backend/RUN_COMPLETE_SYSTEM.py`

@@ -8,7 +8,7 @@ class ApiService {
   ApiService(this.baseUrl);
 
   /// text: free text (optional)
-  /// sensors: optional sensors string (we will omit sensors on web if hardware is used)
+  /// sensors: optional sensors string (e.g., telemetry or device readings)
   /// imageBytes: optional JPEG/PNG bytes
   Future<Map<String, dynamic>> predict({
     required String text,

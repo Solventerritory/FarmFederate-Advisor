@@ -68,15 +68,9 @@ I've created comprehensive guides for you:
 **Your main reference** - Everything you need to operate the system
 - Quick access to all components
 - Testing procedures
-- Hardware deployment steps
 - Troubleshooting commands
 
-### 2. [HARDWARE_SETUP_GUIDE.md](HARDWARE_SETUP_GUIDE.md)
-**For ESP32 deployment** - Step-by-step hardware configuration
-- ESP32-CAM wiring and firmware
-- ESP32 Sensor Node setup
-- Calibration procedures
-- MQTT topic structure
+
 
 ### 3. [SYSTEM_STATUS_NOW.md](SYSTEM_STATUS_NOW.md)
 **Current system status** - Real-time system overview
@@ -96,16 +90,16 @@ I've created comprehensive guides for you:
 4. 📖 All documentation is ready
 
 ### Short Term (Next 15 minutes)
-1. 🔧 Configure ESP32-CAM WiFi credentials
-2. 🔧 Configure ESP32 Sensor Node
-3. 📤 Upload firmware to ESP32 devices
-4. ✅ Verify data flow end-to-end
+1. 🔧 Configure backend and environment
+2. 🔧 Run smoke tests and quick checks
+3. 📤 Verify API endpoints and logs
+4. ✅ Verify a sample training run
 
 ### Medium Term (Today/Tomorrow)
-1. 🌾 Deploy hardware in field
-2. 📊 Collect real sensor and image data
-3. 🧪 Test predictions via Flutter app
-4. 📈 Monitor system performance
+1. 📊 Collect representative image and telemetry data
+2. 🧪 Test predictions via Flutter app
+3. 📈 Monitor system performance
+4. 🔁 Iterate on data collection & thresholds
 
 ### Long Term (Research)
 1. 🔬 Run federated learning training
@@ -136,12 +130,7 @@ All features from your research paper are implemented:
 - Attention visualization
 - 512-d projections, 4x fusion features
 
-### ✅ Hardware Intelligence
-- Multi-shot capture (3 images)
-- Quality assessment (threshold: 0.7)
-- Adaptive intervals (30s - 5min)
-- Exponential backoff retry
-- Device telemetry system
+
 
 ---
 
@@ -179,13 +168,13 @@ mosquitto_sub -t "farmfederate/sensors/#" -v
 Get-Service mosquitto
 ```
 
-### Check Sensor Data
+### Check Data Files
 ```powershell
-# List sensor files
+# List sensor data files
 Get-ChildItem backend\checkpoints_paper\sensors\*.json
 
 # View latest data
-Get-Content backend\checkpoints_paper\sensors\esp32_sensor_01.json
+Get-Content (Get-ChildItem backend\checkpoints_paper\sensors\*.json | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 ```
 
 ---
@@ -197,10 +186,7 @@ Get-Content backend\checkpoints_paper\sensors\esp32_sensor_01.json
    - Quick access points
    - Testing procedures
 
-2. **Hardware Setup**: [HARDWARE_SETUP_GUIDE.md](HARDWARE_SETUP_GUIDE.md)
-   - ESP32-CAM configuration
-   - ESP32 Sensor wiring
-   - Firmware upload instructions
+
 
 3. **System Status**: [SYSTEM_STATUS_NOW.md](SYSTEM_STATUS_NOW.md)
    - Current component status
@@ -260,7 +246,7 @@ flutter run -d windows
 ✅ **Working Backend** - AI model serving predictions  
 ✅ **MQTT Infrastructure** - Ready to receive sensor data  
 ✅ **Flutter Frontend** - User interface launching  
-✅ **Hardware Firmware** - Ready to flash to ESP32 devices  
+
 ✅ **Complete Documentation** - Step-by-step guides  
 ✅ **Research Features** - All paper implementations ready  
 
