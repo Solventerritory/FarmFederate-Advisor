@@ -8,6 +8,7 @@ Example usage:
 """
 import os
 from typing import List, Optional
+from contextlib import nullcontext
 
 try:
     from transformers import CLIPProcessor, CLIPModel
@@ -48,7 +49,8 @@ class Embedders:
     def image_to_visual(self, image_path: str) -> List[float]:
         image = Image.open(image_path).convert('RGB')
         inputs = self.clip_processor(images=image, return_tensors='pt')
-        with self.clip_model.device if hasattr(self.clip_model, 'device') else nullcontext():
+        import torch
+        with torch.no_grad():
             outputs = self.clip_model.get_image_features(**inputs)
         vec = outputs.detach().cpu().numpy().squeeze().tolist()
         # normalize to unit length for cosine similarity
