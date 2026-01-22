@@ -48,6 +48,8 @@ License: MIT
 Version: 3.0 (Qdrant + Comparisons Edition)
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import json
@@ -61,6 +63,34 @@ from datetime import datetime
 import random
 
 warnings.filterwarnings('ignore')
+
+# Fallbacks for optional dependencies used in type annotations / base classes
+# These ensure the module can be imported even if torch is not installed; the
+# real objects are populated by calling `check_imports()` at runtime.
+try:
+    from torch.utils.data import Dataset, DataLoader
+except Exception:
+    Dataset = object
+    DataLoader = object
+
+# Optional dependency: pandas (used for DataFrame handling). Import if available
+# to ensure type annotations like `pd.DataFrame` evaluate during module import.
+try:
+    import pandas as pd
+except Exception:
+    pd = None
+
+# Optional: torch and nn fallbacks to allow import-time class definitions when
+# torch is not available. The real torch objects are populated by calling
+# `check_imports()` at runtime if needed.
+try:
+    import torch
+    import torch.nn as nn
+except Exception:
+    torch = None
+    class _DummyNN:
+        class Module: pass
+    nn = _DummyNN()
 
 # ============================================================================
 # CONFIGURATION
@@ -328,7 +358,7 @@ def check_imports():
 # DATASET GENERATION
 # ============================================================================
 
-def generate_synthetic_text_data(n_samples: int = 500) -> pd.DataFrame:
+def generate_synthetic_text_data(n_samples: int = 500) -> "pd.DataFrame":
     """Generate synthetic agricultural text data for stress detection."""
     templates = [
         "The {crop} plants show signs of {symptom} with {severity} intensity.",
