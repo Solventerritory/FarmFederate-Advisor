@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import 'ai_chat_screen.dart';
 import 'analytics_screen.dart';
 import 'federated_learning_screen.dart';
+import 'qdrant_demo_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String apiBase;
@@ -30,7 +31,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -186,6 +187,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
             Tab(icon: Icon(Icons.terrain), text: 'Soil Analytics'),
             Tab(icon: Icon(Icons.smart_toy), text: 'AI Assistant'),
+            Tab(icon: Icon(Icons.storage), text: 'Qdrant Demo'),
             Tab(icon: Icon(Icons.trending_up), text: 'Analytics'),
             Tab(icon: Icon(Icons.group), text: 'Farm Network'),
             Tab(icon: Icon(Icons.settings), text: 'Controls'),
@@ -198,6 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           _buildOverviewTab(),
           _buildSoilAnalyticsTab(),
           _buildAIChatTab(),
+          _buildQdrantDemoTab(),
           _buildHistoricalAnalyticsTab(),
           _buildFederatedLearningTab(),
           _buildControlsTab(),
@@ -286,6 +289,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   Widget _buildAIChatTab() {
     return AIChatScreen(apiBase: widget.apiBase);
+  }
+
+  Widget _buildQdrantDemoTab() {
+    return QdrantDemoScreen(apiBase: widget.apiBase);
   }
 
   Widget _buildHistoricalAnalyticsTab() {

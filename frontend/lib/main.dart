@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
+import 'constants.dart';
 import 'routes.dart';
 
 // Conditional import - only import dart:html on web platform
@@ -58,11 +59,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  // Configure your backend base URL here:
-  // If you're running the web app in the same machine as the backend, use:
-  //   http://localhost:8000
-  // If using Android emulator hit host PC: http://10.0.2.2:8000
-  final String apiBase = 'http://localhost:8000';
+  // Backend base URL from constants.dart
+  final String apiBase = DEFAULT_BACKEND;
   final _authService = AuthService();
 
   late TabController _tabs;
@@ -281,6 +279,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Tab(text: 'Chat'),
         ]),
         actions: [
+          // Qdrant Demo button
+          IconButton(
+            icon: const Icon(Icons.storage),
+            tooltip: 'Qdrant Demo',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/qdrant');
+            },
+          ),
           // User profile and logout
           PopupMenuButton<String>(
             icon: const Icon(Icons.account_circle),
@@ -290,6 +296,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 if (mounted) {
                   Navigator.of(context).pushReplacementNamed('/login');
                 }
+              } else if (value == 'qdrant') {
+                Navigator.of(context).pushNamed('/qdrant');
               }
             },
             itemBuilder: (context) => [
@@ -304,6 +312,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'qdrant',
+                child: Row(
+                  children: [
+                    Icon(Icons.storage, size: 20),
+                    SizedBox(width: 8),
+                    Text('Qdrant Demo'),
+                  ],
+                ),
+              ),
               const PopupMenuItem(
                 value: 'logout',
                 child: Row(

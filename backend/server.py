@@ -99,10 +99,14 @@ THRESHOLDS = np.array([0.3]*NUM_LABELS, dtype=np.float32)
 # Qdrant optional integration
 try:
     from qdrant_client import QdrantClient
-    from qdrant_rag import init_qdrant_collections, agentic_diagnose, Embedders
+    try:
+        from .qdrant_rag import init_qdrant_collections, agentic_diagnose, Embedders
+    except ImportError:
+        from backend.qdrant_rag import init_qdrant_collections, agentic_diagnose, Embedders
     HAVE_QDRANT = True
     QDRANT_CLIENT: Optional[QdrantClient] = None
-except Exception:
+except Exception as e:
+    print(f"[server][WARN] Qdrant integration not available: {e}")
     HAVE_QDRANT = False
     QDRANT_CLIENT = None
 
@@ -120,7 +124,11 @@ async def lifespan(app: FastAPI):
     if qdrant_url and HAVE_QDRANT:
         try:
             global QDRANT_CLIENT
-            QDRANT_CLIENT = QdrantClient(url=qdrant_url)
+            # Handle in-memory mode vs remote URL
+            if qdrant_url == ":memory:":
+                QDRANT_CLIENT = QdrantClient(":memory:")
+            else:
+                QDRANT_CLIENT = QdrantClient(url=qdrant_url)
             init_qdrant_collections(QDRANT_CLIENT)
             app.state.qdrant_client = QDRANT_CLIENT
             print(f"[server] Qdrant initialized at {qdrant_url}")
