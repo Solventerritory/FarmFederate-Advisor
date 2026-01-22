@@ -157,85 +157,7 @@ mean_logits, std_logits = model.get_uncertainty(
 
 ---
 
-## 2. Hardware Enhancements (ESP32-CAM)
 
-### 2.1 Enhanced Features (`main.cpp`)
-
-**1. Multi-Shot Capture with Quality Assessment**
-- Captures multiple images per session (default 3)
-- Assesses quality based on file size and compression metrics
-- Selects best image automatically
-- Reduces upload of poor-quality images
-
-**2. Adaptive Capture Intervals**
-- Dynamic adjustment based on disease detection
-- Increases frequency if disease detected (30s minimum)
-- Decreases frequency if healthy (up to 5 minutes)
-- Conserves bandwidth and power
-
-**3. Exponential Backoff Retry Logic**
-- Implements exponential backoff for failed uploads
-- Starts with 5-second delay, multiplies by 2x each retry
-- Prevents server overload during connectivity issues
-- Configurable maximum retries
-
-**4. Comprehensive Telemetry System**
-- Sends device statistics to backend every 10 captures
-- Includes: uptime, capture counts, success rate, quality metrics
-- Reports WiFi signal strength (RSSI) and memory usage
-- Enables fleet management and debugging
-
-**5. Enhanced Metadata**
-- Quality scores sent with each image
-- Device version tracking for OTA updates
-- Capture timestamp and environmental data
-- Client ID for federated learning participant identification
-
-**6. Resource Monitoring**
-- Free heap tracking
-- WiFi signal strength monitoring
-- Upload success/failure statistics
-- Adaptive behavior based on consecutive failures
-
-### 2.2 Configuration Options
-
-```cpp
-// Multi-shot configuration
-#define MULTI_SHOT_COUNT      3        // Images per capture
-#define QUALITY_THRESHOLD     0.7      // Minimum quality (0-1)
-
-// Adaptive behavior
-#define ADAPTIVE_INTERVAL     true     // Enable adaptive capture
-#define MIN_CAPTURE_INTERVAL  30000    // 30 seconds
-#define MAX_CAPTURE_INTERVAL  300000   // 5 minutes
-
-// Communication
-#define RETRY_BACKOFF         2.0      // Exponential multiplier
-#define USE_COMPRESSION       true     // Enable compression
-
-// Telemetry
-const char* TELEMETRY_URL = "http://192.168.208.1:8000/telemetry";
-const char* DEVICE_VERSION = "v2.0-federated";
-```
-
-### 2.3 Telemetry Data Structure
-
-```json
-{
-  "device_id": "esp32cam_01",
-  "version": "v2.0-federated",
-  "uptime_ms": 1234567,
-  "total_captures": 42,
-  "successful_uploads": 38,
-  "failed_uploads": 4,
-  "avg_quality": 0.82,
-  "rssi_dbm": -65,
-  "free_heap_bytes": 102400,
-  "current_interval_ms": 45000
-}
-```
-
----
 
 ## 3. Frontend Enhancements (Flutter)
 
@@ -261,7 +183,7 @@ const char* DEVICE_VERSION = "v2.0-federated";
 - Explainability for farmers
 
 **4. Device Fleet Management**
-- List all ESP32 devices
+- List devices and their status indicators
 - View telemetry for each device
 - Monitor health status (signal strength, battery, quality)
 - OTA update management
@@ -286,10 +208,10 @@ const char* DEVICE_VERSION = "v2.0-federated";
 - Communication cost savings chart
 ```
 
-**`hardware_dashboard.dart`**
+**Device Dashboard**
 ```dart
-// Enhanced sensor monitoring
-- ESP32 device list with status indicators
+// Enhanced device monitoring
+- Device list with status indicators
 - Real-time telemetry display
 - Quality score history
 - Adaptive interval visualization
@@ -372,14 +294,7 @@ async def predict_with_uncertainty(image: UploadFile, text: str):
 - [ ] Verify uncertainty estimation consistency
 - [ ] Check backward compatibility with old checkpoints
 
-**Hardware Tests:**
-- [ ] Test multi-shot capture quality assessment
-- [ ] Verify adaptive interval adjustment
-- [ ] Test exponential backoff retry logic
-- [ ] Validate telemetry data transmission
-- [ ] Check memory leaks during long runs
-- [ ] Test WiFi reconnection handling
-- [ ] Verify image quality across lighting conditions
+
 
 **Frontend Tests:**
 - [ ] Test federated learning visualization updates
@@ -450,22 +365,7 @@ export USE_CROSS_ATTENTION=true
 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 6.2 Hardware Deployment
 
-```bash
-cd backend/hardware/esp32cam_uploader
-
-# Update configuration in src/main.cpp:
-# - WIFI_SSID, WIFI_PASSWORD
-# - SERVER_URL, TELEMETRY_URL
-# - MULTI_SHOT_COUNT, ADAPTIVE_INTERVAL
-
-# Build and upload
-platformio run --target upload
-
-# Monitor telemetry
-platformio device monitor --baud 115200
-```
 
 ### 6.3 Frontend Deployment
 
@@ -519,33 +419,7 @@ flutter run -d android  # Android
 }
 ```
 
-### 7.2 `backend/hardware/esp32cam_uploader/config.h`
 
-```cpp
-#ifndef CONFIG_H
-#define CONFIG_H
-
-// Multi-capture configuration
-#define ENABLE_MULTI_SHOT      true
-#define MULTI_SHOT_COUNT       3
-#define QUALITY_THRESHOLD      0.7
-
-// Adaptive behavior
-#define ENABLE_ADAPTIVE_INTERVAL  true
-#define MIN_CAPTURE_INTERVAL      30000   // 30 seconds
-#define MAX_CAPTURE_INTERVAL      300000  // 5 minutes
-
-// Telemetry
-#define ENABLE_TELEMETRY       true
-#define TELEMETRY_INTERVAL     10  // Every N captures
-
-// Network
-#define MAX_RETRIES            3
-#define RETRY_BACKOFF          2.0
-#define UPLOAD_TIMEOUT_MS      20000
-
-#endif // CONFIG_H
-```
 
 ---
 
@@ -565,11 +439,7 @@ flutter run -d android  # Android
 - Accuracy improvement: +2.5% with cross-attention
 - Uncertainty calibration: Expected Calibration Error (ECE) < 0.05
 
-**ESP32-CAM:**
-- Capture + upload time: 3-5 seconds per image
-- Multi-shot overhead: +2 seconds (3 captures)
-- Quality assessment: <100ms per image
-- Memory usage: ~80KB peak (within 320KB RAM)
+
 
 ---
 
@@ -577,12 +447,8 @@ flutter run -d android  # Android
 
 ### 9.1 Current Limitations
 
-1. **ESP32 button GPIO 13 issue**: Causes system crash, currently disabled
-   - **Workaround**: Use auto-capture only
-   - **Future**: Test alternative GPIO pins (12, 14, 15)
-
-2. **Network subnets**: ESP32 on 192.168.0.x, backend on 192.168.208.x
-   - **Workaround**: Update SERVER_URL in firmware
+1. **Network subnets**: Devices and backend on different subnets may require routing or configuration
+   - **Workaround**: Update SERVER_URL or network configuration
    - **Future**: Use mDNS or static routing
 
 3. **Model size**: 420MB model requires significant RAM
@@ -595,7 +461,7 @@ flutter run -d android  # Android
 
 ### 9.2 Future Enhancements
 
-1. **On-device inference**: TensorFlow Lite on ESP32-S3
+
 2. **Secure enclaves**: ARM TrustZone for model protection
 3. **Hierarchical federated learning**: Multi-tier aggregation
 4. **Active learning**: Adaptive data collection based on model uncertainty

@@ -11,8 +11,7 @@ The FarmFederate system is now operational with the following components:
 4. **Flutter Frontend** - Starting on Windows
 
 ### 📝 Ready for Configuration
-5. **ESP32-CAM** - Enhanced firmware ready
-6. **ESP32 Sensors** - Firmware ready
+5. **Field devices** - Firmware ready (if applicable)
 
 ---
 
@@ -52,65 +51,7 @@ The Flutter app provides:
 
 ---
 
-## 🔧 Hardware Deployment
-
-### ESP32-CAM Setup (5 minutes)
-
-1. **Connect Hardware**:
-   ```
-   ESP32-CAM → USB-to-Serial Programmer
-   Connect IO0 to GND for upload mode
-   ```
-
-2. **Configure WiFi** in `backend/hardware/esp32cam_uploader/src/main.cpp`:
-   ```cpp
-   const char* WIFI_SSID = "YourNetwork";
-   const char* WIFI_PASSWORD = "YourPassword";
-   const char* SERVER_URL = "http://YOUR_IP:8000/predict";
-   ```
-
-3. **Upload Firmware**:
-   ```bash
-   cd backend/hardware/esp32cam_uploader
-   platformio run --target upload
-   platformio device monitor --baud 115200
-   ```
-
-4. **Expected Output**:
-   ```
-   WiFi connected! IP: 192.168.1.x
-   Camera initialized
-   === READY ===
-   [Capture] Multi-shot session started
-   ```
-
-### ESP32 Sensor Setup (5 minutes)
-
-1. **Wire Sensors**:
-   ```
-   DHT22 Data → GPIO 4
-   Soil Sensor → GPIO 34
-   3.3V and GND to both sensors
-   ```
-
-2. **Configure** in `backend/hardware/esp32_sensor_node/esp32_sensor_node.ino`:
-   ```cpp
-   const char* ssid = "YourNetwork";
-   const char* pass = "YourPassword";
-   const char* mqtt_server = "YOUR_IP";
-   const char* client_id = "esp32_sensor_01";
-   ```
-
-3. **Upload** via Arduino IDE:
-   - Select Board: "ESP32 Dev Module"
-   - Select Port: Your COM port
-   - Click Upload
-
-4. **Verify Data Flow**:
-   ```bash
-   # In backend terminal, you should see:
-   Saved sensor: checkpoints_paper\sensors\esp32_sensor_01.json
-   ```
+<!-- Device deployment instructions removed. Device-specific setup was removed from this guide to focus on backend and software components. If you need device-level instructions, add them to a separate device-specific repository or private documentation. -->
 
 ---
 
@@ -125,7 +66,7 @@ Invoke-WebRequest http://localhost:8000/health
 ### Test 2: MQTT Connection
 ```powershell
 mosquitto_sub -t "farmfederate/sensors/#" -v
-# Should show sensor data when ESP32 publishes
+# Should show sensor data when devices publish
 ```
 
 ### Test 3: End-to-End Prediction
@@ -165,7 +106,7 @@ Get-ChildItem backend\checkpoints_paper\sensors\*.json |
   Sort-Object LastWriteTime -Descending
 
 # View latest sensor data
-Get-Content backend\checkpoints_paper\sensors\esp32_sensor_01.json | ConvertFrom-Json | Format-List
+Get-Content (Get-ChildItem backend\checkpoints_paper\sensors\*.json | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName | ConvertFrom-Json | Format-List
 ```
 
 ---
@@ -174,7 +115,7 @@ Get-Content backend\checkpoints_paper\sensors\esp32_sensor_01.json | ConvertFrom
 
 ### Run Federated Training
 
-Once you have data from multiple ESP32 devices:
+Once you have data from multiple devices:
 
 ```bash
 cd backend
@@ -245,10 +186,10 @@ flutter pub get
 flutter run -d windows
 ```
 
-### ESP32 Connection Issues
+### Device Connection Issues
 ```
 1. Check WiFi credentials in firmware
-2. Verify network is 2.4GHz (ESP32 doesn't support 5GHz)
+2. Verify network is 2.4GHz (some devices don't support 5GHz)
 3. Check backend IP address is correct
 4. Test with: curl http://YOUR_IP:8000/health
 5. Monitor serial output at 115200 baud
@@ -261,9 +202,9 @@ flutter run -d windows
 1. **[README.md](README.md)** - Project overview and features
 2. **[QUICK_START.md](QUICK_START.md)** - Fast setup guide
 3. **[RESEARCH_PAPER_IMPLEMENTATION.md](RESEARCH_PAPER_IMPLEMENTATION.md)** - Research features detail
-4. **[HARDWARE_SETUP_GUIDE.md](HARDWARE_SETUP_GUIDE.md)** - Complete hardware instructions
+
 5. **[SYSTEM_STATUS_NOW.md](SYSTEM_STATUS_NOW.md)** - Current system status
-6. **[ESP32_TROUBLESHOOTING.md](ESP32_TROUBLESHOOTING.md)** - Hardware debugging
+6. **[DEVICE_TROUBLESHOOTING.md](DEVICE_TROUBLESHOOTING.md)** - Device debugging
 
 ---
 
@@ -285,7 +226,7 @@ This implementation includes all features from the research paper:
 - ✅ Attention visualization for explainability
 - ✅ Deeper architecture (512-d projections, 4x fusion)
 
-### Hardware Intelligence
+### Device Intelligence
 - ✅ Multi-shot capture with quality assessment
 - ✅ Adaptive capture intervals based on detections
 - ✅ Exponential backoff retry logic
@@ -301,15 +242,15 @@ Your system is working correctly if:
 1. ✅ Backend responds to http://localhost:8000/health
 2. ✅ MQTT listener shows "mqtt connected 0"
 3. ✅ Flutter app window appears
-4. ✅ ESP32-CAM serial shows "=== READY ==="
-5. ✅ ESP32 sensor data appears in `checkpoints_paper/sensors/`
+4. ✅ Device serial shows "=== READY ==="
+5. ✅ Device sensor data appears in `checkpoints_paper/sensors/`
 6. ✅ Predictions return JSON with crop advisory
 
 ---
 
 ## 📞 Next Steps
 
-1. **Deploy Hardware**: Flash ESP32 devices with configuration
+1. **Deploy Devices**: Flash device firmware with configuration
 2. **Collect Data**: Let system gather sensor and image data
 3. **Run Training**: Execute federated learning with collected data
 4. **Monitor Results**: Track metrics and model performance

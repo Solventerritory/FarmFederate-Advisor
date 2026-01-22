@@ -29,20 +29,7 @@
 - **New `get_uncertainty()` method**: Monte Carlo dropout for uncertainty estimation
 - **Enhanced `forward()` method**: Returns attention weights when `return_attention=True`
 
-#### 3. Hardware - ESP32-CAM Firmware (`backend/hardware/esp32cam_uploader/src/main.cpp`)
-- **Enhanced header documentation**: Added research paper features description
-- **New configuration constants**:
-  - `MULTI_SHOT_COUNT`, `QUALITY_THRESHOLD`
-  - `ADAPTIVE_INTERVAL`, `MIN_CAPTURE_INTERVAL`, `MAX_CAPTURE_INTERVAL`
-  - `RETRY_BACKOFF`, `USE_COMPRESSION`, `BATCH_SIZE`
-  - `TELEMETRY_URL`, `DEVICE_VERSION`
-- **New global variables**:
-  - Telemetry tracking: `successfulUploads`, `failedUploads`, `consecutiveFailures`
-  - Quality metrics: `lastQualityScore`, `currentCaptureInterval`
-  - Telemetry struct: `TelemetryData`
-- **New function declarations**:
-  - `captureMultiShot()`, `assessImageQuality()`, `adaptiveCaptureInterval()`
-  - `sendTelemetry()`, `uploadImage()`, `displayEnhancedResults()`
+
 
 #### 4. Documentation
 - **Created `RESEARCH_PAPER_IMPLEMENTATION.md`** (15 sections, 600+ lines):
@@ -54,7 +41,7 @@
 - **Created `QUICK_START.md`** (400+ lines):
   - Step-by-step setup guide for enhanced features
   - Example Python scripts for testing
-  - ESP32-CAM expected output samples
+
   - Troubleshooting section
 - **Created `backend/config/federated_config.json`**:
   - Complete configuration template
@@ -81,8 +68,7 @@
    - New method: 1 (`get_uncertainty()`)
    - Enhanced constructor with 3 new parameters
 
-### Hardware Firmware Files (1 file)
-3. `backend/hardware/esp32cam_uploader/src/main.cpp`
+
    - Header documentation enhanced
    - New constants and variables defined
    - Function declarations updated
@@ -114,13 +100,7 @@
 ✅ Uncertainty estimation (MC dropout)  
 ✅ Attention weight visualization  
 
-### Hardware Intelligence (6 features)
-✅ Multi-shot capture with quality assessment  
-✅ Adaptive capture intervals  
-✅ Exponential backoff retry logic  
-✅ Device telemetry system  
-✅ Enhanced metadata in uploads  
-✅ Resource monitoring  
+  
 
 ---
 
@@ -133,14 +113,7 @@ export ENABLE_UNCERTAINTY=true         # Enable MC dropout uncertainty
 export FEDERATED_CONFIG=backend/config/federated_config.json
 ```
 
-### ESP32-CAM Defines
-```cpp
-#define MULTI_SHOT_COUNT 3
-#define ADAPTIVE_INTERVAL true
-#define QUALITY_THRESHOLD 0.7
-const char* DEVICE_VERSION = "v2.0-federated"
-const char* TELEMETRY_URL = "http://192.168.208.1:8000/telemetry"
-```
+
 
 ---
 
@@ -166,7 +139,6 @@ const char* TELEMETRY_URL = "http://192.168.208.1:8000/telemetry"
 - Documentation (reviewed and formatted)
 
 ### 🔄 In Progress
-- ESP32 firmware full implementation (functions declared but not fully coded)
 - End-to-end integration testing
 - Performance benchmarking
 
@@ -201,31 +173,17 @@ output = model(input_ids, attention_mask, pixel_values, return_attention=True)
 mean_logits, std_logits = model.get_uncertainty(input_ids, attention_mask, pixel_values, n_samples=10)
 ```
 
-### ESP32-CAM - Configuration
-```cpp
-// In src/main.cpp
-#define MULTI_SHOT_COUNT 3
-#define ADAPTIVE_INTERVAL true
-#define QUALITY_THRESHOLD 0.7
-```
-
 ---
 
 ## 🚀 Next Steps
 
 ### Immediate (Priority 1)
-1. Complete ESP32 firmware implementation:
-   - Implement `captureMultiShot()` function body
-   - Implement `assessImageQuality()` logic
-   - Implement `sendTelemetry()` function
-   - Implement `displayEnhancedResults()` parser
-
-2. Add backend API endpoints:
+1. Add backend API endpoints:
    - `POST /telemetry` - Receive device telemetry
    - `POST /predict_with_uncertainty` - Predictions with uncertainty
    - `POST /federated/train` - Initiate federated round
 
-3. Update server.py to use enhanced model:
+2. Update server.py to use enhanced model:
    - Load with `use_cross_attention=True`
    - Enable uncertainty estimation option
    - Return attention weights in response
@@ -233,13 +191,22 @@ mean_logits, std_logits = model.get_uncertainty(input_ids, attention_mask, pixel
 ### Short-term (Priority 2)
 4. Flutter frontend updates:
    - Update `federated_learning_screen.dart` with live metrics
-   - Add device telemetry display to `hardware_dashboard.dart`
+
+   - Implement uncertainty visualization in `analytics_screen.dart`
+
+5. Testing suite:
+   - Unit tests for `federated_core.py` functions
+
+### Short-term (Priority 2)
+4. Flutter frontend updates:
+   - Update `federated_learning_screen.dart` with live metrics
+
    - Implement uncertainty visualization in `analytics_screen.dart`
 
 5. Testing suite:
    - Unit tests for `federated_core.py` functions
    - Integration tests for model forward pass
-   - End-to-end test with ESP32 simulator
+
 
 ### Long-term (Priority 3)
 6. Performance optimization:
@@ -257,8 +224,7 @@ mean_logits, std_logits = model.get_uncertainty(input_ids, attention_mask, pixel
 
 ## ⚠️ Known Issues
 
-1. **ESP32 GPIO 13 button crash** - Button functionality disabled, auto-capture only
-2. **Network subnet mismatch** - ESP32 on .0.x, backend on .208.x - needs routing or config update
+1. **Network subnet mismatch** - Devices and backend may require routing or configuration updates
 3. **Large model size** - 420MB requires 8GB+ RAM - consider model quantization
 4. **Frontend UI incomplete** - Enhanced screens not yet implemented
 
@@ -286,7 +252,7 @@ mean_logits, std_logits = model.get_uncertainty(input_ids, attention_mask, pixel
 
 - [x] Enhanced federated_core.py with 7 new functions
 - [x] Enhanced multimodal_model.py with cross-attention and uncertainty
-- [x] Updated ESP32 firmware headers and declarations
+- [x] Updated device firmware headers and declarations
 - [x] Created comprehensive documentation (3 new files)
 - [x] Updated main README with research features
 - [x] Created configuration file with all parameters
@@ -294,7 +260,7 @@ mean_logits, std_logits = model.get_uncertainty(input_ids, attention_mask, pixel
 - [x] Verified JSON syntax (valid config)
 - [ ] Tested federated aggregation functions
 - [ ] Tested model forward pass with cross-attention
-- [ ] Tested ESP32 firmware compilation
+- [ ] Tested device firmware compilation
 - [ ] End-to-end integration test
 
 ---

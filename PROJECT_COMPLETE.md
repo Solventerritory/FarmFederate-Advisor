@@ -387,7 +387,7 @@ If you want to extend this work further:
 
 1. **Train on Colab:** Click the badge and run training (4-6 hours)
 2. **Generate Paper:** Use plots and results for research publication
-3. **Deploy System:** Integrate with ESP32 hardware on real farms
+3. **Deploy System:** Integrate with field devices
 4. **Expand Datasets:** Add more real-world agricultural data
 5. **Tune Hyperparameters:** Optimize for better performance
 6. **Add More Models:** Try newer architectures (LLaMA, GPT-4V, etc.)

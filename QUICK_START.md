@@ -23,33 +23,7 @@ export ENABLE_UNCERTAINTY=true
 uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
-### 2. Flash Enhanced ESP32-CAM Firmware
 
-```bash
-cd backend/hardware/esp32cam_uploader
-
-# Edit src/main.cpp - update these lines:
-# Line 35: const char* WIFI_SSID = "YourWiFi";
-# Line 36: const char* WIFI_PASSWORD = "YourPassword";
-# Line 40: const char* SERVER_URL = "http://YOUR_IP:8000/predict";
-# Line 41: const char* TELEMETRY_URL = "http://YOUR_IP:8000/telemetry";
-
-# Build and upload
-platformio run --target upload
-
-# Monitor output
-platformio device monitor --baud 115200
-
-# Expected output:
-# ========================================
-# ESP32-CAM BOOT
-# ========================================
-# LED init OK
-# Camera OK
-# WiFi connecting... OK
-# IP: 192.168.0.112
-# === READY ===
-```
 
 ### 3. Run Federated Training
 
@@ -271,7 +245,7 @@ summary = metrics.get_summary()
 print(f"\nSummary: {summary}")
 ```
 
-### 7. ESP32-CAM Expected Behavior
+
 
 **Normal Operation:**
 ```
@@ -313,7 +287,7 @@ Auto capture triggered
 ```
 [TELEMETRY] Sending device statistics...
 {
-  "device_id": "esp32cam_01",
+  "device_id": "device_01",
   "version": "v2.0-federated",
   "uptime_ms": 1234567,
   "total_captures": 10,
@@ -329,7 +303,7 @@ Auto capture triggered
 
 ### 8. Troubleshooting
 
-**ESP32 not connecting to WiFi:**
+**Device not connecting to WiFi:**
 ```cpp
 // Increase timeout in src/main.cpp
 while (WiFi.status() != WL_CONNECTED && attempts < 40) {  // Was 20
@@ -386,8 +360,8 @@ python scripts/plot_federated_metrics.py metrics/federated_metrics.json
 |---------|--------------|
 | Cross-attention | `model = MultiModalModel(use_cross_attention=True)` |
 | Uncertainty | `mean, std = model.get_uncertainty(...)` |
-| Multi-shot | ESP32: `#define MULTI_SHOT_COUNT 3` |
-| Adaptive interval | ESP32: `#define ADAPTIVE_INTERVAL true` |
+| Multi-shot | `#define MULTI_SHOT_COUNT 3` |
+| Adaptive interval | `#define ADAPTIVE_INTERVAL true` |
 | FedAvg | `fedavg_aggregate(client_states)` |
 | Krum | `krum_aggregate(client_states, num_byzantine=1)` |
 | DP | `add_differential_privacy(state, noise_scale=0.01)` |
@@ -426,7 +400,7 @@ python scripts/compare_aggregations.py results_*.json
 
 1. ✅ Backend enhancements implemented
 2. ✅ Model architecture upgraded
-3. ✅ Hardware firmware enhanced
+
 4. ✅ Configuration files created
 5. 🔄 Frontend UI updates (partially complete)
 6. 🔄 End-to-end testing (in progress)
@@ -438,6 +412,6 @@ python scripts/compare_aggregations.py results_*.json
 
 - Issues: Check [RESEARCH_PAPER_IMPLEMENTATION.md](RESEARCH_PAPER_IMPLEMENTATION.md)
 - API docs: See `docs/API.md`
-- Hardware: See `backend/hardware/README.md`
+
 
 **Happy Federated Learning! 🚀🌱**

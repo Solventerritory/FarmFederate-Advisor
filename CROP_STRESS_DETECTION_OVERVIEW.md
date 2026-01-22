@@ -108,7 +108,7 @@ Image: [Photo of yellow tomato leaves]
 ```
 Farm Field
     ↓
-ESP32 Camera + Sensors
+Device Camera + Sensors
     ↓
 Captures: Images + Sensor Data
     ↓
@@ -127,7 +127,7 @@ Farmer Takes Action
 
 ### **Detection Pipeline:**
 
-1. **Capture:** ESP32 takes plant photos + reads sensors
+1. **Capture:** Device takes plant photos and reads sensors
 2. **Analyze:** AI models detect stress types
 3. **Alert:** Farmer receives notification on mobile app
 4. **Action:** Farmer applies irrigation, fertilizer, or pesticide

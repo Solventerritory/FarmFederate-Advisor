@@ -2,7 +2,7 @@
 
 **Core Mission:** Early detection of crop stress (water, nutrient, pest, disease, heat) using federated AI models
 
-FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yield loss. The system analyzes **plant images** and **text observations** using 17 AI models (LLM, ViT, VLM) while keeping farm data private through federated learning.
+FarmFederate uses **sensors + AI vision** to detect crop stress before yield loss. The system analyzes **plant images** and **text observations** using 17 AI models (LLM, ViT, VLM) while keeping farm data private through federated learning.
 
 **🌾 5 Crop Stresses Detected:** Water Stress • Nutrient Deficiency • Pest Risk • Disease Risk • Heat Stress
 
@@ -47,12 +47,6 @@ FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yie
 - **Attention Visualization**: Explainable AI for model interpretability
 - **Deeper Architecture**: 512-d projections, 4x fusion features, 3-layer classifier
 
-### Hardware Intelligence
-- **Multi-Shot Capture**: Quality assessment with best-shot selection (3 images)
-- **Adaptive Intervals**: Dynamic capture frequency based on disease detection
-- **Exponential Backoff**: Retry logic with 2x multiplier for resilience
-- **Telemetry System**: Device health monitoring (RSSI, heap, quality scores)
-
 📄 **See [RESEARCH_PAPER_IMPLEMENTATION.md](RESEARCH_PAPER_IMPLEMENTATION.md) for complete documentation**
 
 ## Quick start
@@ -75,21 +69,12 @@ FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yie
      uvicorn backend.server:app --host 0.0.0.0 --port 8000
      ```
 
-2. ESP32-CAM firmware (Enhanced v2.0-federated)
-   - Edit `backend/hardware/esp32cam_uploader/src/main.cpp`:
-     - WiFi credentials: `WIFI_SSID`, `WIFI_PASSWORD`
-     - Server URLs: `SERVER_URL`, `TELEMETRY_URL`
-     - Multi-shot config: `MULTI_SHOT_COUNT`, `QUALITY_THRESHOLD`
-     - Adaptive intervals: `ADAPTIVE_INTERVAL`, `MIN_CAPTURE_INTERVAL`
-   - Upload via PlatformIO: `platformio run --target upload`
-   - Monitor: `platformio device monitor --baud 115200`
+2. Flutter app
+  - Open `frontend/` and update `lib/constants.dart` with backend IP
+  - Run `flutter pub get` and `flutter run`
+  - Enhanced screens: Federated dashboard, uncertainty viz
 
-3. Flutter app
-   - Open `frontend/` and update `lib/constants.dart` with backend IP
-   - Run `flutter pub get` and `flutter run`
-   - Enhanced screens: Federated dashboard, device telemetry, uncertainty viz
-
-4. Federated Training
+3. Federated Training
    - Use `backend/train_fed_multimodal.py` with enhanced aggregation:
      ```bash
      python train_fed_multimodal.py \
@@ -105,31 +90,31 @@ FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yie
 
 ## Demo & Frontend Quick Run 💡
 
-This repository now includes a lightweight demo mode and frontend demo UI so you can show Qdrant-style retrieval without heavy dependencies or Docker. Summary of what was added and how to run it:
+I added a lightweight demo mode and a frontend demo UI so I (and you) can show Qdrant-style retrieval without needing heavy dependencies or Docker. Here’s what I changed and how I run it:
 
-- **DEMO_MODE**: Start the backend in demo mode (no external Qdrant required). On Windows PowerShell:
+- **DEMO_MODE**: I added a `DEMO_MODE` option so the backend can run with an in-memory demo collection (no external Qdrant required). To start it on Windows PowerShell:
 
   ```powershell
   $env:DEMO_MODE='1'; $env:QDRANT_URL=':memory:'; python -m uvicorn backend.server:app --port 8000
   ```
 
-  When `DEMO_MODE=1` the server exposes the demo endpoints:
-  - `POST /demo_populate?n={n}` — populate an in-memory demo collection
-  - `POST /demo_search?top_k={k}&vector_type={visual|text}` — run a demo search
+  With `DEMO_MODE=1` the server exposes demo endpoints:
+  - `POST /demo_populate?n={n}` — I use this to populate an in-memory demo collection
+  - `POST /demo_search?top_k={k}&vector_type={visual|text}` — run a demo search against the collection
 
-- **Frontend (Web)**: The Flutter UI now has **Populate Demo** and **Search Demo** buttons on the main screen (Chat / Diagnose). Run it on your machine and point at the backend:
+- **Frontend (Web)**: I added **Populate Demo** and **Search Demo** buttons to the Flutter UI (Chat / Diagnose). To run the frontend locally and point it at the backend:
 
   ```bash
   cd frontend
   flutter pub get
-  flutter run -d chrome --flavor development
+  flutter run -d chrome
   # or use web-server:
   flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5000
   ```
 
-  Use the UI: enter a short description (optional), click **Populate Demo** (adds demo vectors), then **Search Demo** to see retrieved hits in the Debug area.
+  In the UI I enter a short description (optional), click **Populate Demo** (which adds demo vectors), then click **Search Demo** to see hits in the Debug area.
 
-- **Full end-to-end (real Qdrant + real embeddings)**: For a production-like demo, run Qdrant via Docker, install the Python deps, then start the backend with `QDRANT_URL` pointing at your Qdrant instance, e.g.: 
+- **Full end-to-end (real Qdrant + real embeddings)**: For a realistic demo I run Qdrant via Docker, install the Python deps, and start the backend with `QDRANT_URL` set to the Qdrant instance, e.g.:
 
   ```bash
   docker run -d -p 6333:6333 qdrant/qdrant:latest
@@ -137,31 +122,31 @@ This repository now includes a lightweight demo mode and frontend demo UI so you
   $env:QDRANT_URL='http://localhost:6333'; python -m uvicorn backend.server:app --port 8000
   ```
 
-  Make sure to install the Python packages required by the RAG stack:
+  I also install the RAG-related packages:
   ```bash
   pip install qdrant-client sentence-transformers faiss-cpu
   ```
 
-- **Colab one-cell runner**: `notebooks/Colab_Run_FarmFederate.ipynb` contains a single-cell helper that mounts Drive, obtains the repo (token/API zip fallbacks), installs dependencies, runs setup and a full/quick training flow, and copies artifacts to Drive. Useful env vars: `GIT_TOKEN`, `GIT_BRANCH`, `CHECKPOINT_DIR`, `QDRANT_URL`.
+- **Colab one-cell runner**: I included `notebooks/Colab_Run_FarmFederate.ipynb`, a single-cell helper that mounts Drive, obtains the repo (token/API zip fallbacks), installs dependencies, runs setup and a full/quick training flow, and copies artifacts to Drive. Useful env vars: `GIT_TOKEN`, `GIT_BRANCH`, `CHECKPOINT_DIR`, `QDRANT_URL`.
 
-- **Tests & smoke scripts**: Tests that exercise the RAG/demo endpoints use an in-memory Qdrant (or `QDRANT_URL=':memory:'`) and can be run with:
+- **Tests & smoke scripts**: I added tests and quick smoke scripts that exercise the RAG/demo endpoints using an in-memory Qdrant (or `QDRANT_URL=':memory:'`). Run them with:
 
   ```bash
-  # ensure qdrant-client installed in your venv
+  # ensure qdrant-client is installed in your venv
   pytest -q tests/test_rag_endpoint.py
   ```
 
-- **Cleanups**: The frontend had a duplicate `ApiService` and mismatched constructor usage; these were fixed. The backend adds `demo_populate` and `demo_search` demo endpoints and supports `DEMO_MODE` for easier demos.
+- **Cleanups**: I fixed a duplicate `ApiService` and constructor mismatch in the frontend, and added `demo_populate` / `demo_search` to the backend while adding `DEMO_MODE` for easier demos.
 
 ---
 
 ## New API Endpoints
 
 ### `/telemetry` (POST)
-Receive device telemetry from ESP32-CAM:
+Receive device telemetry from devices:
 ```json
 {
-  "device_id": "esp32cam_01",
+  "device_id": "device_01",
   "version": "v2.0-federated",
   "uptime_ms": 1234567,
   "total_captures": 42,
@@ -197,12 +182,7 @@ Initiate federated training round with adaptive client selection.
 }
 ```
 
-### Hardware (`backend/hardware/esp32cam_uploader/src/main.cpp`)
-```cpp
-#define MULTI_SHOT_COUNT      3        // Images per capture
-#define ADAPTIVE_INTERVAL     true     // Enable adaptive capture
-#define QUALITY_THRESHOLD     0.7      // Minimum quality score
-```
+
 
 ## Performance Improvements
 
@@ -233,9 +213,7 @@ cd backend
 pytest tests/test_federated_core.py
 pytest tests/test_multimodal_model.py
 
-# Hardware simulation
-cd backend/hardware/esp32cam_uploader
-python test_telemetry.py
+
 
 # End-to-end integration
 python scripts/test_e2e.py --use-dp --strategy importance
@@ -243,9 +221,9 @@ python scripts/test_e2e.py --use-dp --strategy importance
 
 ## Troubleshooting
 
-**ESP32 button GPIO 13 issue**: Currently disabled due to hardware conflict. Use auto-capture mode only.
 
-**Network subnets**: Ensure ESP32 and backend are on same network or configure routing.
+
+**Network subnets**: Ensure devices and backend are on same network or configure routing.
 
 **Model size**: Requires 8GB+ RAM for full model. Use `freeze_backbones=True` for lower memory.
 
@@ -258,7 +236,7 @@ python scripts/test_e2e.py --use-dp --strategy importance
 ## Documentation
 - [Research Paper Implementation](RESEARCH_PAPER_IMPLEMENTATION.md) - Complete technical documentation
 - [Federated Learning Guide](docs/FEDERATED_LEARNING.md) - Training and aggregation
-- [Hardware Setup](backend/hardware/README.md) - ESP32-CAM configuration
+
 - [API Reference](docs/API.md) - Backend endpoints
 
 ## License & Citation

@@ -204,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingCard(
             icon: Icons.developer_board,
             title: 'GPIO Pin Configuration',
-            subtitle: 'Configure ESP32 GPIO pins',
+            subtitle: 'Configure device GPIO pins',
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
             onTap: () => _showGpioPinDialog(),
           ),
@@ -212,12 +212,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingCard(
             icon: Icons.sensors,
             title: 'Device Status',
-            subtitle: 'View connected hardware status',
+            subtitle: 'View connected device status',
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white60),
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('ESP32 Connected | Relay: Active | Solenoid: Active'),
+                  content: Text('Device Connected | Relay: Active | Solenoid: Active'),
                   backgroundColor: Color(0xFF1D976C),
                 ),
               );
@@ -566,7 +566,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Changing pins requires reflashing ESP32 firmware',
+                      'Changing pins may require reflashing device firmware',
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ),
