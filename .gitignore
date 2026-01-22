@@ -17,8 +17,9 @@
 
 # Notebooks checkpoints and outputs
 **/.ipynb_checkpoints
-notebooks/*.ipynb
 *.ipynb
+# Allow notebooks in the notebooks/ directory to be versioned
+!notebooks/*.ipynb
 
 # OS and editor files
 .DS_Store
