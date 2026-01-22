@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:farmfederate_advisor/services/api_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String apiBase; // e.g. "http://10.0.2.2:8000"
@@ -123,10 +124,10 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      final api = ApiService(baseUrl: widget.apiBase);
+      final api = ApiService(widget.apiBase);
       final resp = await api.predict(
         text: text,
-        imageFile: _imageFile,
+        imagePath: _imageFile?.path,
         imageBytes: _imageBytes,
         imageName: _imageName,
         clientId: "flutter_client",
@@ -192,10 +193,12 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      final api = ApiService(baseUrl: widget.apiBase);
+      final api = ApiService(widget.apiBase);
       final resp = await api.ragDiagnose(
         description: description,
+        imagePath: _imageFile?.path,
         imageBytes: _imageBytes,
+        imageName: _imageName,
         clientId: "flutter_client",
       );
 
@@ -236,6 +239,54 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _loading = false;
       });
+    }
+  }
+
+  // ---------------- Demo helpers ----------------
+  Future<void> _demoPopulate() async {
+    setState(() {
+      _loading = true;
+      _setStatus("populating demo...");
+      _debug = {};
+      _advice = "";
+    });
+    try {
+      final api = ApiService(widget.apiBase);
+      final resp = await api.demoPopulate(n: 5);
+      setState(() {
+        _debug['demo_populate'] = resp;
+        _advice = "Populated collection: ${resp['collection']} with ${resp['ids']?.length ?? 0} items";
+        _setStatus('ok');
+      });
+    } catch (e) {
+      _setStatus('error');
+      setState(() { _advice = 'Populate failed: $e'; });
+    } finally {
+      setState(() { _loading = false; });
+    }
+  }
+
+  Future<void> _demoSearch() async {
+    setState(() {
+      _loading = true;
+      _setStatus("searching demo...");
+      _debug = {};
+      _advice = "";
+    });
+    try {
+      final api = ApiService(widget.apiBase);
+      final resp = await api.demoSearch(topK: 3, vectorType: 'visual');
+      setState(() {
+        _debug['demo_search'] = resp;
+        final hits = resp['hits'] as List<dynamic>? ?? [];
+        _advice = 'Found ${hits.length} hits (see Debug)';
+        _setStatus('ok');
+      });
+    } catch (e) {
+      _setStatus('error');
+      setState(() { _advice = 'Search failed: $e'; });
+    } finally {
+      setState(() { _loading = false; });
     }
   }
 
@@ -380,6 +431,18 @@ class _ChatScreenState extends State<ChatScreen> {
               label: Text(_loading ? "Running RAG..." : "RAG Diagnose"),
             ),
             const SizedBox(width: 12),
+            ElevatedButton.icon(
+              onPressed: _loading ? null : _demoPopulate,
+              icon: const Icon(Icons.cloud_upload),
+              label: Text(_loading ? "Populating..." : "Populate Demo"),
+            ),
+            const SizedBox(width: 12),
+            ElevatedButton.icon(
+              onPressed: _loading ? null : _demoSearch,
+              icon: const Icon(Icons.search),
+              label: Text(_loading ? "Searching..." : "Search Demo"),
+            ),
+            const SizedBox(width: 12),
             Text("Status: $_status"),
           ]),
 
@@ -433,113 +496,5 @@ class _ChatScreenState extends State<ChatScreen> {
         ]),
       ),
     );
-  }
-}
-
-/// ApiService: supports multipart upload from mobile (File) or web (bytes).
-class ApiService {
-  final String baseUrl;
-  ApiService({required this.baseUrl});
-
-  Future<Map<String, dynamic>?> predict({
-    required String text,
-    File? imageFile,
-    Uint8List? imageBytes,
-    String? imageName,
-    String clientId = "flutter_client",
-  }) async {
-    final uri = Uri.parse("$baseUrl/predict");
-    try {
-      final hasImage = (imageFile != null) || (imageBytes != null);
-      if (hasImage) {
-        final request = http.MultipartRequest('POST', uri);
-        request.fields['text'] = text;
-        request.fields['client_id'] = clientId;
-
-        if (imageFile != null) {
-          final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
-          request.files.add(multipartFile);
-        } else if (imageBytes != null) {
-          final name = imageName ?? "upload.png";
-          final multipart = http.MultipartFile.fromBytes('image', imageBytes, filename: name);
-          request.files.add(multipart);
-        }
-
-        final streamed = await request.send().timeout(const Duration(seconds: 40));
-        final resp = await http.Response.fromStream(streamed);
-        if (resp.statusCode >= 200 && resp.statusCode < 300) {
-          return jsonDecode(resp.body) as Map<String, dynamic>;
-        } else {
-          debugPrint("predict multipart failed ${resp.statusCode} ${resp.body}");
-          return null;
-        }
-      } else {
-        final resp = await http
-            .post(uri,
-                headers: {'Content-Type': 'application/json'},
-                body: jsonEncode({'text': text, 'client_id': clientId}))
-            .timeout(const Duration(seconds: 25));
-        if (resp.statusCode >= 200 && resp.statusCode < 300) {
-          return jsonDecode(resp.body) as Map<String, dynamic>;
-        } else {
-          debugPrint("predict json failed ${resp.statusCode} ${resp.body}");
-          return null;
-        }
-      }
-    } catch (e) {
-      debugPrint("ApiService.predict error: $e");
-      rethrow;
-    }
-  }
-
-  /// RAG diagnose
-  Future<Map<String, dynamic>?> ragDiagnose({
-    required String description,
-    File? imageFile,
-    Uint8List? imageBytes,
-    String? imageName,
-    String clientId = "flutter_client",
-  }) async {
-    final uri = Uri.parse("$baseUrl/rag");
-    try {
-      final hasImage = (imageFile != null) || (imageBytes != null);
-      if (hasImage) {
-        final request = http.MultipartRequest('POST', uri);
-        request.fields['description'] = description;
-        request.fields['client_id'] = clientId;
-
-        if (imageFile != null) {
-          final multipartFile = await http.MultipartFile.fromPath('image', imageFile.path);
-          request.files.add(multipartFile);
-        } else if (imageBytes != null) {
-          final name = imageName ?? "upload.png";
-          final multipart = http.MultipartFile.fromBytes('image', imageBytes, filename: name);
-          request.files.add(multipart);
-        }
-
-        final streamed = await request.send().timeout(const Duration(seconds: 40));
-        final resp = await http.Response.fromStream(streamed);
-        if (resp.statusCode >= 200 && resp.statusCode < 300) {
-          return jsonDecode(resp.body) as Map<String, dynamic>;
-        } else {
-          debugPrint("rag multipart failed ${resp.statusCode} ${resp.body}");
-          return null;
-        }
-      } else {
-        final resp = await http.post(uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'description': description, 'client_id': clientId}))
-            .timeout(const Duration(seconds: 25));
-        if (resp.statusCode >= 200 && resp.statusCode < 300) {
-          return jsonDecode(resp.body) as Map<String, dynamic>;
-        } else {
-          debugPrint("rag json failed ${resp.statusCode} ${resp.body}");
-          return null;
-        }
-      }
-    } catch (e) {
-      debugPrint("ApiService.ragDiagnose error: $e");
-      rethrow;
-    }
   }
 }
