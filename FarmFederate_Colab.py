@@ -2353,9 +2353,20 @@ def generate_all_plots(results: Dict, config: Config):
 # MAIN TRAINING PIPELINE
 # ============================================================================
 
-def run_training(config: Config):
-    """Run complete training pipeline with 5 models of each type."""
+def run_training(config: Config, allow_short: bool = False):
+    """Run complete training pipeline with 5 models of each type.
+
+    Parameters:
+    - config: Config object
+    - allow_short: if True, allows short runs (e.g., auto-smoke with <10 epochs). Otherwise,
+      enforces a minimum of 10 epochs for full training runs.
+    """
     check_imports()
+
+    # Ensure sensible defaults for full training (do not override auto-smoke short runs)
+    if not allow_short and config.epochs < 10:
+        print(f"[Info] Enforcing minimum epochs=10 for full training (was {config.epochs})")
+        config.epochs = 10
 
     torch.manual_seed(config.seed)
     np.random.seed(config.seed)
@@ -2692,7 +2703,7 @@ def main():
         config.epochs = 2
         config.fed_rounds = 1
         setup_environment()
-        run_training(config)
+        run_training(config, allow_short=True)
         return
 
     if config.epochs < 10:
