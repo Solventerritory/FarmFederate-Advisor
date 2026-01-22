@@ -125,6 +125,11 @@ class Config:
     kb_collection: str = 'crop_knowledge_base'
     mem_collection: str = 'farm_session_memory'
 
+    # Qdrant runtime options
+    use_qdrant: bool = False
+    qdrant_url: Optional[str] = None
+    qdrant_api_key: Optional[str] = None
+
     seed: int = 42
     learning_rate: float = 2e-5
     weight_decay: float = 0.01
@@ -298,7 +303,7 @@ def setup_environment():
     packages = [
         'torch', 'torchvision', 'transformers', 'datasets',
         'pillow', 'pandas', 'numpy', 'scikit-learn', 'tqdm',
-        'matplotlib', 'seaborn'
+        'matplotlib', 'seaborn', 'qdrant-client', 'sentence-transformers', 'faiss-cpu'
     ]
 
     import subprocess
@@ -2635,6 +2640,11 @@ def main():
     parser.add_argument('--smoke-samples', type=int, default=50, help='Samples per class for smoke run')
     parser.add_argument('--fed-rounds', type=int, default=3, help='Federated learning rounds')
     parser.add_argument('--num-clients', type=int, default=3, help='Number of federated clients')
+    # Colab-friendly / Cloud options
+    parser.add_argument('--use-qdrant', action='store_true', help='Enable Qdrant integration')
+    parser.add_argument('--qdrant-url', type=str, default=None, help='Qdrant Cloud URL (if using Qdrant)')
+    parser.add_argument('--qdrant-api-key', type=str, default=None, help='Qdrant API key (if using Qdrant)')
+    parser.add_argument('--checkpoint-dir', type=str, default=None, help='Path to save checkpoints (overrides default)')
 
     args, unknown = parser.parse_known_args()
     if len(unknown) > 0:
@@ -2654,6 +2664,27 @@ def main():
         epochs=args.epochs, batch_size=args.batch_size, max_samples_per_class=args.max_samples,
         fed_rounds=args.fed_rounds, num_clients=args.num_clients
     )
+
+    # Apply CLI overrides for checkpoint dir and Qdrant
+    if args.checkpoint_dir:
+        config.checkpoint_dir = Path(args.checkpoint_dir)
+    # Also allow CHECKPOINT_DIR env var as an alternative
+    if os.environ.get('CHECKPOINT_DIR'):
+        config.checkpoint_dir = Path(os.environ['CHECKPOINT_DIR'])
+
+    if args.use_qdrant:
+        config.use_qdrant = True
+        if args.qdrant_url:
+            config.qdrant_url = args.qdrant_url
+        if args.qdrant_api_key:
+            config.qdrant_api_key = args.qdrant_api_key
+    elif os.environ.get('QDRANT_URL'):
+        config.use_qdrant = True
+        config.qdrant_url = os.environ.get('QDRANT_URL')
+        config.qdrant_api_key = os.environ.get('QDRANT_API_KEY', None)
+
+    # Ensure checkpoint directory exists
+    config.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     if args.auto_smoke:
         print("[Info] Auto-smoke enabled: running a small quick verification run.")
