@@ -1,32 +1,5 @@
 # FarmFederate root .gitignore
 
-# Checkpoints and model weights
-/checkpoints/
-/checkpoints/*
-/checkpoints_multimodal/
-/checkpoints_paper/
-*.pt
-*.pth
-*.ckpt
-
-# Results, plots, and logs
-/results/
-/plots/
-*.log
-*.csv
-
-# Notebooks checkpoints and outputs
-**/.ipynb_checkpoints
-*.ipynb
-# Allow notebooks in the notebooks/ directory to be versioned
-!notebooks/*.ipynb
-
-# OS and editor files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
 # Temporary files
 /tmp/
 *.tmp
