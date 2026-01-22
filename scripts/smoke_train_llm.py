@@ -1,4 +1,19 @@
-from FarmFederate_Colab import check_imports, generate_synthetic_text_data, TextDataset, LightweightTextClassifier, train_model, Config
+import os
+import sys
+# Ensure repository root is on PYTHONPATH (helps when running from Colab where cwd may differ)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+# Chdir to repo root so relative paths work
+os.chdir(repo_root)
+
+try:
+    from FarmFederate_Colab import check_imports, generate_synthetic_text_data, TextDataset, LightweightTextClassifier, train_model, Config
+except Exception as e:
+    print('Failed to import FarmFederate_Colab from', repo_root)
+    print('sys.path:', sys.path[:3])
+    raise
+
 import torch
 from torch.utils.data import DataLoader
 
