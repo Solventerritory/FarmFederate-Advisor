@@ -43,7 +43,9 @@ def generate_high_contrast_data(labels, n_per_class=100, mode='train'):
             if mode == 'val':
                 im = im.filter(ImageFilter.GaussianBlur(1))
 
-            texts.append({'text': t, 'label': labels.index(label), 'modality': 'text'})
-            images.append({'image': im, 'label': labels.index(label), 'modality': 'image'})
+            # Use consistent column name `labels` (list of ints) to match the rest of the
+            # codebase which expects `labels` to be a list per-example (e.g. [2]).
+            texts.append({'text': t, 'labels': [labels.index(label)], 'label_name': label, 'modality': 'text'})
+            images.append({'image': im, 'labels': [labels.index(label)], 'label': labels.index(label), 'modality': 'image'})
 
     return pd.DataFrame(texts), pd.DataFrame(images)

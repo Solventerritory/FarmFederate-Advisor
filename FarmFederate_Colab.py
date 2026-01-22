@@ -1657,6 +1657,16 @@ def run_dataset_comparison(config: Config, device) -> Dict:
         print(f"\n>>> Training on {dataset_name} ({dataset_info['description']})...")
 
         text_df = dataset_info['text']
+        # Normalize label columns: some generators produce 'label' (int) while others
+        # produce 'labels' (list-of-int). Ensure we always have 'labels' as list-of-int.
+        if isinstance(text_df, pd.DataFrame):
+            if 'labels' not in text_df.columns and 'label' in text_df.columns:
+                text_df = text_df.copy()
+                text_df['labels'] = text_df['label'].apply(lambda x: [int(x)])
+            elif 'labels' in text_df.columns:
+                # ensure each entry is a list
+                text_df = text_df.copy()
+                text_df['labels'] = text_df['labels'].apply(lambda v: v if isinstance(v, list) else [int(v)])
         images = dataset_info['images']
         labels = dataset_info['labels']
 
@@ -2361,6 +2371,18 @@ def run_training(config: Config):
         from utils.data_generators import generate_high_contrast_data
         text_df, image_df = generate_high_contrast_data(STRESS_LABELS, n_per_class, 'train')
         val_text, val_image = generate_high_contrast_data(STRESS_LABELS, 50, 'val')
+        # Normalize labels to the `labels` column format (list of ints) expected by datasets
+        if isinstance(text_df, pd.DataFrame):
+            if 'labels' not in text_df.columns and 'label' in text_df.columns:
+                text_df = text_df.copy()
+                text_df['labels'] = text_df['label'].apply(lambda x: [int(x)])
+            elif 'labels' in text_df.columns:
+                text_df = text_df.copy()
+                text_df['labels'] = text_df['labels'].apply(lambda v: v if isinstance(v, list) else [int(v)])
+        if isinstance(image_df, pd.DataFrame):
+            if 'labels' not in image_df.columns and 'label' in image_df.columns:
+                image_df = image_df.copy()
+                image_df['labels'] = image_df['label'].apply(lambda x: [int(x)])
     except Exception as e:
         # Fallback to existing synthetic generators
         print(f"  [Fallback] High-contrast generator failed: {e}. Using synthetic generators.")
