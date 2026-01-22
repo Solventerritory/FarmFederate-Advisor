@@ -40,13 +40,14 @@ NUM_LABELS = len(ISSUE_LABELS)
 # This file expects multimodal_model.py to define MultimodalClassifier,
 # build_tokenizer() and (optionally) build_image_processor().
 try:
-    from multimodal_model import MultimodalClassifier, build_tokenizer, build_image_processor
+    # Use package-relative import so `python -m uvicorn backend.server` works
+    from .multimodal_model import MultimodalClassifier, build_tokenizer, build_image_processor
     print("[server] Imported MultimodalClassifier and tokenizer builders from multimodal_model.py")
 except Exception as e:
-    # try alternate names used earlier
+    # try alternate names used earlier (relative)
     try:
-        from multimodal_model import MultimodalModel as MultimodalClassifier
-        from multimodal_model import build_tokenizer, build_image_processor
+        from .multimodal_model import MultimodalModel as MultimodalClassifier
+        from .multimodal_model import build_tokenizer, build_image_processor
         print("[server] Imported MultimodalModel (alias) from multimodal_model.py")
     except Exception as ex:
         print("[server][ERROR] Could not import multimodal_model definitions.")
@@ -60,6 +61,9 @@ TEXT_MODEL_NAME = os.environ.get("TEXT_MODEL_NAME", "roberta-base")
 IMAGE_MODEL_NAME = os.environ.get("IMAGE_MODEL_NAME", "google/vit-base-patch16-224-in21k")
 MAX_LEN = int(os.environ.get("MAX_LEN", 160))
 IMG_SIZE = int(os.environ.get("IMG_SIZE", 224))
+# Demo mode: when set, server returns canned lightweight responses (no heavy models/Qdrant needed)
+DEMO_MODE = str(os.environ.get("DEMO_MODE", "")).lower() in ("1", "true", "yes")
+print(f"[server] DEMO_MODE={DEMO_MODE}")
 
 # simple image transforms compatible with ViT / most training pipelines
 IMAGE_TRANSFORM = T.Compose([
@@ -460,6 +464,9 @@ async def rag_endpoint(request: Request):
     RAG diagnose endpoint. Accepts multipart/form-data with optional 'image' file and 'description' form field, or JSON with 'description'.
     Returns retrieved records and a grounding prompt (LLM call not performed by default).
     """
+    if DEMO_MODE:
+        return JSONResponse({"result": {"retrieved": [], "prompt": "DEMO_MODE: no RAG available", "treatment": "DEMO: run /demo_populate then /demo_search to see Qdrant results"}}, status_code=200)
+
     if not HAVE_QDRANT or QDRANT_CLIENT is None:
         return JSONResponse({"error": "Qdrant not configured. Set QDRANT_URL and ensure qdrant-client is installed."}, status_code=400)
 
@@ -488,6 +495,81 @@ async def rag_endpoint(request: Request):
     except Exception as e:
         traceback.print_exc()
         return JSONResponse({"error": "rag failed", "detail": str(e)}, status_code=500)
+
+
+# ---------------- Demo Qdrant helpers ----------------
+@app.post("/demo_populate")
+async def demo_populate(n: int = 3, collection_name: str = None):
+    """
+    Populate Qdrant with `n` demo points (random vectors + payloads).
+    Returns the list of point ids created.
+    """
+    if DEMO_MODE:
+        return JSONResponse({"error": "DEMO_MODE is enabled; demo endpoints disabled."}, status_code=400)
+    if not HAVE_QDRANT or QDRANT_CLIENT is None:
+        return JSONResponse({"error": "Qdrant not configured."}, status_code=400)
+
+    coll = collection_name or 'crop_health_knowledge'
+    try:
+        # ensure collections exist
+        init_qdrant_collections(QDRANT_CLIENT)
+    except Exception:
+        pass
+
+    ids = []
+    import numpy as _np
+    for i in range(n):
+        pid = int(time.time() * 1000) + i
+        # random but normalized vectors
+        vis = _np.random.rand(512).astype(float)
+        vis = (vis / _np.linalg.norm(vis)).tolist()
+        sem = _np.random.rand(384).astype(float)
+        sem = (sem / _np.linalg.norm(sem)).tolist()
+        payload = {
+            'stress_type': f'demo_type_{i}',
+            'crop_name': 'demo_crop',
+            'severity': float(i),
+            'source': 'demo',
+            'filename': f'demo_{i}.jpg',
+            'agronomist_notes': 'demo entry',
+            'text_description': f'demo {i}',
+        }
+        from qdrant_client.http import models as rest
+        p = rest.PointStruct(id=pid, vector={'visual': vis, 'semantic': sem}, payload=payload)
+        QDRANT_CLIENT.upsert(collection_name=coll, points=[p])
+        ids.append(pid)
+
+    # store last demo query vector for /demo_search
+    app.state.demo_query_vector = vis
+    app.state.demo_collection = coll
+    return JSONResponse({"ids": ids, "collection": coll}, status_code=200)
+
+
+@app.post("/demo_search")
+async def demo_search(top_k: int = 3, vector_type: str = 'visual', collection_name: str = None):
+    """
+    Search Qdrant using the last demo vector (populated by /demo_populate) and return hits.
+    """
+    if DEMO_MODE:
+        return JSONResponse({"error": "DEMO_MODE is enabled; demo endpoints disabled."}, status_code=400)
+    if not HAVE_QDRANT or QDRANT_CLIENT is None:
+        return JSONResponse({"error": "Qdrant not configured."}, status_code=400)
+    coll = collection_name or getattr(app.state, 'demo_collection', 'crop_health_knowledge')
+    vec = getattr(app.state, 'demo_query_vector', None)
+    if vec is None:
+        return JSONResponse({"error": "No demo vector available. Run /demo_populate first."}, status_code=400)
+    try:
+        try:
+            res = QDRANT_CLIENT.query_points(collection_name=coll, query=vec, limit=top_k, using=vector_type, with_payload=True).points
+        except Exception:
+            res = QDRANT_CLIENT.search(collection_name=coll, query_vector=vec, limit=top_k, with_payload=True)
+        out = []
+        for hit in res:
+            out.append({'id': hit.id, 'score': getattr(hit, 'score', None), 'payload': hit.payload})
+        return JSONResponse({"hits": out}, status_code=200)
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ---------------- Control endpoint for IoT devices ----------------

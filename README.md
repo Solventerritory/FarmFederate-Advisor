@@ -103,6 +103,58 @@ FarmFederate uses **ESP32 sensors + AI vision** to detect crop stress before yie
    - Upload trained model to GitHub Releases
    - Update `manifest.json` with release asset URLs
 
+## Demo & Frontend Quick Run 💡
+
+This repository now includes a lightweight demo mode and frontend demo UI so you can show Qdrant-style retrieval without heavy dependencies or Docker. Summary of what was added and how to run it:
+
+- **DEMO_MODE**: Start the backend in demo mode (no external Qdrant required). On Windows PowerShell:
+
+  ```powershell
+  $env:DEMO_MODE='1'; $env:QDRANT_URL=':memory:'; python -m uvicorn backend.server:app --port 8000
+  ```
+
+  When `DEMO_MODE=1` the server exposes the demo endpoints:
+  - `POST /demo_populate?n={n}` — populate an in-memory demo collection
+  - `POST /demo_search?top_k={k}&vector_type={visual|text}` — run a demo search
+
+- **Frontend (Web)**: The Flutter UI now has **Populate Demo** and **Search Demo** buttons on the main screen (Chat / Diagnose). Run it on your machine and point at the backend:
+
+  ```bash
+  cd frontend
+  flutter pub get
+  flutter run -d chrome --flavor development
+  # or use web-server:
+  flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5000
+  ```
+
+  Use the UI: enter a short description (optional), click **Populate Demo** (adds demo vectors), then **Search Demo** to see retrieved hits in the Debug area.
+
+- **Full end-to-end (real Qdrant + real embeddings)**: For a production-like demo, run Qdrant via Docker, install the Python deps, then start the backend with `QDRANT_URL` pointing at your Qdrant instance, e.g.: 
+
+  ```bash
+  docker run -d -p 6333:6333 qdrant/qdrant:latest
+  # then in PowerShell / bash
+  $env:QDRANT_URL='http://localhost:6333'; python -m uvicorn backend.server:app --port 8000
+  ```
+
+  Make sure to install the Python packages required by the RAG stack:
+  ```bash
+  pip install qdrant-client sentence-transformers faiss-cpu
+  ```
+
+- **Colab one-cell runner**: `notebooks/Colab_Run_FarmFederate.ipynb` contains a single-cell helper that mounts Drive, obtains the repo (token/API zip fallbacks), installs dependencies, runs setup and a full/quick training flow, and copies artifacts to Drive. Useful env vars: `GIT_TOKEN`, `GIT_BRANCH`, `CHECKPOINT_DIR`, `QDRANT_URL`.
+
+- **Tests & smoke scripts**: Tests that exercise the RAG/demo endpoints use an in-memory Qdrant (or `QDRANT_URL=':memory:'`) and can be run with:
+
+  ```bash
+  # ensure qdrant-client installed in your venv
+  pytest -q tests/test_rag_endpoint.py
+  ```
+
+- **Cleanups**: The frontend had a duplicate `ApiService` and mismatched constructor usage; these were fixed. The backend adds `demo_populate` and `demo_search` demo endpoints and supports `DEMO_MODE` for easier demos.
+
+---
+
 ## New API Endpoints
 
 ### `/telemetry` (POST)

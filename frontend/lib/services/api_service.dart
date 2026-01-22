@@ -14,6 +14,8 @@ class ApiService {
     required String text,
     String? sensors,
     Uint8List? imageBytes,
+    String? imagePath, // local path on mobile (optional)
+    String? imageName,
     String clientId = "web_client",
   }) async {
     final uri = Uri.parse("$baseUrl/predict");
@@ -24,15 +26,17 @@ class ApiService {
       "client_id": clientId,
     };
 
-    // If image provided, send multipart; otherwise JSON
-    if (imageBytes != null) {
+    // If image provided (bytes or path), send multipart; otherwise JSON
+    if (imageBytes != null || (imagePath != null && imagePath.isNotEmpty)) {
       final request = http.MultipartRequest('POST', uri);
-      request.fields.addAll({
-        "text": text,
-        "sensors": sensors ?? "",
-        "client_id": clientId,
-      });
-      request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: 'upload.jpg'));
+      request.fields.addAll({"text": text, "sensors": sensors ?? "", "client_id": clientId});
+      if (imageBytes != null) {
+        request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: imageName ?? 'upload.jpg'));
+      } else {
+        // fromPath may throw if file not present on web; callers should only pass imagePath on non-web platforms
+        final multipart = await http.MultipartFile.fromPath('image', imagePath!);
+        request.files.add(multipart);
+      }
       final streamed = await request.send();
       final resp = await http.Response.fromStream(streamed);
       return json.decode(resp.body) as Map<String, dynamic>;
@@ -48,17 +52,21 @@ class ApiService {
   Future<Map<String, dynamic>> ragDiagnose({
     required String description,
     Uint8List? imageBytes,
+    String? imagePath, // local path on mobile (optional)
+    String? imageName,
     String clientId = "web_client",
   }) async {
     final uri = Uri.parse("$baseUrl/rag");
-    // If image provided (bytes), send multipart; otherwise JSON
-    if (imageBytes != null) {
+    // If image provided (bytes or path), send multipart; otherwise JSON
+    if (imageBytes != null || (imagePath != null && imagePath.isNotEmpty)) {
       final request = http.MultipartRequest('POST', uri);
-      request.fields.addAll({
-        "description": description,
-        "client_id": clientId,
-      });
-      request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: 'upload.jpg'));
+      request.fields.addAll({"description": description, "client_id": clientId});
+      if (imageBytes != null) {
+        request.files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: imageName ?? 'upload.jpg'));
+      } else {
+        final multipart = await http.MultipartFile.fromPath('image', imagePath!);
+        request.files.add(multipart);
+      }
       final streamed = await request.send();
       final resp = await http.Response.fromStream(streamed);
       return json.decode(resp.body) as Map<String, dynamic>;
@@ -69,4 +77,21 @@ class ApiService {
       return json.decode(resp.body) as Map<String, dynamic>;
     }
   }
+
+  /// Demo: populate Qdrant with demo points
+  Future<Map<String, dynamic>> demoPopulate({int n = 3, String? collection}) async {
+    final collParam = collection != null ? '&collection_name=$collection' : '';
+    final uri = Uri.parse("$baseUrl/demo_populate?n=$n$collParam");
+    final resp = await http.post(uri);
+    return json.decode(resp.body) as Map<String, dynamic>;
+  }
+
+  /// Demo: search Qdrant using the last demo vector
+  Future<Map<String, dynamic>> demoSearch({int topK = 3, String vectorType = 'visual', String? collection}) async {
+    final collParam = collection != null ? '&collection_name=$collection' : '';
+    final uri = Uri.parse("$baseUrl/demo_search?top_k=$topK&vector_type=$vectorType$collParam");
+    final resp = await http.post(uri);
+    return json.decode(resp.body) as Map<String, dynamic>;
+  }
 }
+
