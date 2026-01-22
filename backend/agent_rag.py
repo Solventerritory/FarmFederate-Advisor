@@ -80,7 +80,7 @@ def rag_diagnose(qdrant_client: QdrantClient, image_path: str, user_description:
     embedders = embedders or Embedders()
     visual_vec = embedders.image_to_visual(image_path)
 
-    search_res = qdrant_client.search(collection_name='crop_health_knowledge', query_vector=visual_vec, limit=top_k, vector_name='visual')
+    search_res = qdrant_client.query_points(collection_name='crop_health_knowledge', query=visual_vec, limit=top_k, using='visual').points
     retrieved = _format_retrieved(search_res)
 
     # Construct grounding block
@@ -126,12 +126,12 @@ def check_session_history(qdrant_client: QdrantClient, farm_id: str, plant_id: s
     # Use simple scroll + filter by payload
     from qdrant_client.http import models as rest_models
     flt = rest_models.Filter(must=[rest_models.FieldCondition(key='farm_id', match=rest_models.MatchValue(value=farm_id)), rest_models.FieldCondition(key='plant_id', match=rest_models.MatchValue(value=plant_id))])
-    hits = qdrant_client.search(collection_name='farm_session_memory', query_vector=None, limit=limit, filter=flt, vector_name='session')
+    hits = qdrant_client.scroll(collection_name='farm_session_memory', scroll_filter=flt, limit=limit)[0]
     out = []
     for r in hits:
         out.append({
             'id': r.id,
-            'score': r.score,
+            'score': 1.0,  # scroll doesn't return scores, use default
             'payload': r.payload,
         })
     # sort by timestamp desc

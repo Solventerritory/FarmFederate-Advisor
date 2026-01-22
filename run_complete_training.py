@@ -169,15 +169,88 @@ def generate_synthetic_text_data(n_samples=500):
 
 
 def generate_synthetic_image_data(n_samples=500, img_size=224):
-    """Generate synthetic image tensors for demo purposes."""
+    """Generate synthetic image tensors with class-specific visual patterns.
+
+    Creates images with distinguishable features per stress class so ViT models
+    can learn meaningful visual representations instead of random noise.
+    """
     images = []
     labels = []
+
+    # Class-specific color/pattern parameters (RGB base colors and patterns)
+    class_patterns = {
+        0: {'base': (0.2, 0.5, 0.2), 'pattern': 'wilting'},      # water_stress: green with drooping patterns
+        1: {'base': (0.6, 0.6, 0.2), 'pattern': 'yellowing'},    # nutrient_def: yellow-green chlorosis
+        2: {'base': (0.3, 0.4, 0.2), 'pattern': 'spots'},        # pest_risk: green with small holes/spots
+        3: {'base': (0.4, 0.3, 0.2), 'pattern': 'lesions'},      # disease_risk: brown lesions/patches
+        4: {'base': (0.5, 0.4, 0.3), 'pattern': 'scorching'},    # heat_stress: brown edges/scorching
+    }
+
     for _ in range(n_samples):
-        # Create random image tensor
-        img = torch.randn(3, img_size, img_size)
         label_idx = np.random.randint(0, NUM_LABELS)
+        pattern_info = class_patterns[label_idx]
+
+        # Create base image with class-specific color
+        base_r, base_g, base_b = pattern_info['base']
+        img = torch.zeros(3, img_size, img_size)
+        img[0] = base_r + torch.randn(img_size, img_size) * 0.1
+        img[1] = base_g + torch.randn(img_size, img_size) * 0.1
+        img[2] = base_b + torch.randn(img_size, img_size) * 0.1
+
+        # Add class-specific patterns
+        pattern = pattern_info['pattern']
+        if pattern == 'wilting':
+            # Add vertical drooping gradient
+            for i in range(img_size):
+                img[:, i, :] *= (1 - 0.3 * (i / img_size))
+        elif pattern == 'yellowing':
+            # Add yellow patches (increase R,G channels in random regions)
+            for _ in range(5):
+                cx, cy = np.random.randint(20, img_size-20, 2)
+                r = np.random.randint(15, 40)
+                y, x = np.ogrid[:img_size, :img_size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img[0, mask] += 0.2
+                img[1, mask] += 0.15
+        elif pattern == 'spots':
+            # Add small dark spots (pest damage)
+            for _ in range(np.random.randint(10, 30)):
+                cx, cy = np.random.randint(5, img_size-5, 2)
+                r = np.random.randint(2, 8)
+                y, x = np.ogrid[:img_size, :img_size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img[:, mask] *= 0.3
+        elif pattern == 'lesions':
+            # Add brown irregular patches (disease lesions)
+            for _ in range(np.random.randint(3, 8)):
+                cx, cy = np.random.randint(20, img_size-20, 2)
+                r = np.random.randint(10, 30)
+                y, x = np.ogrid[:img_size, :img_size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img[0, mask] = 0.4 + torch.randn_like(img[0, mask]) * 0.05
+                img[1, mask] = 0.25 + torch.randn_like(img[1, mask]) * 0.05
+                img[2, mask] = 0.1
+        elif pattern == 'scorching':
+            # Add brown edges (heat damage)
+            edge_width = np.random.randint(15, 40)
+            img[0, :edge_width, :] = 0.5 + torch.randn(edge_width, img_size) * 0.05
+            img[1, :edge_width, :] = 0.3 + torch.randn(edge_width, img_size) * 0.05
+            img[2, :edge_width, :] = 0.2
+            img[0, -edge_width:, :] = 0.5 + torch.randn(edge_width, img_size) * 0.05
+            img[1, -edge_width:, :] = 0.3 + torch.randn(edge_width, img_size) * 0.05
+            img[2, -edge_width:, :] = 0.2
+
+        # Clamp values to valid range
+        img = torch.clamp(img, 0, 1)
+
+        # Normalize to ImageNet stats (what ViT expects)
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+        img = (img - mean) / std
+
         images.append(img)
         labels.append([label_idx])
+
     return images, labels
 
 
@@ -472,7 +545,7 @@ class FarmMemoryAgent:
         try:
             self.client.recreate_collection(
                 collection_name=self.collection_name,
-                vectors={
+                vectors_config={
                     "visual": rest.VectorParams(size=512, distance=rest.Distance.COSINE),
                     "semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE),
                 },
@@ -507,7 +580,7 @@ class FarmMemoryAgent:
         if self.emb is None:
             raise RuntimeError("Embedders not available.")
         vis = self.emb.embed_image(image_pil)
-        return self.client.search(collection_name=self.collection_name, query_vector=("visual", vis), limit=top_k)
+        return self.client.query_points(collection_name=self.collection_name, query=vis, using="visual", limit=top_k).points
 
 
 # ============================================================================

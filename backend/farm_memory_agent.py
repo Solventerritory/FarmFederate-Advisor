@@ -165,28 +165,25 @@ class FarmMemoryAgent:
 
         f = rest.Filter(must=[rest.FieldCondition(key="farm_id", match=rest.MatchValue(value=farm_id))])
 
-        # qdrant-client uses `search_points` in some versions; fall back when necessary
-        # Try high-level search if available (some qdrant versions expose client.search)
+        # qdrant-client uses `query_points` in v1.7+; fall back when necessary
         try:
-            hits = self.client.search(
+            hits = self.client.query_points(
                 collection_name=self.COLLECTION,
-                query_vector=("visual", qv),
+                query=qv,
+                using="visual",
                 query_filter=f,
                 limit=top_k,
                 with_payload=True,
-                with_vectors=False,
-            )
-        except Exception:
-            # Fall back to the lower-level client implementation
+            ).points
+        except (AttributeError, TypeError):
+            # Fall back to scroll if query_points is not available
             try:
-                hits = self.client._client.search(
+                hits = self.client.scroll(
                     collection_name=self.COLLECTION,
-                    query_vector=("visual", qv),
-                    query_filter=f,
+                    scroll_filter=f,
                     limit=top_k,
                     with_payload=True,
-                    with_vectors=False,
-                )
+                )[0]
             except Exception as e:
                 raise
 

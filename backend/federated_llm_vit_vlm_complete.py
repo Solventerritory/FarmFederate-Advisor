@@ -368,11 +368,21 @@ class TextDataset(Dataset):
 
 class ImageDataset(Dataset):
     """Image-only dataset for ViT training"""
+
+    # Class-specific visual patterns for synthetic image generation
+    CLASS_PATTERNS = {
+        0: {'base': (51, 128, 51), 'pattern': 'wilting'},      # water_stress: green with drooping
+        1: {'base': (153, 153, 51), 'pattern': 'yellowing'},   # nutrient_def: yellow-green chlorosis
+        2: {'base': (77, 102, 51), 'pattern': 'spots'},        # pest_risk: green with holes
+        3: {'base': (102, 77, 51), 'pattern': 'lesions'},      # disease_risk: brown lesions
+        4: {'base': (128, 102, 77), 'pattern': 'scorching'},   # heat_stress: brown edges
+    }
+
     def __init__(self, df: pd.DataFrame, image_processor, image_size: int = 224):
         self.df = df.reset_index(drop=True)
         self.image_processor = image_processor
         self.image_size = image_size
-        
+
         # Augmentation transforms
         self.transform = T.Compose([
             T.Resize((image_size, image_size)),
@@ -382,43 +392,101 @@ class ImageDataset(Dataset):
             T.ToTensor(),
             T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
-        
-        # Create dummy image
-        self.dummy_image = Image.new("RGB", (image_size, image_size), color=(128, 128, 128))
-    
+
     def __len__(self):
         return len(self.df)
-    
-    def _load_image(self, image_path):
-        """Load and process image"""
+
+    def _generate_synthetic_image(self, label_idx: int) -> Image.Image:
+        """Generate a synthetic image with class-specific visual patterns."""
+        import numpy as np
+        size = self.image_size
+        pattern_info = self.CLASS_PATTERNS.get(label_idx, {'base': (100, 150, 100), 'pattern': 'default'})
+        base_r, base_g, base_b = pattern_info['base']
+
+        # Create base image with slight noise
+        img_array = np.zeros((size, size, 3), dtype=np.uint8)
+        img_array[:, :, 0] = np.clip(base_r + np.random.randint(-20, 20, (size, size)), 0, 255)
+        img_array[:, :, 1] = np.clip(base_g + np.random.randint(-20, 20, (size, size)), 0, 255)
+        img_array[:, :, 2] = np.clip(base_b + np.random.randint(-20, 20, (size, size)), 0, 255)
+
+        pattern = pattern_info['pattern']
+        if pattern == 'wilting':
+            # Vertical drooping gradient
+            for i in range(size):
+                factor = 1 - 0.4 * (i / size)
+                img_array[i, :, :] = (img_array[i, :, :] * factor).astype(np.uint8)
+        elif pattern == 'yellowing':
+            # Yellow patches
+            for _ in range(np.random.randint(3, 7)):
+                cx, cy = np.random.randint(20, size-20, 2)
+                r = np.random.randint(15, 35)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask, 0] = np.clip(img_array[mask, 0] + 50, 0, 255)
+                img_array[mask, 1] = np.clip(img_array[mask, 1] + 40, 0, 255)
+        elif pattern == 'spots':
+            # Small dark spots (pest damage)
+            for _ in range(np.random.randint(15, 35)):
+                cx, cy = np.random.randint(5, size-5, 2)
+                r = np.random.randint(2, 6)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask] = (img_array[mask] * 0.2).astype(np.uint8)
+        elif pattern == 'lesions':
+            # Brown irregular patches
+            for _ in range(np.random.randint(2, 6)):
+                cx, cy = np.random.randint(25, size-25, 2)
+                r = np.random.randint(15, 35)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask, 0] = np.clip(100 + np.random.randint(-10, 10), 0, 255)
+                img_array[mask, 1] = np.clip(65 + np.random.randint(-10, 10), 0, 255)
+                img_array[mask, 2] = np.clip(25 + np.random.randint(-10, 10), 0, 255)
+        elif pattern == 'scorching':
+            # Brown edges
+            edge = np.random.randint(15, 35)
+            img_array[:edge, :, 0] = 128
+            img_array[:edge, :, 1] = 77
+            img_array[:edge, :, 2] = 51
+            img_array[-edge:, :, 0] = 128
+            img_array[-edge:, :, 1] = 77
+            img_array[-edge:, :, 2] = 51
+
+        return Image.fromarray(img_array, mode='RGB')
+
+    def _load_image(self, image_path, label_idx: int = 0):
+        """Load image or generate synthetic if not available"""
         try:
             if isinstance(image_path, str) and os.path.exists(image_path):
                 img = Image.open(image_path).convert("RGB")
             elif hasattr(image_path, 'convert'):  # PIL Image
                 img = image_path.convert("RGB")
             else:
-                img = self.dummy_image
+                # Generate class-specific synthetic image instead of uniform gray
+                img = self._generate_synthetic_image(label_idx)
         except Exception:
-            img = self.dummy_image
-        
+            img = self._generate_synthetic_image(label_idx)
+
         return img
-    
+
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        
-        # Load image
-        image_path = row.get("image_path", None) or row.get("image", None)
-        img = self._load_image(image_path)
-        
-        # Process with image processor
-        pixel_values = self.image_processor(img, return_tensors="pt")["pixel_values"].squeeze(0)
-        
-        # Labels
+
+        # Get labels first (needed for synthetic image generation)
         labels = torch.zeros(NUM_LABELS, dtype=torch.float32)
-        for label_idx in row.get("labels", []):
+        label_indices = row.get("labels", [])
+        primary_label = label_indices[0] if label_indices else 0
+        for label_idx in label_indices:
             if 0 <= label_idx < NUM_LABELS:
                 labels[label_idx] = 1.0
-        
+
+        # Load image (pass label for synthetic generation if needed)
+        image_path = row.get("image_path", None) or row.get("image", None)
+        img = self._load_image(image_path, primary_label)
+
+        # Process with image processor
+        pixel_values = self.image_processor(img, return_tensors="pt")["pixel_values"].squeeze(0)
+
         return {
             "pixel_values": pixel_values,
             "labels": labels
@@ -427,36 +495,89 @@ class ImageDataset(Dataset):
 
 class MultiModalDataset(Dataset):
     """Multimodal dataset for VLM training"""
-    def __init__(self, df: pd.DataFrame, tokenizer, image_processor, 
+
+    # Reuse same class patterns as ImageDataset for consistency
+    CLASS_PATTERNS = ImageDataset.CLASS_PATTERNS
+
+    def __init__(self, df: pd.DataFrame, tokenizer, image_processor,
                  max_length: int = 256, image_size: int = 224):
         self.df = df.reset_index(drop=True)
         self.tokenizer = tokenizer
         self.image_processor = image_processor
         self.max_length = max_length
         self.image_size = image_size
-        
-        # Create dummy image
-        self.dummy_image = Image.new("RGB", (image_size, image_size), color=(128, 128, 128))
-    
+
     def __len__(self):
         return len(self.df)
-    
-    def _load_image(self, image_path):
-        """Load image"""
+
+    def _generate_synthetic_image(self, label_idx: int) -> Image.Image:
+        """Generate a synthetic image with class-specific visual patterns."""
+        import numpy as np
+        size = self.image_size
+        pattern_info = self.CLASS_PATTERNS.get(label_idx, {'base': (100, 150, 100), 'pattern': 'default'})
+        base_r, base_g, base_b = pattern_info['base']
+
+        img_array = np.zeros((size, size, 3), dtype=np.uint8)
+        img_array[:, :, 0] = np.clip(base_r + np.random.randint(-20, 20, (size, size)), 0, 255)
+        img_array[:, :, 1] = np.clip(base_g + np.random.randint(-20, 20, (size, size)), 0, 255)
+        img_array[:, :, 2] = np.clip(base_b + np.random.randint(-20, 20, (size, size)), 0, 255)
+
+        pattern = pattern_info['pattern']
+        if pattern == 'wilting':
+            for i in range(size):
+                factor = 1 - 0.4 * (i / size)
+                img_array[i, :, :] = (img_array[i, :, :] * factor).astype(np.uint8)
+        elif pattern == 'yellowing':
+            for _ in range(np.random.randint(3, 7)):
+                cx, cy = np.random.randint(20, size-20, 2)
+                r = np.random.randint(15, 35)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask, 0] = np.clip(img_array[mask, 0] + 50, 0, 255)
+                img_array[mask, 1] = np.clip(img_array[mask, 1] + 40, 0, 255)
+        elif pattern == 'spots':
+            for _ in range(np.random.randint(15, 35)):
+                cx, cy = np.random.randint(5, size-5, 2)
+                r = np.random.randint(2, 6)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask] = (img_array[mask] * 0.2).astype(np.uint8)
+        elif pattern == 'lesions':
+            for _ in range(np.random.randint(2, 6)):
+                cx, cy = np.random.randint(25, size-25, 2)
+                r = np.random.randint(15, 35)
+                y, x = np.ogrid[:size, :size]
+                mask = ((x - cx)**2 + (y - cy)**2) < r**2
+                img_array[mask, 0] = np.clip(100 + np.random.randint(-10, 10), 0, 255)
+                img_array[mask, 1] = np.clip(65 + np.random.randint(-10, 10), 0, 255)
+                img_array[mask, 2] = np.clip(25 + np.random.randint(-10, 10), 0, 255)
+        elif pattern == 'scorching':
+            edge = np.random.randint(15, 35)
+            img_array[:edge, :, 0] = 128
+            img_array[:edge, :, 1] = 77
+            img_array[:edge, :, 2] = 51
+            img_array[-edge:, :, 0] = 128
+            img_array[-edge:, :, 1] = 77
+            img_array[-edge:, :, 2] = 51
+
+        return Image.fromarray(img_array, mode='RGB')
+
+    def _load_image(self, image_path, label_idx: int = 0):
+        """Load image or generate synthetic if not available"""
         try:
             if isinstance(image_path, str) and os.path.exists(image_path):
                 img = Image.open(image_path).convert("RGB")
             elif hasattr(image_path, 'convert'):
                 img = image_path.convert("RGB")
             else:
-                img = self.dummy_image
+                img = self._generate_synthetic_image(label_idx)
         except Exception:
-            img = self.dummy_image
+            img = self._generate_synthetic_image(label_idx)
         return img
-    
+
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        
+
         # Text
         text = str(row.get("text", ""))
         text_encoding = self.tokenizer(
@@ -466,18 +587,20 @@ class MultiModalDataset(Dataset):
             truncation=True,
             return_tensors="pt"
         )
-        
-        # Image
-        image_path = row.get("image_path", None) or row.get("image", None)
-        img = self._load_image(image_path)
-        pixel_values = self.image_processor(img, return_tensors="pt")["pixel_values"].squeeze(0)
-        
-        # Labels
+
+        # Get labels first (needed for synthetic image generation)
         labels = torch.zeros(NUM_LABELS, dtype=torch.float32)
-        for label_idx in row.get("labels", []):
+        label_indices = row.get("labels", [])
+        primary_label = label_indices[0] if label_indices else 0
+        for label_idx in label_indices:
             if 0 <= label_idx < NUM_LABELS:
                 labels[label_idx] = 1.0
-        
+
+        # Image (pass label for synthetic generation if needed)
+        image_path = row.get("image_path", None) or row.get("image", None)
+        img = self._load_image(image_path, primary_label)
+        pixel_values = self.image_processor(img, return_tensors="pt")["pixel_values"].squeeze(0)
+
         return {
             "input_ids": text_encoding["input_ids"].squeeze(0),
             "attention_mask": text_encoding["attention_mask"].squeeze(0),

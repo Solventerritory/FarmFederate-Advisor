@@ -33,6 +33,6 @@ def test_qdrant_basic_upsert_search():
     vec = [0.0] * 512
     pt = rest.PointStruct(id=1, vector={'visual': vec, 'semantic': [0.0]*384}, payload={'test': 'ok'})
     client.upsert(collection_name='crop_health_knowledge', points=[pt])
-    res = client.search(collection_name='crop_health_knowledge', query_vector=('visual', vec), limit=1)
+    res = client.query_points(collection_name='crop_health_knowledge', query=vec, using='visual', limit=1).points
     assert isinstance(res, list)
     # Even if empty (older qdrant versions) the call should not raise
