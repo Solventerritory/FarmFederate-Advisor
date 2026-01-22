@@ -127,7 +127,7 @@ def ingest_dirs_to_qdrant(client: QdrantClient, dirs: List[str], max_files_per_d
     try:
         client.recreate_collection(
             collection_name='knowledge_base',
-            vectors={
+            vectors_config={
                 'visual': rest.VectorParams(size=512, distance=rest.Distance.COSINE),
                 'semantic': rest.VectorParams(size=384, distance=rest.Distance.COSINE),
             }
@@ -135,7 +135,7 @@ def ingest_dirs_to_qdrant(client: QdrantClient, dirs: List[str], max_files_per_d
     except Exception:
         # fallback
         try:
-            client.create_collection(collection_name='knowledge_base', vectors={'semantic': rest.VectorParams(size=384, distance=rest.Distance.COSINE)})
+            client.create_collection(collection_name='knowledge_base', vectors_config={'semantic': rest.VectorParams(size=384, distance=rest.Distance.COSINE)})
         except Exception:
             pass
 
@@ -310,7 +310,7 @@ def main():
             print('Running demo hybrid retrieval on:', sample_img)
             img = Image.open(sample_img).convert('RGB')
             vis = emb.embed_image(img)
-            res = client.search(collection_name='knowledge_base', query_vector=('visual', vis), limit=3)
+            res = client.query_points(collection_name='knowledge_base', query=vis, using='visual', limit=3).points
             for r in res:
                 print('ID:', r.id, 'score:', getattr(r, 'score', None), 'payload_preview:', {k: r.payload.get(k) for k in ('filename','stress_type','text','source')})
         else:

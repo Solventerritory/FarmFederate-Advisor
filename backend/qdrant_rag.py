@@ -73,17 +73,17 @@ def init_qdrant_collections(client: QdrantClient, recreate: bool = False) -> Non
     try:
         client.recreate_collection(
             collection_name=KNOWLEDGE_COLLECTION,
-            vectors=rest.VectorParams(
-                size=512,  # fallback; qdrant-client will accept also named vectors below
-                distance=rest.Distance.COSINE,
-            ),
+            vectors_config={
+                "visual": rest.VectorParams(size=512, distance=rest.Distance.COSINE),
+                "semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE),
+            },
         )
     except Exception:
-        # Some Qdrant versions support named vectors: try named vector creation
+        # Fallback for older qdrant-client versions
         try:
             client.create_collection(
                 collection_name=KNOWLEDGE_COLLECTION,
-                vectors={
+                vectors_config={
                     "visual": rest.VectorParams(size=512, distance=rest.Distance.COSINE),
                     "semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE),
                 },
@@ -114,7 +114,7 @@ def init_qdrant_collections(client: QdrantClient, recreate: bool = False) -> Non
     try:
         client.create_collection(
             collection_name=SESSION_COLLECTION,
-            vectors={"semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE)},
+            vectors_config={"semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE)},
         )
     except Exception:
         # already exists or other
@@ -299,17 +299,19 @@ def agentic_diagnose(
     img_v = emb.embed_image(image)
     # Visual search
     try:
-        search_res = client.search(
+        search_res = client.query_points(
             collection_name=KNOWLEDGE_COLLECTION,
-            query_vector=img_v,
+            query=img_v,
             limit=top_k,
-            vector_name='visual',
+            using='visual',
             with_payload=True,
-            with_vectors=False,
-        )
-    except TypeError:
-        # Older client may not support `vector_name` param; fallback to default search
-        search_res = client.search(collection_name=KNOWLEDGE_COLLECTION, query_vector=img_v, limit=top_k, with_payload=True)
+        ).points
+    except (TypeError, AttributeError):
+        # Older client may not support `query_points`; try legacy method
+        try:
+            search_res = client.search(collection_name=KNOWLEDGE_COLLECTION, query_vector=img_v, limit=top_k, with_payload=True)
+        except AttributeError:
+            search_res = []
 
     retrieved = []
     for hit in search_res:
@@ -382,9 +384,12 @@ def retrieve_session_history(client: QdrantClient, farm_id: str, plant_id: str, 
     query_text = f"farm:{farm_id} plant:{plant_id}"
     vec = emb.embed_text(query_text)
     try:
-        hits = client.search(collection_name=SESSION_COLLECTION, query_vector=vec, limit=top_k, vector_name='semantic', with_payload=True)
-    except TypeError:
-        hits = client.search(collection_name=SESSION_COLLECTION, query_vector=vec, limit=top_k, with_payload=True)
+        hits = client.query_points(collection_name=SESSION_COLLECTION, query=vec, limit=top_k, using='semantic', with_payload=True).points
+    except (TypeError, AttributeError):
+        try:
+            hits = client.search(collection_name=SESSION_COLLECTION, query_vector=vec, limit=top_k, with_payload=True)
+        except AttributeError:
+            hits = []
     out = []
     for h in hits:
         out.append({'id': h.id, 'score': getattr(h, 'score', None), 'payload': h.payload})

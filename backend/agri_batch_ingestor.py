@@ -72,16 +72,16 @@ class AgriBatchIngestor:
 
     def setup_collection(self, on_disk: bool = True):
         """Create/recreate the Qdrant collection with named vectors and HNSW disabled for ingestion."""
-        vectors = {
+        vectors_config = {
             "visual": rest.VectorParams(size=512, distance=rest.Distance.COSINE),
             "semantic": rest.VectorParams(size=384, distance=rest.Distance.COSINE),
         }
         try:
             # Best-effort recreate with named vectors
-            self.client.recreate_collection(collection_name=self.collection_name, vectors=vectors)
+            self.client.recreate_collection(collection_name=self.collection_name, vectors_config=vectors_config)
         except Exception:
             try:
-                self.client.create_collection(collection_name=self.collection_name, vectors=vectors)
+                self.client.create_collection(collection_name=self.collection_name, vectors_config=vectors_config)
             except Exception:
                 pass
 
