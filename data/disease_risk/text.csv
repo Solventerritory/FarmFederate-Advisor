@@ -1,0 +1,41 @@
+text,labels,label_name
+Advisory: wheat exhibiting severe mold patches. Action: spray pesticide.,[3],disease_risk
+"Field report: lesions in cassava, likely due to fungal disease.",[3],disease_risk
+tomato shows lesions with severe severity.,[3],disease_risk
+Advisory: cassava exhibiting moderate spots. Action: apply fungicide.,[3],disease_risk
+"Field report: spots in grape, likely due to nutrient imbalance.",[3],disease_risk
+potato shows mold patches with moderate severity.,[3],disease_risk
+"Field report: mold patches in potato, likely due to nutrient imbalance.",[3],disease_risk
+"Field report: mold patches in cassava, likely due to drought.",[3],disease_risk
+Sensor: nutrient low. Observed spots on cotton leaves.,[3],disease_risk
+wheat shows lesions with moderate severity.,[3],disease_risk
+"Field report: mold patches in potato, likely due to insect infestation.",[3],disease_risk
+tomato shows mold patches with mild severity.,[3],disease_risk
+wheat shows mold patches with severe severity.,[3],disease_risk
+"Field report: lesions in potato, likely due to insect infestation.",[3],disease_risk
+grape shows mold patches with severe severity.,[3],disease_risk
+Advisory: potato exhibiting mild mold patches. Action: increase irrigation.,[3],disease_risk
+Advisory: potato exhibiting moderate spots. Action: apply fertilizer.,[3],disease_risk
+Advisory: soybean exhibiting mild spots. Action: spray pesticide.,[3],disease_risk
+apple shows mold patches with mild severity.,[3],disease_risk
+cotton shows spots with severe severity.,[3],disease_risk
+Advisory: tomato exhibiting moderate mold patches. Action: spray pesticide.,[3],disease_risk
+Sensor: high humidity. Observed mold patches on maize leaves.,[3],disease_risk
+"Field report: lesions in wheat, likely due to heat wave.",[3],disease_risk
+Sensor: high temperature. Observed spots on cotton leaves.,[3],disease_risk
+Advisory: cotton exhibiting moderate mold patches. Action: apply fertilizer.,[3],disease_risk
+cassava shows mold patches with severe severity.,[3],disease_risk
+"Field report: spots in soybean, likely due to insect infestation.",[3],disease_risk
+wheat shows spots with severe severity.,[3],disease_risk
+grape shows lesions with moderate severity.,[3],disease_risk
+"Field report: spots in cotton, likely due to drought.",[3],disease_risk
+soybean shows spots with moderate severity.,[3],disease_risk
+"Field report: spots in cotton, likely due to fungal disease.",[3],disease_risk
+soybean shows spots with mild severity.,[3],disease_risk
+wheat shows lesions with severe severity.,[3],disease_risk
+Advisory: tomato exhibiting severe mold patches. Action: apply fungicide.,[3],disease_risk
+Sensor: low moisture. Observed mold patches on tomato leaves.,[3],disease_risk
+grape shows mold patches with moderate severity.,[3],disease_risk
+maize shows lesions with mild severity.,[3],disease_risk
+"Field report: spots in wheat, likely due to drought.",[3],disease_risk
+Advisory: maize exhibiting severe mold patches. Action: apply fertilizer.,[3],disease_risk

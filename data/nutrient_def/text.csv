@@ -1,0 +1,41 @@
+text,labels,label_name
+"Field report: stunted growth in rice, likely due to insect infestation.",[1],nutrient_def
+Sensor: high temperature. Observed chlorosis on potato leaves.,[1],nutrient_def
+cassava shows stunted growth with mild severity.,[1],nutrient_def
+"Field report: yellowing in cotton, likely due to heat wave.",[1],nutrient_def
+Advisory: cotton exhibiting mild yellowing. Action: spray pesticide.,[1],nutrient_def
+"Field report: chlorosis in tomato, likely due to insect infestation.",[1],nutrient_def
+Sensor: nutrient low. Observed stunted growth on tomato leaves.,[1],nutrient_def
+"Field report: chlorosis in cotton, likely due to nutrient imbalance.",[1],nutrient_def
+"Field report: chlorosis in cassava, likely due to drought.",[1],nutrient_def
+Advisory: tomato exhibiting mild chlorosis. Action: apply fertilizer.,[1],nutrient_def
+Advisory: wheat exhibiting mild yellowing. Action: spray pesticide.,[1],nutrient_def
+Advisory: rice exhibiting moderate chlorosis. Action: spray pesticide.,[1],nutrient_def
+Sensor: high temperature. Observed yellowing on wheat leaves.,[1],nutrient_def
+Sensor: nutrient low. Observed chlorosis on potato leaves.,[1],nutrient_def
+Advisory: grape exhibiting severe stunted growth. Action: apply fertilizer.,[1],nutrient_def
+Advisory: cotton exhibiting moderate chlorosis. Action: apply fungicide.,[1],nutrient_def
+Sensor: low moisture. Observed stunted growth on cassava leaves.,[1],nutrient_def
+"Field report: yellowing in wheat, likely due to drought.",[1],nutrient_def
+potato shows chlorosis with moderate severity.,[1],nutrient_def
+cassava shows stunted growth with severe severity.,[1],nutrient_def
+cotton shows stunted growth with mild severity.,[1],nutrient_def
+Advisory: cassava exhibiting moderate yellowing. Action: spray pesticide.,[1],nutrient_def
+tomato shows yellowing with mild severity.,[1],nutrient_def
+Advisory: cotton exhibiting severe chlorosis. Action: apply fertilizer.,[1],nutrient_def
+Sensor: nutrient low. Observed chlorosis on apple leaves.,[1],nutrient_def
+Advisory: soybean exhibiting mild yellowing. Action: apply fertilizer.,[1],nutrient_def
+Sensor: low moisture. Observed stunted growth on potato leaves.,[1],nutrient_def
+Advisory: cotton exhibiting severe chlorosis. Action: increase irrigation.,[1],nutrient_def
+"Field report: chlorosis in grape, likely due to fungal disease.",[1],nutrient_def
+"Field report: yellowing in apple, likely due to heat wave.",[1],nutrient_def
+Advisory: grape exhibiting moderate yellowing. Action: increase irrigation.,[1],nutrient_def
+Sensor: low moisture. Observed yellowing on wheat leaves.,[1],nutrient_def
+Advisory: grape exhibiting severe chlorosis. Action: spray pesticide.,[1],nutrient_def
+grape shows chlorosis with mild severity.,[1],nutrient_def
+soybean shows chlorosis with moderate severity.,[1],nutrient_def
+Advisory: cassava exhibiting moderate yellowing. Action: apply fungicide.,[1],nutrient_def
+Advisory: cotton exhibiting moderate stunted growth. Action: apply fungicide.,[1],nutrient_def
+Sensor: high humidity. Observed chlorosis on maize leaves.,[1],nutrient_def
+Sensor: high humidity. Observed yellowing on potato leaves.,[1],nutrient_def
+Sensor: nutrient low. Observed yellowing on grape leaves.,[1],nutrient_def

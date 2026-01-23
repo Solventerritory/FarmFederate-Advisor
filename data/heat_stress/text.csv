@@ -1,0 +1,41 @@
+text,labels,label_name
+Advisory: wheat exhibiting mild browning. Action: increase irrigation.,[4],heat_stress
+"Field report: browning in maize, likely due to drought.",[4],heat_stress
+"Field report: leaf burn in cassava, likely due to drought.",[4],heat_stress
+Sensor: high humidity. Observed leaf burn on potato leaves.,[4],heat_stress
+soybean shows browning with severe severity.,[4],heat_stress
+Sensor: nutrient low. Observed browning on soybean leaves.,[4],heat_stress
+Advisory: soybean exhibiting mild scorching. Action: apply fertilizer.,[4],heat_stress
+Sensor: high humidity. Observed browning on rice leaves.,[4],heat_stress
+Advisory: tomato exhibiting mild leaf burn. Action: apply fertilizer.,[4],heat_stress
+Advisory: cotton exhibiting mild scorching. Action: provide shade.,[4],heat_stress
+Sensor: nutrient low. Observed scorching on potato leaves.,[4],heat_stress
+"Field report: scorching in tomato, likely due to heat wave.",[4],heat_stress
+"Field report: scorching in tomato, likely due to fungal disease.",[4],heat_stress
+"Field report: browning in rice, likely due to drought.",[4],heat_stress
+Advisory: tomato exhibiting severe browning. Action: increase irrigation.,[4],heat_stress
+Advisory: rice exhibiting moderate scorching. Action: spray pesticide.,[4],heat_stress
+Sensor: low moisture. Observed leaf burn on wheat leaves.,[4],heat_stress
+grape shows leaf burn with mild severity.,[4],heat_stress
+"Field report: browning in soybean, likely due to drought.",[4],heat_stress
+"Field report: scorching in wheat, likely due to insect infestation.",[4],heat_stress
+Sensor: nutrient low. Observed browning on maize leaves.,[4],heat_stress
+cotton shows scorching with mild severity.,[4],heat_stress
+Advisory: apple exhibiting moderate browning. Action: increase irrigation.,[4],heat_stress
+Sensor: high temperature. Observed scorching on grape leaves.,[4],heat_stress
+"Field report: scorching in apple, likely due to heat wave.",[4],heat_stress
+soybean shows scorching with severe severity.,[4],heat_stress
+Sensor: high temperature. Observed scorching on cotton leaves.,[4],heat_stress
+Advisory: maize exhibiting mild leaf burn. Action: provide shade.,[4],heat_stress
+potato shows scorching with severe severity.,[4],heat_stress
+Advisory: grape exhibiting mild browning. Action: apply fertilizer.,[4],heat_stress
+Sensor: nutrient low. Observed leaf burn on grape leaves.,[4],heat_stress
+Advisory: wheat exhibiting moderate browning. Action: increase irrigation.,[4],heat_stress
+Advisory: potato exhibiting moderate scorching. Action: apply fungicide.,[4],heat_stress
+Sensor: low moisture. Observed leaf burn on rice leaves.,[4],heat_stress
+Advisory: soybean exhibiting severe browning. Action: apply fertilizer.,[4],heat_stress
+potato shows scorching with mild severity.,[4],heat_stress
+Sensor: high temperature. Observed leaf burn on grape leaves.,[4],heat_stress
+Advisory: cotton exhibiting moderate scorching. Action: increase irrigation.,[4],heat_stress
+"Field report: leaf burn in cotton, likely due to nutrient imbalance.",[4],heat_stress
+Sensor: nutrient low. Observed scorching on grape leaves.,[4],heat_stress

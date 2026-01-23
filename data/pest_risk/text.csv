@@ -1,0 +1,41 @@
+text,labels,label_name
+Sensor: high temperature. Observed hole damage on apple leaves.,[2],pest_risk
+Sensor: high temperature. Observed webbing on tomato leaves.,[2],pest_risk
+Advisory: wheat exhibiting severe insect presence. Action: provide shade.,[2],pest_risk
+Sensor: low moisture. Observed webbing on potato leaves.,[2],pest_risk
+cassava shows insect presence with severe severity.,[2],pest_risk
+cotton shows webbing with severe severity.,[2],pest_risk
+rice shows webbing with moderate severity.,[2],pest_risk
+"Field report: webbing in maize, likely due to fungal disease.",[2],pest_risk
+Advisory: cassava exhibiting mild insect presence. Action: apply fertilizer.,[2],pest_risk
+Sensor: nutrient low. Observed hole damage on grape leaves.,[2],pest_risk
+Sensor: low moisture. Observed hole damage on soybean leaves.,[2],pest_risk
+tomato shows hole damage with moderate severity.,[2],pest_risk
+cassava shows insect presence with mild severity.,[2],pest_risk
+"Field report: hole damage in soybean, likely due to insect infestation.",[2],pest_risk
+Sensor: nutrient low. Observed insect presence on grape leaves.,[2],pest_risk
+apple shows webbing with mild severity.,[2],pest_risk
+Advisory: soybean exhibiting severe hole damage. Action: provide shade.,[2],pest_risk
+Advisory: apple exhibiting moderate webbing. Action: apply fungicide.,[2],pest_risk
+"Field report: hole damage in apple, likely due to nutrient imbalance.",[2],pest_risk
+Advisory: wheat exhibiting severe hole damage. Action: apply fertilizer.,[2],pest_risk
+Sensor: nutrient low. Observed insect presence on potato leaves.,[2],pest_risk
+Advisory: wheat exhibiting mild insect presence. Action: apply fungicide.,[2],pest_risk
+soybean shows insect presence with mild severity.,[2],pest_risk
+Sensor: nutrient low. Observed hole damage on potato leaves.,[2],pest_risk
+Advisory: cassava exhibiting mild hole damage. Action: apply fungicide.,[2],pest_risk
+tomato shows insect presence with severe severity.,[2],pest_risk
+rice shows hole damage with mild severity.,[2],pest_risk
+"Field report: hole damage in rice, likely due to fungal disease.",[2],pest_risk
+Sensor: high humidity. Observed webbing on wheat leaves.,[2],pest_risk
+"Field report: hole damage in grape, likely due to heat wave.",[2],pest_risk
+"Field report: webbing in cotton, likely due to fungal disease.",[2],pest_risk
+Advisory: soybean exhibiting moderate webbing. Action: spray pesticide.,[2],pest_risk
+Sensor: nutrient low. Observed hole damage on soybean leaves.,[2],pest_risk
+"Field report: insect presence in apple, likely due to nutrient imbalance.",[2],pest_risk
+cassava shows webbing with mild severity.,[2],pest_risk
+cotton shows hole damage with mild severity.,[2],pest_risk
+"Field report: webbing in soybean, likely due to heat wave.",[2],pest_risk
+tomato shows webbing with severe severity.,[2],pest_risk
+Sensor: high humidity. Observed webbing on tomato leaves.,[2],pest_risk
+"Field report: insect presence in apple, likely due to insect infestation.",[2],pest_risk

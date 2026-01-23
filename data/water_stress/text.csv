@@ -1,0 +1,41 @@
+text,labels,label_name
+"Field report: dry soil in potato, likely due to insect infestation.",[0],water_stress
+Advisory: cassava exhibiting moderate leaf rolling. Action: provide shade.,[0],water_stress
+tomato shows dry soil with moderate severity.,[0],water_stress
+"Field report: wilting in cotton, likely due to nutrient imbalance.",[0],water_stress
+"Field report: dry soil in maize, likely due to drought.",[0],water_stress
+soybean shows dry soil with severe severity.,[0],water_stress
+Sensor: low moisture. Observed wilting on soybean leaves.,[0],water_stress
+"Field report: wilting in wheat, likely due to drought.",[0],water_stress
+Sensor: high temperature. Observed wilting on rice leaves.,[0],water_stress
+Advisory: soybean exhibiting severe leaf rolling. Action: apply fertilizer.,[0],water_stress
+Advisory: wheat exhibiting moderate leaf rolling. Action: apply fertilizer.,[0],water_stress
+Advisory: soybean exhibiting moderate leaf rolling. Action: increase irrigation.,[0],water_stress
+tomato shows leaf rolling with severe severity.,[0],water_stress
+"Field report: wilting in soybean, likely due to insect infestation.",[0],water_stress
+Sensor: high temperature. Observed leaf rolling on soybean leaves.,[0],water_stress
+Sensor: low moisture. Observed leaf rolling on cassava leaves.,[0],water_stress
+cotton shows dry soil with moderate severity.,[0],water_stress
+"Field report: wilting in tomato, likely due to insect infestation.",[0],water_stress
+"Field report: wilting in cassava, likely due to fungal disease.",[0],water_stress
+"Field report: dry soil in rice, likely due to heat wave.",[0],water_stress
+"Field report: dry soil in apple, likely due to fungal disease.",[0],water_stress
+"Field report: wilting in cassava, likely due to nutrient imbalance.",[0],water_stress
+"Field report: dry soil in cotton, likely due to nutrient imbalance.",[0],water_stress
+Advisory: potato exhibiting severe dry soil. Action: provide shade.,[0],water_stress
+potato shows dry soil with severe severity.,[0],water_stress
+potato shows leaf rolling with severe severity.,[0],water_stress
+"Field report: dry soil in potato, likely due to drought.",[0],water_stress
+tomato shows dry soil with moderate severity.,[0],water_stress
+Advisory: maize exhibiting mild leaf rolling. Action: apply fungicide.,[0],water_stress
+Advisory: maize exhibiting severe wilting. Action: apply fungicide.,[0],water_stress
+Advisory: cotton exhibiting moderate leaf rolling. Action: increase irrigation.,[0],water_stress
+Advisory: tomato exhibiting mild dry soil. Action: provide shade.,[0],water_stress
+grape shows wilting with mild severity.,[0],water_stress
+Advisory: tomato exhibiting mild dry soil. Action: provide shade.,[0],water_stress
+"Field report: wilting in rice, likely due to insect infestation.",[0],water_stress
+tomato shows wilting with severe severity.,[0],water_stress
+"Field report: leaf rolling in apple, likely due to heat wave.",[0],water_stress
+Advisory: maize exhibiting severe leaf rolling. Action: apply fungicide.,[0],water_stress
+Sensor: low moisture. Observed leaf rolling on cassava leaves.,[0],water_stress
+soybean shows wilting with severe severity.,[0],water_stress
