@@ -1,47 +1,72 @@
-# FarmFederate Training Results
+# FarmFederate / LEAF
 
-## Package Contents
+Tea pest and disease classification using paired leaf images and field notes,
+with centralized comparisons, simulated federated learning, and advisory retrieval.
 
-This package contains all artifacts from FarmFederate training:
+## Active code
 
-### 📁 models/ (24 files)
-- All trained model checkpoints (.pt files)
-- Includes: LLM, ViT, VLM, Centralized, and Federated models
-- Load with: `torch.load('models/model_name.pt')`
+| Location | Purpose |
+| --- | --- |
+| `tea_train.py` | Crop/note datasets, source-grouped splits, text leakage masking, and the ResNet/Transformer multimodal model |
+| `experiments/tea_clubbed_tables.py` | Text, image, and ViT/BERT fusion comparisons with centralized and federated heads |
+| `experiments/tea_federated_adaptation.py` | Adapt the selected multimodal checkpoint across simulated clients |
+| `experiments/tea_federated_all_systems.py` | Federated frozen-encoder probes and local-only controls |
+| `experiments/tea_federated_robustness.py` | Label skew, dropout, stale updates, and poisoning experiments |
+| `experiments/tea_architecture_ablation.py` | Component ablations |
+| `experiments/advisory_retrieval_eval.py` | Offline advisory retrieval evaluation |
+| `experiments/make_compact_figures.py` | Generate paper figures from saved experiment results |
+| `backend/` | API, RAG modules, and standalone Colab/Kaggle training workflows |
+| `frontend/` | Flutter application |
+| `tests/` | Existing model, dataset, runtime, and RAG tests |
 
-### 📁 plots/ (53 files)
-- Training visualizations and comparisons
-- Dataset comparison plots (benchmark model on different datasets)
-- Intra-model comparison plots (hyperparameter tuning)
-- Inter-model comparison plots (LLM vs ViT vs VLM)
-- Research paper comparisons (45+ SOTA papers)
-- High-resolution PNG files (300 DPI)
+The frozen ViT/BERT comparisons concatenate encoder features and train a separate
+head. They are distinct from the ResNet/Transformer cross-attention model in
+`tea_train.py`. Consult each experiment's arguments and implementation before
+comparing runs; the heads and evaluation protocols differ.
 
-### 📁 results/ (2 files)
-- complete_results.json - Full training metrics
-- dataset_comparison_results.json - Dataset benchmark results
-- CSV files for detailed metrics
+## Data and results
 
-## Quick Start
+- `Real Dataset/`: source photographs and YOLO oriented bounding-box annotations.
+- `data_final/`: canonical sorted-image/text bundle and `label_schema.json`.
+- `tea_results/annotation/annotations.csv`: crop-linked notes used by the audited
+  tea experiments.
+- `tea_results/`: saved results and run metadata. Keep these for reproducibility.
+- `experiments/farm_results_*.json`: recorded architecture and aggregation sweeps.
 
-1. Extract the zip file
-2. Load a model:
-```python
-import torch
-checkpoint = torch.load('models/vlm_attention_best.pt')
-model_state = checkpoint['model_state_dict']
-f1_score = checkpoint['f1_score']
+The five labels are `LEAF_BLIGHT`, `LEAF_HOPPERS`, `LEAF_RUST`,
+`LOOPER_CATERPILLARS`, and `MOSQUITO_BUG`.
+
+The former nested `data_final/data_final/` bundle was an exact duplicate and has
+been consolidated into `data_final/`. The augmented, studio, and other dataset
+collections remain separate because they serve different experiments.
+
+## Current paper
+
+The primary manuscript is [overleaf_final/main.tex](overleaf_final/main.tex), with
+its compiled [PDF](overleaf_final/main.pdf). The alternate standalone package is
+`overleaf_final_slim/`. Both packages include their own required figure photos
+under `plots/photos/`.
+
+Build with a TeX installation providing pdfLaTeX, IEEEtran, TikZ, and FontAwesome 5:
+
+```sh
+cd overleaf_final
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
+pdflatex -interaction=nonstopmode -halt-on-error main.tex
 ```
 
-3. View plots in the plots/ directory
-4. Check results JSON files for detailed metrics
+Use the same commands in `overleaf_final_slim/` for that version. The bibliography
+is embedded in the manuscript. LaTeX intermediates are ignored by Git.
 
-## Models Trained
-- 5 LLM models (DistilBERT, BERT-tiny, RoBERTa-tiny, ALBERT-tiny, MobileBERT)
-- 5 ViT models (ViT-Base, DeiT-tiny, Swin-tiny, ConvNeXT-tiny, EfficientNet)
-- 8 VLM fusion architectures (concat, attention, gated, CLIP, Flamingo, BLIP2, CoCa, Unified-IO)
-- Centralized and Federated variants
+## Other maintained entry points
 
-Generated: 2026-02-26 06:01:45
-Total Files: 79
-Package Size: 1047.5 MB
+- `Dockerfile` and `render.yaml` use `backend/demo_server.py`.
+- `Dockerfile.local` and `docker-compose.yml` describe the local service setup.
+- `notebooks/` and the standalone scripts in `backend/` support notebook workflows.
+- `paper/`, the root reports/presentations, and `FarmFederate_Globecom/` are
+  historical or separate deliverables, not the current LEAF manuscript.
+- `FarmFederate_App_Copyright_Ready/` is a distinct application submission bundle;
+  it differs from `frontend/` and is retained intentionally.
+
+See [the cleanup record](docs/CODEBASE_CLEANUP.md) for removals and recovery details.

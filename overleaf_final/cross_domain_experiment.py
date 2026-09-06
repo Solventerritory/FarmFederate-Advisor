@@ -34,7 +34,7 @@ scored exactly 0.000 on it. See the accompanying analysis.
 Usage
 -----
     python cross_domain_experiment.py \
-        --field-root  data_final/data_final/real_dataset_sorted \
+        --field-root  data_final/real_dataset_sorted \
         --studio-root teasickness_studio/studio_sorted \
         --backbone    microsoft/swin-tiny-patch4-window7-224
 """
@@ -316,7 +316,7 @@ def train(ff, model, train_loader, val_loader, device, epochs, lr, head_lr, tag)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--field-root', default='data_final/data_final/real_dataset_sorted')
+    parser.add_argument('--field-root', default='data_final/real_dataset_sorted')
     parser.add_argument('--studio-root', default='teasickness_studio/studio_sorted')
     parser.add_argument('--pipeline', default='farmfederate.py')
     parser.add_argument('--backbone', default='microsoft/swin-tiny-patch4-window7-224')

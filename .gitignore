@@ -68,3 +68,16 @@ Tea Literature/
 # Overleaf build scratch and stale compiled output (removed 2026-09-06)
 overleaf_final/tmp/
 overleaf_final/output/
+
+# Disposable test/tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# PDF inspection scratch (the PDF and LaTeX sources remain versioned)
+/output/pdf/render/
+/output/pdf/final_text.txt
+/overleaf_final/main_extracted*.txt
+/overleaf_final/page[0-9]*.txt

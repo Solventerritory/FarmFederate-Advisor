@@ -1144,10 +1144,11 @@ fusion holds 0.787 and the image branch is unmoved by construction. Federation p
 the ordering rather than creating it, and its cost falls as the note thins ---
 0.800 to 0.667 at complete notes, 0.787 to 0.716 at 75\% deletion.
 
-Every ViT-Base pairing stays above the best text-only system at every sparsity,
-but which partner is best does not: BERT-small leads at complete notes,
-BERT-mini at 75\%, and the spread across the five widens from 0.053 to 0.187.
-The evidence supports fusion over its parents, not a choice of text encoder.
+Every ViT-Base pairing outperforms the best text-only system at every sparsity level,
+but the best text partner changes: BERT-small leads with complete notes,
+while BERT-mini leads at 75\% sparsity. The performance spread across the five
+pairings widens from 0.053 to 0.187. These results support fusion over its
+unimodal parents, but do not identify a consistently best text encoder.
 
 \subsection{Robustness: Skew, Dropout, Stragglers and Poisoning}
 \label{sec:robustness}
