@@ -11,6 +11,13 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # `secrets` is not available in step-level `if:`, so gate the optional
+      # upload steps on these job-level env flags instead.
+      HAS_GDRIVE: ${{ secrets.GDRIVE_SERVICE_ACCOUNT != '' }}
+      HAS_S3: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' && secrets.S3_BUCKET != '' }}
+      HAS_AZURE: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING != '' && secrets.AZURE_CONTAINER != '' }}
+      GDRIVE_FOLDER: ${{ secrets.GDRIVE_FOLDER || 'FarmFederate-demo-artifacts' }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -23,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -q -r requirements-qdrant.txt
+          pip install -q -r backend/requirements-qdrant.txt
           pip install -q pytest
 
       - name: Run FarmMemoryAgent demo script
@@ -40,77 +47,64 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload demo CSV to Google Drive (optional)
-        if: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
+        if: env.HAS_GDRIVE == 'true'
         env:
-          GDRIVE_FOLDER: FarmFederate-demo-artifacts
+          GDRIVE_SA: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
         run: |
           echo "Saving service account to /tmp/gdrive_sa.json"
           # Secret must be base64-encoded service account JSON
-          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT }}" | base64 --decode > /tmp/gdrive_sa.json
+          echo "$GDRIVE_SA" | base64 --decode > /tmp/gdrive_sa.json
           echo "Installing rclone..."
           curl https://rclone.org/install.sh | bash
           cat > /tmp/rclone.conf <<'EOF'
-[gdrive]
-# Uses service account JSON to authenticate
-type = drive
-scope = drive.file
-service_account_file = /tmp/gdrive_sa.json
-EOF
+          [gdrive]
+          # Uses service account JSON to authenticate
+          type = drive
+          scope = drive.file
+          service_account_file = /tmp/gdrive_sa.json
+          EOF
           echo "Uploading CSV to Google Drive folder: ${GDRIVE_FOLDER}"
           rclone --config /tmp/rclone.conf copy results/demo_farm_1_history.csv gdrive:"${GDRIVE_FOLDER}" --drive-chunk-size=64M -v || echo "rclone upload failed (non-fatal)"
 
       - name: Verify upload on Google Drive (optional, requires secret)
-        if: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
-        env:
-          GDRIVE_FOLDER: ${{ secrets.GDRIVE_FOLDER }}
+        if: env.HAS_GDRIVE == 'true'
         run: |
-          echo "Verifying uploaded CSV in Drive..."
-          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT }}" | base64 --decode > /tmp/gdrive_sa.json
-          curl https://rclone.org/install.sh | bash
-          cat > /tmp/rclone.conf <<'EOF'
-[gdrive]
-# Uses service account JSON to authenticate
-type = drive
-scope = drive.file
-service_account_file = /tmp/gdrive_sa.json
-EOF
-          FOLDER="${GDRIVE_FOLDER:-FarmFederate-demo-artifacts}"
-          echo "Listing files in folder: $FOLDER"
-          # List files and assert presence of demo CSV
-          if rclone --config /tmp/rclone.conf lsf gdrive:"$FOLDER" | grep -q "demo_farm_1_history.csv"; then
-            echo "Verified: demo_farm_1_history.csv present in Drive folder $FOLDER"
+          echo "Verifying uploaded CSV in Drive folder: ${GDRIVE_FOLDER}"
+          # rclone and its config were set up by the upload step above.
+          if rclone --config /tmp/rclone.conf lsf gdrive:"${GDRIVE_FOLDER}" | grep -q "demo_farm_1_history.csv"; then
+            echo "Verified: demo_farm_1_history.csv present in Drive folder ${GDRIVE_FOLDER}"
           else
-            echo "ERROR: demo_farm_1_history.csv not found in Drive folder $FOLDER" >&2
+            echo "ERROR: demo_farm_1_history.csv not found in Drive folder ${GDRIVE_FOLDER}" >&2
             exit 1
           fi
 
       - name: Upload demo CSV to AWS S3 (optional)
-        if: ${{ secrets.AWS_ACCESS_KEY_ID && secrets.AWS_SECRET_ACCESS_KEY && secrets.S3_BUCKET }}
+        if: env.HAS_S3 == 'true'
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           S3_PREFIX: demo_artifacts
         run: |
           echo "Installing AWS CLI..."
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
           unzip -q /tmp/awscliv2.zip -d /tmp
-          sudo /tmp/aws/install
-          echo "Configuring AWS creds"
-          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          if [ -n "${{ secrets.AWS_REGION }}" ]; then aws configure set region "${{ secrets.AWS_REGION }}"; fi
+          sudo /tmp/aws/install --update
           echo "Uploading results/demo_farm_1_history.csv to s3://${S3_BUCKET}/${S3_PREFIX}/"
-          aws s3 cp results/demo_farm_1_history.csv s3://${S3_BUCKET}/${S3_PREFIX}/ || echo "S3 upload failed (non-fatal)"
+          aws s3 cp results/demo_farm_1_history.csv "s3://${S3_BUCKET}/${S3_PREFIX}/" || echo "S3 upload failed (non-fatal)"
 
       - name: Verify upload on AWS S3 (optional)
-        if: ${{ secrets.AWS_ACCESS_KEY_ID && secrets.AWS_SECRET_ACCESS_KEY && secrets.S3_BUCKET }}
+        if: env.HAS_S3 == 'true'
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           S3_PREFIX: demo_artifacts
         run: |
           echo "Checking S3 for demo_farm_1_history.csv"
-          if aws s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/demo_farm_1_history.csv >/dev/null 2>&1; then
+          if aws s3 ls "s3://${S3_BUCKET}/${S3_PREFIX}/demo_farm_1_history.csv" >/dev/null 2>&1; then
             echo "Verified: demo_farm_1_history.csv present in s3://${S3_BUCKET}/${S3_PREFIX}/"
           else
             echo "ERROR: demo_farm_1_history.csv not found in S3" >&2
@@ -118,7 +112,7 @@ EOF
           fi
 
       - name: Upload demo CSV to Azure Blob (optional)
-        if: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING && secrets.AZURE_CONTAINER }}
+        if: env.HAS_AZURE == 'true'
         env:
           AZ_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
           AZ_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
@@ -129,7 +123,7 @@ EOF
           az storage blob upload --connection-string "$AZ_CONN" --container-name "$AZ_CONTAINER" --file results/demo_farm_1_history.csv --name demo_farm_1_history.csv || echo "Azure upload failed (non-fatal)"
 
       - name: Verify upload on Azure Blob (optional)
-        if: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING && secrets.AZURE_CONTAINER }}
+        if: env.HAS_AZURE == 'true'
         env:
           AZ_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
           AZ_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
@@ -144,5 +138,5 @@ EOF
 
       - name: Run unit tests for FarmMemoryAgent (skips if qdrant-client missing)
         run: |
-          python -m pytest -q tests/test_farm_memory_agent.py -q
-          python -m pytest -q tests/test_demo_csv.py -q
+          python -m pytest -q tests/test_farm_memory_agent.py
+          python -m pytest -q tests/test_demo_csv.py
